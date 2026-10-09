@@ -1,0 +1,35 @@
+# dependencies
+node_modules/
+.pnp/
+.pnp.js
+bun.lockb
+
+# build output
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# rpiv local artifacts (research / designs / plans stay local)
+.rpiv/
+
+# test + coverage
+coverage/
+.nyc_output/
+
+# env + secrets
+.env
+.env.*
+!.env.example
+
+# logs
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
