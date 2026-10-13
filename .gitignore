@@ -15,12 +15,14 @@ out/
 
 # test + coverage
 coverage/
+.vitest/
 .nyc_output/
 
 # env + secrets
 .env
 .env.*
 !.env.example
+.npmrc
 
 # logs
 *.log

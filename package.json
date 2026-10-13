@@ -1,0 +1,51 @@
+{
+	"name": "@aleixrocal/pi-multi-skills",
+	"version": "0.1.0",
+	"description": "Chain several /skill: invocations in one pi message — N skills, one command.",
+	"keywords": [
+		"pi-package",
+		"pi-coding-agent",
+		"pi-extension",
+		"agent-skills",
+		"skills",
+		"skill-chaining"
+	],
+	"type": "module",
+	"license": "MIT",
+	"author": "Aleix",
+	"engines": {
+		"node": ">=22.19.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/AleixRocal/pi-multi-skills.git"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"pi": {
+		"extensions": ["./extensions/index.ts"]
+	},
+	"scripts": {
+		"test": "vitest run",
+		"typecheck": "tsc --noEmit"
+	},
+	"files": [
+		"extensions/",
+		"src/",
+		"!**/*.test.ts",
+		"README.md",
+		"CHANGELOG.md"
+	],
+	"peerDependencies": {
+		"@earendil-works/pi-coding-agent": "*",
+		"typebox": "*"
+	},
+	"devDependencies": {
+		"@earendil-works/pi-coding-agent": "*",
+		"@types/node": "^22.0.0",
+		"typebox": "*",
+		"typescript": "^5.6.0",
+		"vitest": "^2.1.0"
+	}
+}
