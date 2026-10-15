@@ -83,8 +83,8 @@ Each one is load-bearing against a host behaviour that fails **quietly**:
   free of host and filesystem imports; the rescue path reuses it.
 - **Add a new surface** → implement in `src/<name>.ts`, export a `register<Name>(pi)` helper,
   call it from `registerMultiSkills` in `extensions/index.ts`, add `tests/<name>.test.ts`, then
-  update the README's Layout/behaviour sections, `CHANGELOG.md` under `[Unreleased]`, and the
-  module map above.
+  update the README's behaviour sections (user-facing only; dev material belongs in this file and
+  `CONTRIBUTING.md`), `CHANGELOG.md` under `[Unreleased]`, and the module map above.
 - **Investigate a rendering bug** → the contract is in `src/chain-display.ts`'s header comment:
   host `file:line` for the card path, the transformer path, and the marker's reason to exist.
 - **Regenerate the diagrams** → edit `scripts/diagrams.mjs` (each diagram is a function returning

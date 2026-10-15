@@ -7,6 +7,17 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- `README.md` rewritten for the reader who installs the extension rather than the reader who
+  maintains it: the problem and an input→result table come before any host internals, the two
+  diagrams that answer "what do I get" stay inline while `architecture` and `handler-flow` move
+  to the `Docs` section, and the rationale only a maintainer needs (`parseSkillBlock` anchoring,
+  the zero-width display marker, the host `file:line` citations) is left where it already lives —
+  `src/chain-display.ts` and `AGENTS.md`. `Layout`, `Development`, `CI and releases` and the
+  "If you are an AI agent" block become one table pointing at `CONTRIBUTING.md` and `AGENTS.md`
+  instead of a second copy. 272 → 181 lines.
+
 ## [0.2.5] - 2026-10-15
 
 ### Fixed
