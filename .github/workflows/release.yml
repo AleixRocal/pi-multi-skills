@@ -44,13 +44,15 @@ jobs:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        # actions/checkout v7.0.1, pinned to the release commit.
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           # Nothing here pushes; do not leave the token in .git/config.
           persist-credentials: false
 
       - name: Setup Node
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        # actions/setup-node v7.1.0, pinned to the release commit.
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
           node-version: 24.x
           # No dependency caching in this job on purpose: a release job must
@@ -110,11 +112,18 @@ jobs:
             exit 1
           fi
 
-      - name: Publish (trusted publishing, no secret)
+      # npm uses trusted publishing (OIDC) whenever the package has a trusted
+      # publisher configured for this repository and workflow, and only then
+      # falls back to a token: "the npm CLI automatically detects OIDC
+      # environments and uses them for authentication before falling back to
+      # traditional tokens". The two steps below differ only in whether a token
+      # is offered as a fallback, so the secret can be deleted once the
+      # trusted publisher has seen one successful publish.
+      - name: Publish (OIDC; no token secret configured)
         if: ${{ env.NPM_TOKEN == '' && inputs.dry_run != true }}
         run: npm publish --provenance --access public
 
-      - name: Publish (granular token)
+      - name: Publish (OIDC first, token as fallback)
         if: ${{ env.NPM_TOKEN != '' && inputs.dry_run != true }}
         env:
           NODE_AUTH_TOKEN: ${{ env.NPM_TOKEN }}
