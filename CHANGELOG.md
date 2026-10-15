@@ -7,6 +7,18 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.3] - 2026-10-15
+
+### Added
+
+- `pi.video`, the demo animation `docs/images/demo.mp4` (12 s, 1280x720, generated) plus its poster,
+  so the gallery card has both a still and a moving preview. It was produced by the new
+  `scripts/demo-video.mjs` (`npm run demo:video`): one HTML page whose `renderAt(ms)` is the whole
+  animation, rendered frame by frame through the DevTools protocol and encoded with ffmpeg. It shows
+  the flow the suite asserts, not a screen recording of a session — and the README says so.
+- README: the demo sits under the architecture diagram, and `docs/images` is described for what it
+  now holds (diagrams, gallery cover, demo).
+
 ## [0.2.2] - 2026-10-15
 
 ### Added
@@ -105,7 +117,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - README restructured around the diagrams and the documents above: badges, install, syntax,
   behaviour, cost, and pointer sections for contributors and agents.
 
-[Unreleased]: https://github.com/AleixRocal/pi-multi-skills/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/AleixRocal/pi-multi-skills/compare/v0.2.3...HEAD
+[0.2.3]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.3
 [0.2.2]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.2
 [0.2.1]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.1
 [0.2.0]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.0
