@@ -20,7 +20,7 @@
 		"type": "git",
 		"url": "git+https://github.com/AleixRocal/pi-multi-skills.git"
 	},
-	"homepage": "https://pi.dev/packages",
+	"homepage": "https://github.com/AleixRocal/pi-multi-skills#readme",
 	"bugs": {
 		"url": "https://github.com/AleixRocal/pi-multi-skills/issues"
 	},
