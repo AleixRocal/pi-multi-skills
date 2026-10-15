@@ -1,6 +1,6 @@
 {
 	"name": "@aleixrocal/pi-multi-skills",
-	"version": "0.2.1",
+	"version": "0.2.2",
 	"description": "Chain several /skill: invocations in one pi message — N skills, one command.",
 	"keywords": [
 		"pi-package",
@@ -28,7 +28,8 @@
 		"access": "public"
 	},
 	"pi": {
-		"extensions": ["./extensions/index.ts"]
+		"extensions": ["./extensions/index.ts"],
+		"image": "https://raw.githubusercontent.com/AleixRocal/pi-multi-skills/main/docs/images/cover.png"
 	},
 	"scripts": {
 		"test": "vitest run",

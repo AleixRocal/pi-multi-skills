@@ -31,7 +31,7 @@ pi install ./pi-multi-skills   # or install the local checkout
 | `npm test` | Vitest, 172 specs. `npm run test:watch` while iterating. |
 | `npm run typecheck` | `tsc --noEmit`, `NodeNext`, no emit. |
 | `npm run check:pack` | Asserts what `npm publish` would ship (entry point + its imports in, tests out). |
-| `npm run diagrams` | Regenerates `docs/images/*` from `scripts/diagrams.mjs`. |
+| `npm run diagrams` | Regenerates `docs/images/*` from `scripts/diagrams.mjs`, including the gallery cover. |
 
 ## Pull request flow
 
@@ -155,7 +155,10 @@ If you ever need a release without trusted publishing, create a granular token, 
 `NPM_TOKEN` secret, run the tag release, then revoke the token and remove the secret.
 
 The package is eligible for the [pi package gallery](https://pi.dev/packages) through the
-`pi-package` keyword in `package.json`; keep that keyword in place.
+`pi-package` keyword in `package.json`, and the card's preview comes from `pi.image` — an absolute
+`raw.githubusercontent.com` URL, the convention the other gallery packages use, so the image lives
+in the repository and not in the tarball. Regenerate it with `npm run diagrams`; both fields are
+manifest metadata, so they reach npm only with a published version.
 
 ## Reporting bugs and proposing features
 
