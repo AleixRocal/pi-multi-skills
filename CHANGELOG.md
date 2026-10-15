@@ -7,6 +7,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- `package.json` `homepage` points at the repository, so the npm page links back to GitHub; the
+  repository's Website field points at the npm page and its topics mirror the package keywords.
+  Metadata changes reach npm with the next published version.
+- README: the star history chart is star-history.com's current `<picture>` embed (light and dark),
+  and a Links table collects the npm page, the pi gallery, the releases and the issue tracker.
+
 ## [0.1.0] - 2026-10-15
 
 ### Added

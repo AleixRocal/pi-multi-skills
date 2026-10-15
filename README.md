@@ -237,17 +237,27 @@ Requires Node `>=22.19.0`; the host packages (`@earendil-works/pi-coding-agent`,
 peer dependencies provided by pi. Contributions are welcome — read
 [CONTRIBUTING.md](CONTRIBUTING.md) first, and see [AGENTS.md](AGENTS.md) if you are an agent.
 
-## Star history
+## Star History
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=AleixRocal/pi-multi-skills&type=Date&theme=dark">
-  <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=AleixRocal/pi-multi-skills&type=Date">
-  <img alt="Star history chart" src="https://api.star-history.com/svg?repos=AleixRocal/pi-multi-skills&type=Date" width="800">
-</picture>
+<a href="https://www.star-history.com/?repos=AleixRocal%2Fpi-multi-skills&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=AleixRocal/pi-multi-skills&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=AleixRocal/pi-multi-skills&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=AleixRocal/pi-multi-skills&type=date&legend=top-left" />
+ </picture>
+</a>
 
-Rendered live by [Star History](https://www.star-history.com/#AleixRocal/pi-multi-skills&Date) — the
-image is an API call, not a committed file, so it re-renders with the latest stars every time this
-page is viewed. The repository is young; the chart fills in as it is starred.
+Rendered live by Star History, so the chart needs no committed file and re-renders with the latest
+stars on every view. The repository is young — it fills in as it is starred.
+
+## Links
+
+| Where | What |
+| --- | --- |
+| [npm](https://www.npmjs.com/package/@aleixrocal/pi-multi-skills) | The package `pi install npm:` resolves. |
+| [pi package gallery](https://pi.dev/packages) | Discovery, via the `pi-package` keyword. |
+| [GitHub Releases](https://github.com/AleixRocal/pi-multi-skills/releases) | Every version, with the changelog entry as its notes. |
+| [Issues](https://github.com/AleixRocal/pi-multi-skills/issues) | Bug reports and feature requests. |
 
 ## License
 
