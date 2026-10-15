@@ -7,6 +7,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.7] - 2026-10-15
+
 ### Fixed
 
 - The two inline diagrams and the star history chart render outside GitHub again. All three were
@@ -162,7 +164,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - README restructured around the diagrams and the documents above: badges, install, syntax,
   behaviour, cost, and pointer sections for contributors and agents.
 
-[Unreleased]: https://github.com/AleixRocal/pi-multi-skills/compare/v0.2.6...HEAD
+[Unreleased]: https://github.com/AleixRocal/pi-multi-skills/compare/v0.2.7...HEAD
+[0.2.7]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.7
 [0.2.6]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.6
 [0.2.5]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.5
 [0.2.4]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.4

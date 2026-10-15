@@ -1,6 +1,6 @@
 {
 	"name": "@aleixrocal/pi-multi-skills",
-	"version": "0.2.6",
+	"version": "0.2.7",
 	"description": "Chain several /skill: invocations in one pi message \u2014 N skills, one command.",
 	"keywords": [
 		"pi-package",
