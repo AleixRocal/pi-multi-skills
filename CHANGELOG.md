@@ -7,6 +7,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.6] - 2026-10-15
+
 ### Changed
 
 - `README.md` rewritten for the reader who installs the extension rather than the reader who
@@ -151,7 +153,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - README restructured around the diagrams and the documents above: badges, install, syntax,
   behaviour, cost, and pointer sections for contributors and agents.
 
-[Unreleased]: https://github.com/AleixRocal/pi-multi-skills/compare/v0.2.5...HEAD
+[Unreleased]: https://github.com/AleixRocal/pi-multi-skills/compare/v0.2.6...HEAD
+[0.2.6]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.6
 [0.2.5]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.5
 [0.2.4]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.4
 [0.2.3]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.3
