@@ -1,7 +1,7 @@
 {
 	"name": "@aleixrocal/pi-multi-skills",
-	"version": "0.2.4",
-	"description": "Chain several /skill: invocations in one pi message — N skills, one command.",
+	"version": "0.2.5",
+	"description": "Chain several /skill: invocations in one pi message \u2014 N skills, one command.",
 	"keywords": [
 		"pi-package",
 		"pi-coding-agent",
@@ -28,9 +28,11 @@
 		"access": "public"
 	},
 	"pi": {
-		"extensions": ["./extensions/index.ts"],
-		"image": "https://raw.githubusercontent.com/AleixRocal/pi-multi-skills/main/docs/images/cover.png",
-		"video": "https://cdn.jsdelivr.net/gh/AleixRocal/pi-multi-skills@main/docs/images/demo.mp4"
+		"extensions": [
+			"./extensions/index.ts"
+		],
+		"image": "https://aleixrocal.github.io/pi-multi-skills/images/cover.png",
+		"video": "https://aleixrocal.github.io/pi-multi-skills/images/demo.mp4"
 	},
 	"scripts": {
 		"test": "vitest run",

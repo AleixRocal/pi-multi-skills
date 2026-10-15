@@ -15,16 +15,16 @@ silently swallows `/skill:b args` as that skill's argument text — no error, no
 named skill, each followed by the argument text that skill owns.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/AleixRocal/pi-multi-skills/main/docs/images/architecture.dark.svg">
-  <img alt="Where pi-multi-skills hooks into pi: the message path, and the four extension surfaces" src="https://raw.githubusercontent.com/AleixRocal/pi-multi-skills/main/docs/images/architecture.light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="https://aleixrocal.github.io/pi-multi-skills/images/architecture.dark.svg">
+  <img alt="Where pi-multi-skills hooks into pi: the message path, and the four extension surfaces" src="https://aleixrocal.github.io/pi-multi-skills/images/architecture.light.svg">
 </picture>
 
-![The autocomplete menu opening at the second /skill: token, then the two skill blocks the model receives](https://cdn.jsdelivr.net/gh/AleixRocal/pi-multi-skills@main/docs/images/demo.gif)
+![The autocomplete menu opening at the second /skill: token, then the two skill blocks the model receives](https://aleixrocal.github.io/pi-multi-skills/images/demo.gif)
 
 Twelve seconds of the flow, from the menu opening at the second `/skill:` token to the blocks the
 model receives. The animation is generated from the behaviour the test suite asserts rather than
 screen-recorded (`npm run demo:video` renders it frame by frame, so it cannot drift from the code),
-and the full-quality [demo.mp4](https://cdn.jsdelivr.net/gh/AleixRocal/pi-multi-skills@main/docs/images/demo.mp4)
+and the full-quality [demo.mp4](https://aleixrocal.github.io/pi-multi-skills/images/demo.mp4)
 (1280×720) is one click away.
 
 | Document | For |
@@ -61,8 +61,8 @@ Requires Node `>=22.19.0`; the host packages are provided by pi.
   as before.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/AleixRocal/pi-multi-skills/main/docs/images/message-flow.dark.svg">
-  <img alt="One typed message: native pi resolves one skill and swallows the rest; with the extension both skills resolve" src="https://raw.githubusercontent.com/AleixRocal/pi-multi-skills/main/docs/images/message-flow.light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="https://aleixrocal.github.io/pi-multi-skills/images/message-flow.dark.svg">
+  <img alt="One typed message: native pi resolves one skill and swallows the rest; with the extension both skills resolve" src="https://aleixrocal.github.io/pi-multi-skills/images/message-flow.light.svg">
 </picture>
 
 ## Behaviour
@@ -87,8 +87,8 @@ orders produce the same chain. Already-emitted `<skill …>` blocks are never re
 skill body that happens to mention `/skill:` is never re-expanded.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/AleixRocal/pi-multi-skills/main/docs/images/handler-flow.dark.svg">
-  <img alt="The input hook: guards, the clean path, the rescue path, and every return that leaves pi unchanged" src="https://raw.githubusercontent.com/AleixRocal/pi-multi-skills/main/docs/images/handler-flow.light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="https://aleixrocal.github.io/pi-multi-skills/images/handler-flow.dark.svg">
+  <img alt="The input hook: guards, the clean path, the rescue path, and every return that leaves pi unchanged" src="https://aleixrocal.github.io/pi-multi-skills/images/handler-flow.light.svg">
 </picture>
 
 ### Autocomplete at every chain position
@@ -111,8 +111,8 @@ Both are accepted only **past the first token** and only while the fragment stay
 (`autocomplete.js:388-390`) instead of offering skills.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/AleixRocal/pi-multi-skills/main/docs/images/autocomplete.dark.svg">
-  <img alt="The wrapper answers at a chain position and delegates every other completion request to pi" src="https://raw.githubusercontent.com/AleixRocal/pi-multi-skills/main/docs/images/autocomplete.light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="https://aleixrocal.github.io/pi-multi-skills/images/autocomplete.dark.svg">
+  <img alt="The wrapper answers at a chain position and delegates every other completion request to pi" src="https://aleixrocal.github.io/pi-multi-skills/images/autocomplete.light.svg">
 </picture>
 
 - **Everything else is delegated unchanged.** The first token (pi's menu there lists every command,

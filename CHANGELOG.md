@@ -7,11 +7,21 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.5] - 2026-10-15
+
+### Fixed
+
+- The previews are served from GitHub Pages (`.../images/...`) so the video plays. 0.2.4 pointed them at a CDN mirror of GitHub, which answered 503 for a ref pushed seconds earlier — the change was right about the cause and wrong about the host. `raw.githubusercontent.com` returns `application/octet-stream` for an mp4, so a browser downloads it; Pages returns `video/mp4`, `image/gif`, `image/png` and `image/svg+xml` (all four checked with curl). `pi.image`, `pi.video` and every README image now use the Pages URL.
+
+### Changed
+
+- `.github/workflows/pages.yml` publishes `docs/` to Pages on any change under `docs/`.
+
 ## [0.2.4] - 2026-10-15
 
 ### Fixed
 
-- The demo's video URL now serves `video/mp4`. `raw.githubusercontent.com` returns
+- (Superseded by 0.2.5: the CDN mirror answered 503 for the fresh ref.) The demo's video URL `raw.githubusercontent.com` returns
   `application/octet-stream` for an mp4, so the preview was downloaded instead of played; `pi.video`
   points at jsDelivr, which serves the right type (checked with `curl -I`). The URL uses `@main`
   rather than a version tag on purpose: a tag that only exists after the release would 404 during
@@ -130,7 +140,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - README restructured around the diagrams and the documents above: badges, install, syntax,
   behaviour, cost, and pointer sections for contributors and agents.
 
-[Unreleased]: https://github.com/AleixRocal/pi-multi-skills/compare/v0.2.4...HEAD
+[Unreleased]: https://github.com/AleixRocal/pi-multi-skills/compare/v0.2.5...HEAD
+[0.2.5]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.5
 [0.2.4]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.4
 [0.2.3]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.3
 [0.2.2]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.2
