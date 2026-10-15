@@ -7,13 +7,18 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-15
+
 ### Changed
 
 - `package.json` `homepage` points at the repository, so the npm page links back to GitHub; the
   repository's Website field points at the npm page and its topics mirror the package keywords.
-  Metadata changes reach npm with the next published version.
+  npm only re-reads a package's manifest when a new version is published, which is what this
+  release is for.
 - README: the star history chart is star-history.com's current `<picture>` embed (light and dark),
   and a Links table collects the npm page, the pi gallery, the releases and the issue tracker.
+- First release published by the `Release` workflow through npm trusted publishing (OIDC) rather
+  than a repository secret, so the tag, the tarball and the GitHub Release all come from CI.
 
 ## [0.1.0] - 2026-10-15
 
@@ -69,5 +74,6 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - README restructured around the diagrams and the documents above: badges, install, syntax,
   behaviour, cost, and pointer sections for contributors and agents.
 
-[Unreleased]: https://github.com/AleixRocal/pi-multi-skills/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/AleixRocal/pi-multi-skills/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.0
 [0.1.0]: https://www.npmjs.com/package/@aleixrocal/pi-multi-skills/v/0.1.0
