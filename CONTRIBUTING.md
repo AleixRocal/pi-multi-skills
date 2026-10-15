@@ -39,9 +39,12 @@ pi install ./pi-multi-skills   # or install the local checkout
 2. **Keep the diff to one concern.** A behaviour change plus its tests; a docs change on its own.
 3. **Run `npm run verify` before pushing.** CI runs exactly this, on Node 22 and 24, plus the
    tarball job.
-4. **Open the PR** and fill in the template. CI needs no secrets, so it runs on fork PRs.
+4. **Open the PR** and fill in the template. CI needs no secrets, so it runs on fork PRs. A
+   `PR title` check reads the title against the convention below, and it runs in seconds — fix the
+   title rather than waiting on a review to hear about it.
 5. **Merge is a squash**, so the PR title becomes the commit subject — write it as a Conventional
-   Commit (below). Maintainers merge once CI is green.
+   Commit (below). Maintainers merge once every check is green; Dependabot bumps enable
+   auto-merge themselves, and GitHub waits for the same checks.
 
 Nothing merges with a red check. If a check looks wrong rather than your change being wrong, say
 so in the PR — the byte-parity and packaging checks exist because their failures are silent in
@@ -70,7 +73,7 @@ workflow starts behaving oddly.
 | --- | --- | --- |
 | *General → Pull Requests* → Allow auto-merge | on | Without it every `gh pr merge --auto` fails, and the Dependabot job goes red on each bump. |
 | *General → Pull Requests* → Allow squash merging | on (merge and rebase commits off) | The PR title is the release notes and the changelog subject; only squash preserves that. |
-| *Branches* → `main` protection → Require status checks | `typecheck + test (node 22.x)`, `typecheck + test (node 24.x)`, `package (tarball contents)` | This is what makes `--auto` *wait*. Without it, auto-merge merges immediately, before CI finishes. The names must match the `jobs.<id>.name` values in `ci.yml` — renaming a job there without updating the rule silently un-requires it. |
+| *Branches* → `main` protection → Require status checks | `typecheck + test (node 22.x)`, `typecheck + test (node 24.x)`, `package (tarball contents)`, `conventional title` | This is what makes `--auto` *wait*. Without it, auto-merge merges immediately, before CI finishes. The names must match the `jobs.<id>.name` values in `ci.yml` and `pr-title.yml` — renaming a job there without updating the rule silently un-requires it. |
 | *Branches* → `main` protection → Allow force pushes / deletions | off | Keeps a published release commit reachable. Direct pushes to `main` are still allowed; only merges are gated by the checks. |
 
 Not required, but recommended after the first npm release: package *Settings → Publishing access* →
