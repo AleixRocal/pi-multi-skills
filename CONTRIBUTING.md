@@ -114,20 +114,28 @@ verifies, publishes to npm with provenance, and opens the GitHub Release.
 4. Watch the `Release` workflow. It refuses to run if the tag and `package.json` disagree, or if
    the version already exists on npm.
 
-Authentication for the npm publish, in order of preference:
+Authentication for the npm publish — trusted publishing, and nothing else:
 
-- **Trusted publishing (no secret).** On npmjs.com → the package → *Settings* → *Trusted
-  publishing* → GitHub Actions, with user `AleixRocal`, repository `pi-multi-skills` and workflow
-  filename `release.yml` (filename only, `.yml` included, case-sensitive). **Select “Allow npm
-  publish”** — a configuration created today gets `npm stage publish` for free but direct
-  publishing only if it is ticked. Needs npm ≥ 11.5.1 and Node ≥ 22.14, which the job pins via
-  Node 24.
-- **Granular token.** Add an `NPM_TOKEN` repository secret with publish rights to the scope. The
-  workflow picks it up automatically when trusted publishing is not configured.
+- **Trusted publishing (OIDC), current and validated.** On npmjs.com → the package → *Settings* →
+  *Trusted publishing* → GitHub Actions, with user `AleixRocal`, repository `pi-multi-skills` and
+  workflow filename `release.yml` (filename only, `.yml` included, case-sensitive). It must be
+  allowed to **npm publish**, not only to stage: a configuration created today gets
+  `npm stage publish` for free and direct publishing only if it is ticked. Needs npm ≥ 11.5.1 and
+  Node ≥ 22.14, which the job pins via Node 24. `v0.2.1` was published this way and validated the
+  configuration.
+- **The workflow proves which credential published.** The publish is two ordered attempts: the
+  first deletes the `_authToken` line `setup-node` writes, so npm can only use the GitHub OIDC
+  token, and the second keeps a token as a fallback. The step that ran is named in the log, so a
+  green release says *how* it authenticated rather than leaving it to be assumed.
+- **No token exists.** `NPM_TOKEN` was deleted after `v0.2.1` proved OIDC, and the package should
+  be configured to keep it that way: npmjs.com → the package → *Settings* → *Publishing access* →
+  "Require 2FA and disallow tokens". If a token is ever needed again — a broken trusted publisher,
+  an emergency publish — create a granular token with bypass-2FA, add it with `gh secret set
+  NPM_TOKEN`, release, then revoke the token and delete the secret again.
 
 A trusted-publisher configuration that does not complete a successful publish **within two days
-expires** and cannot be edited back to life — delete and re-create it. Set it up when you are
-about to tag.
+expires** and cannot be edited back to life — delete and re-create it, and set it up when you are
+about to tag rather than in advance.
 
 ### The first release, which is the exception
 
