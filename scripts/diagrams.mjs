@@ -90,8 +90,9 @@ class Board {
 		const tspans = segments.map((segment, index) => {
 			if (segment === "") return "";
 			const isCode = index % 2 === 1;
-			const family = isCode || mono ? MONO : SANS;
-			const scale = isCode || mono ? ADVANCE.mono : ADVANCE.sans;
+			const code = isCode || mono;
+			const family = code ? MONO : SANS;
+			const scale = code ? ADVANCE.mono : ADVANCE.sans;
 			const boldScale = weight === "bold" ? 1.04 : 1;
 			width += segment.length * size * scale * boldScale;
 			return (
@@ -861,10 +862,119 @@ function autocomplete(palette) {
 }
 
 // ---------------------------------------------------------------------------
+// 5. Cover — the gallery preview `pi.image` points at.
+//
+// 1280x800 and rendered at 1x, matching the other packages in the pi gallery:
+// the preview is a card image, not a diagram to zoom into. The SVG next to it is
+// the source, so it stays sharp if anyone wants a larger one.
+// ---------------------------------------------------------------------------
+
+function cover(palette) {
+	const board = new Board({
+		width: 1280,
+		height: 800,
+		palette,
+		label: "pi-multi-skills — chain several /skill: invocations in one pi message",
+	});
+
+	board.rect(0, 0, 1280, 10, { fill: board.p.blue, radius: 0 });
+
+	board.rich(64, 116, "pi-multi-skills", { size: 48, weight: "bold", max: 620 });
+	board.rich(64, 158, "Chain several /skill: invocations in one pi message.", {
+		size: 20,
+		fill: board.p.muted,
+		max: 900,
+	});
+	board.rich(
+		64,
+		188,
+		"N skills, one command — positional arguments, a /skill: menu at every token, and a transcript that reads as typed.",
+		{ size: 15, fill: board.p.muted, max: 1150 },
+	);
+
+	// What you type.
+	board.rich(64, 250, "you type", { size: 13, fill: board.p.muted, max: 200 });
+	board.rect(64, 262, 1152, 62, {
+		fill: board.p.panel,
+		stroke: board.p.border,
+		radius: 10,
+	});
+	board.rich(92, 302, "/skill:research refactor auth /skill:design write tests", {
+		size: 20,
+		mono: true,
+		max: 1100,
+	});
+
+	board.arrow(
+		[
+			[640, 328],
+			[640, 372],
+		],
+		{ colour: board.p.muted },
+	);
+
+	// What the model receives: the same blocks the extension emits, with each
+	// token's argument text beside its block.
+	board.rich(64, 404, "the model receives", {
+		size: 13,
+		fill: board.p.muted,
+		max: 200,
+	});
+	board.rect(64, 416, 1152, 132, {
+		fill: board.p.panelAlt,
+		stroke: board.p.border,
+		radius: 10,
+	});
+	[
+		'<skill name="research" …>  <body of the research skill>  </skill>',
+		'<skill name="design"   …>  <body of the design skill>    </skill>',
+	].forEach((row, index) => {
+		board.rich(92, 452 + index * 34, row, { size: 15, mono: true, max: 640 });
+	});
+	board.rich(800, 452, "refactor auth", { size: 15, mono: true, fill: board.p.code, max: 240 });
+	board.rich(800, 486, "write tests", { size: 15, mono: true, fill: board.p.code, max: 240 });
+
+	// The four surfaces this package adds.
+	const chips = [
+		{ title: "input hook", sub: "rewrites the message" },
+		{ title: "autocomplete", sub: "menu at every token" },
+		{ title: "transcript", sub: "renders as typed" },
+		{ title: "skills tool", sub: "mid-turn discovery" },
+	];
+	const chipW = 270;
+	chips.forEach((chip, index) => {
+		node(board, {
+			x: 64 + index * (chipW + 24),
+			y: 596,
+			w: chipW,
+			h: 74,
+			title: chip.title,
+			sub: chip.sub,
+			accent: board.p.purple,
+			fill: board.p.panel,
+		});
+	});
+
+	board.rich(64, 736, "pi install npm:@aleixrocal/pi-multi-skills", {
+		size: 17,
+		mono: true,
+		max: 700,
+	});
+	board.rich(1216, 736, "MIT · pi.dev/packages · github.com/AleixRocal/pi-multi-skills", {
+		size: 14,
+		fill: board.p.muted,
+		anchor: "end",
+		max: 560,
+	});
+	return board;
+}
+
+// ---------------------------------------------------------------------------
 // Emit
 // ---------------------------------------------------------------------------
 
 const DIAGRAMS = [
+	{ name: "cover", build: cover, scale: 1 },
 	{ name: "architecture", build: architecture },
 	{ name: "message-flow", build: messageFlow },
 	{ name: "handler-flow", build: handlerFlow },
@@ -884,7 +994,7 @@ function findChromium() {
 	return CHROMIUM_CANDIDATES.find((path) => existsSync(path)) ?? null;
 }
 
-function renderPng(chromium, svgPath, pngPath, { width, height }) {
+function renderPng(chromium, svgPath, pngPath, { width, height, scale = 2 }) {
 	execFileSync(
 		chromium,
 		[
@@ -892,7 +1002,7 @@ function renderPng(chromium, svgPath, pngPath, { width, height }) {
 			"--disable-gpu",
 			"--no-sandbox",
 			"--hide-scrollbars",
-			"--force-device-scale-factor=2",
+			`--force-device-scale-factor=${scale}`,
 			`--window-size=${width},${height}`,
 			`--screenshot=${pngPath}`,
 			`file://${svgPath}`,
@@ -906,8 +1016,8 @@ function main() {
 	const chromium = svgOnly ? null : findChromium();
 	mkdirSync(OUT_DIR, { recursive: true });
 
-	for (const { name, build } of DIAGRAMS) {
-		const geometry = {};
+	for (const { name, build, scale } of DIAGRAMS) {
+		const geometry = { scale };
 		for (const palette of ["light", "dark"]) {
 			const board = build(palette);
 			geometry.width = board.width;

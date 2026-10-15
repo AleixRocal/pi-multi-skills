@@ -88,7 +88,9 @@ Each one is load-bearing against a host behaviour that fails **quietly**:
 - **Investigate a rendering bug** → the contract is in `src/chain-display.ts`'s header comment:
   host `file:line` for the card path, the transformer path, and the marker's reason to exist.
 - **Regenerate the diagrams** → edit `scripts/diagrams.mjs` (each diagram is a function returning
-  SVG for a light and a dark palette) and run `npm run diagrams`. The script throws when a text run
+  SVG for a light and a dark palette) and run `npm run diagrams`. The cover is one of them: it is
+  rendered at 1x and is the file the gallery preview (`pi.image` in `package.json`) points at, so a
+  change there is only visible on npm after a release. The script throws when a text run
   would overflow its box, so layout mistakes fail loudly instead of shipping.
 - **Release** → see CONTRIBUTING.md → *Releasing*. Tag-driven; never publish by hand after the
   first release.

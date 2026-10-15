@@ -7,6 +7,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-10-15
+
+### Added
+
+- `pi.image`, so the [pi package gallery](https://pi.dev/packages) card shows a preview: the cover
+  in `docs/images/cover.png`, generated like every other picture here, plus the `docs/images/cover`
+  SVG it is rendered from. The `pi-package` keyword is what makes the package eligible for the
+  gallery; `pi.image` is the field it reads for the preview, and it points at the file in the
+  repository rather than one in the tarball — the convention the other gallery packages follow.
+
 ### Changed
 
 - Comments and test titles no longer cite a design document that lives outside the repository
@@ -14,6 +24,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   6-skill cap degrading into readable text, an unresolvable token staying verbatim, the renderer's
   substring gate on the user-message hot path. The code comments are proof-carrying only when the
   reader can follow them, and a private document cannot be followed.
+- `scripts/diagrams.mjs` takes a per-diagram render scale, so the cover is emitted at 1x like the
+  gallery previews and the technical diagrams stay at 2x.
 
 ## [0.2.1] - 2026-10-15
 
@@ -93,7 +105,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - README restructured around the diagrams and the documents above: badges, install, syntax,
   behaviour, cost, and pointer sections for contributors and agents.
 
-[Unreleased]: https://github.com/AleixRocal/pi-multi-skills/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/AleixRocal/pi-multi-skills/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.2
 [0.2.1]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.1
 [0.2.0]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.0
 [0.1.0]: https://www.npmjs.com/package/@aleixrocal/pi-multi-skills/v/0.1.0
