@@ -4,7 +4,8 @@
  *
  * `npm pack --dry-run` is the only check that reads the real `files` globs in
  * package.json, so it is the only place a packaging mistake (a missing source
- * file the entry point imports, or a test file riding along) can be caught
+ * file the entry point imports, a skill reference file left out of `files`, or
+ * a test file riding along) can be caught
  * before it reaches the registry. `npm publish` is not undoable, so this runs
  * in CI on every pull request and again in the release job.
  *
@@ -12,7 +13,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join, normalize } from "node:path";
 
 /** Always in the tarball. */
@@ -52,6 +53,26 @@ function requiredSources() {
 	return [...seen].sort();
 }
 
+/**
+ * Skills ship whole. `files` exposes the directory rather than its contents, so
+ * a skill whose `references/` page is missing reaches the model with a dangling
+ * link — worse than a skill that never loaded, because the failure is silent.
+ * Walk every skill directory and require each file in it.
+ */
+function requiredSkills() {
+	if (!existsSync("skills")) return [];
+	const found = [];
+	const walk = (dir) => {
+		for (const entry of readdirSync(dir, { withFileTypes: true })) {
+			const path = join(dir, entry.name);
+			if (entry.isDirectory()) walk(path);
+			else found.push(path);
+		}
+	};
+	walk("skills");
+	return found.sort();
+}
+
 let pack;
 try {
 	const raw = execFileSync("npm", ["pack", "--dry-run", "--json"], {
@@ -70,7 +91,9 @@ try {
 
 const paths = pack.files.map((file) => file.path);
 
-const missing = [...REQUIRED, ...requiredSources()].filter((path) => !paths.includes(path));
+const missing = [...REQUIRED, ...requiredSources(), ...requiredSkills()].filter(
+	(path) => !paths.includes(path),
+);
 const forbidden = paths.filter(
 	(path) =>
 		FORBIDDEN_PREFIXES.some((prefix) => path.startsWith(prefix)) ||

@@ -132,6 +132,19 @@ is invisible and changes nothing the model reads.
 - **The HTML export is not transformed** (`pi --export`), so an exported chain shows its blocks as
   plain text.
 
+### The chain, executed: the `skill-chain` skill
+
+The extension *delivers* a chain; the model still has to run it. This package ships a skill that
+says how, declared in the manifest so pi loads it beside the extension:
+
+- read each named `SKILL.md` **in order** and follow it as if it were the only skill invoked,
+- hand each skill its own argument text — the same positional binding the extension implements,
+- report what ran, so a wrong split is visible instead of silent.
+
+The same `SKILL.md` is portable: it installs into any agent with a skills directory (Claude Code,
+Cursor, Copilot), where it does the chaining by hand. `npm run skill:zip` builds the archive for a
+marketplace upload; the skill is `skills/skill-chain/` in this repository.
+
 ## Out of scope
 
 - No system prompt is mutated — the extension contributes no `before_agent_start` handler.

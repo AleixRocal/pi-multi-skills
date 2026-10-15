@@ -7,6 +7,17 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `skills/skill-chain`, the model-facing half of a chain. The extension *delivers* the blocks; this
+  skill says how to run them: read each named `SKILL.md` in order, hand each its own argument text,
+  and report what ran so a wrong split is visible. Declared in `pi.skills`, so it ships in the
+  tarball and pi loads it beside the extension — and it is portable, so the same file installs into
+  any agent with a skills directory. `tests/skill-package.test.ts` holds the contract that fails
+  quietly elsewhere (name equals directory, description carries a trigger, linked files exist,
+  manifest and `files` expose it), `check:pack` now requires every file under `skills/`, and
+  `npm run skill:zip` builds the archive for a marketplace upload.
+
 ## [0.2.7] - 2026-10-15
 
 ### Fixed

@@ -19,11 +19,12 @@ pass and the extension can still be wrong. Re-read the cited host file before tr
 ```bash
 npm ci                 # lockfile-exact; Node >= 22.19.0
 npm run verify         # typecheck + tests + tarball check (what CI runs)
-npm test               # vitest run — 11 files, 172 specs
+npm test               # vitest run — 12 files, 180 specs
 npm run test:watch
 npm run typecheck      # tsc --noEmit, NodeNext
 npm run check:pack     # what `npm publish` would ship
 npm run diagrams       # regenerate docs/images/*.svg+.png from scripts/diagrams.mjs
+npm run skill:zip      # dist/<skill>.zip — the marketplace upload artifact
 ```
 
 `npm run verify` is the gate. Do not report work as done while it fails.
@@ -42,6 +43,7 @@ npm run diagrams       # regenerate docs/images/*.svg+.png from scripts/diagrams
 | `src/renderer.ts` | The markdown transformer: user-message markdown only, and only when a block is present. | `tests/renderer.test.ts` |
 | `src/autocomplete.ts` | Chain-token detection at the cursor and the `ctx.ui` provider wrapper. | `tests/autocomplete.test.ts`, `tests/host-provider.test.ts` |
 | `src/skills-tool.ts` | Read-only `skills` listing tool (TypeBox params, direct exposure). | `tests/skills-tool.test.ts` |
+| `skills/skill-chain/` | The model-facing half: what a chain is, positional binding, the closing report. Ships in the package and installs standalone into any agent. | `tests/skill-package.test.ts` |
 | `tests/helpers/mock-pi.ts` | Host fake: commands, UI surface, input events. | — |
 
 `tests/editor-integration.test.ts` drives the real pi-tui editor against the wrapper, which is why
@@ -73,9 +75,10 @@ Each one is load-bearing against a host behaviour that fails **quietly**:
    duplicate classes and registries; pi warns when it detects this.
 9. **Only `context.messageType === "user"` markdown is transformed**, and only when it contains a
    block. Transformers also run on assistant output.
-10. **The tarball contract**: `extensions/index.ts` plus every `src/*.ts` it imports must ship, and
-    `tests/`/`scripts/`/`.github/` must not. `npm run check:pack` derives the import list from the
-    entry point, so adding a module without shipping it fails CI.
+10. **The tarball contract**: `extensions/index.ts` plus every `src/*.ts` it imports and every file
+    under `skills/` must ship, and `tests/`/`scripts/`/`.github/` must not. `npm run check:pack`
+    derives the import list from the entry point and walks the skill directories, so adding a module
+    or a `references/` page without shipping it fails CI.
 
 ## Recipes
 
@@ -85,6 +88,12 @@ Each one is load-bearing against a host behaviour that fails **quietly**:
   call it from `registerMultiSkills` in `extensions/index.ts`, add `tests/<name>.test.ts`, then
   update the README's behaviour sections (user-facing only; dev material belongs in this file and
   `CONTRIBUTING.md`), `CHANGELOG.md` under `[Unreleased]`, and the module map above.
+- **Change a skill** → edit `skills/<name>/SKILL.md` (reference material belongs in its
+  `references/`), then run `npm test`: `tests/skill-package.test.ts` holds the rules that fail
+  quietly elsewhere — the frontmatter name must equal the directory (other Agent Skills
+  implementations refuse a mismatch), the description needs a trigger or the skill is never loaded,
+  linked files must exist, and the manifest plus `files` must actually expose it. `npm run skill:zip`
+  rebuilds the marketplace archive from the same files.
 - **Investigate a rendering bug** → the contract is in `src/chain-display.ts`'s header comment:
   host `file:line` for the card path, the transformer path, and the marker's reason to exist.
 - **Regenerate the diagrams** → edit `scripts/diagrams.mjs` (each diagram is a function returning

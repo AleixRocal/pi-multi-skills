@@ -28,7 +28,7 @@ pi install ./pi-multi-skills   # or install the local checkout
 | Command | What it does |
 | --- | --- |
 | `npm run verify` | `typecheck` + `test` + `check:pack`. The full local gate. |
-| `npm test` | Vitest, 172 specs. `npm run test:watch` while iterating. |
+| `npm test` | Vitest, 180 specs. `npm run test:watch` while iterating. |
 | `npm run typecheck` | `tsc --noEmit`, `NodeNext`, no emit. |
 | `npm run check:pack` | Asserts what `npm publish` would ship (entry point + its imports in, tests out). |
 | `npm run diagrams` | Regenerates `docs/images/*` from `scripts/diagrams.mjs`, including the gallery cover. |

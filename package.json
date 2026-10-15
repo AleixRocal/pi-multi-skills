@@ -31,6 +31,9 @@
 		"extensions": [
 			"./extensions/index.ts"
 		],
+		"skills": [
+			"./skills"
+		],
 		"image": "https://aleixrocal.github.io/pi-multi-skills/images/cover.png",
 		"video": "https://aleixrocal.github.io/pi-multi-skills/images/demo.mp4"
 	},
@@ -42,11 +45,13 @@
 		"diagrams": "node scripts/diagrams.mjs",
 		"demo:video": "node scripts/demo-video.mjs",
 		"release:notes": "node scripts/release-notes.mjs",
+		"skill:zip": "node scripts/skill-zip.mjs",
 		"verify": "npm run typecheck && npm test && npm run check:pack"
 	},
 	"files": [
 		"extensions/",
 		"src/",
+		"skills/",
 		"!**/*.test.ts",
 		"README.md",
 		"CHANGELOG.md",
