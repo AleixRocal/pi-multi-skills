@@ -7,6 +7,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `LICENSE` (MIT), shipped in the publish tarball and asserted by `npm run check:pack`.
+- `scripts/release-notes.mjs` (`npm run release:notes`): the GitHub Release body is the
+  `CHANGELOG.md` section for the released version. A tag whose version has no dated entry now
+  fails the release job before the publish, instead of shipping generated PR titles.
+- Star history chart in the README, rendered live from star-history.com (light and dark variants),
+  with a stars badge in the header.
+
 ## [0.1.0] - 2026-10-15
 
 ### Added

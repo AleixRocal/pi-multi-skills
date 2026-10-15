@@ -36,6 +36,7 @@
 		"typecheck": "tsc --noEmit",
 		"check:pack": "node scripts/check-pack.mjs",
 		"diagrams": "node scripts/diagrams.mjs",
+		"release:notes": "node scripts/release-notes.mjs",
 		"verify": "npm run typecheck && npm test && npm run check:pack"
 	},
 	"files": [
@@ -43,7 +44,8 @@
 		"src/",
 		"!**/*.test.ts",
 		"README.md",
-		"CHANGELOG.md"
+		"CHANGELOG.md",
+		"LICENSE"
 	],
 	"peerDependencies": {
 		"@earendil-works/pi-coding-agent": "*",
