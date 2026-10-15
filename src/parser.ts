@@ -4,7 +4,7 @@
  * A "chain" is a user message that names one or more skills with
  * `/skill:<name>` tokens. Each token owns the free text from the end of its
  * name up to the next token — or, for the last token, to the end of the
- * message. That is positional binding, design Decision 1.
+ * message. That is positional binding.
  *
  * Two deliberate divergences from Pi's native `_expandSkillCommand`
  * (`dist/core/agent-session.js:1697-1721`):
@@ -30,10 +30,10 @@ const TOKEN_MARKER = "/skill:";
 
 /**
  * Hard ceiling on chained skills — Claude Code's "the first skill plus up to
- * five more", mirrored by `plan.md` §1. Markers past the cap are never
- * tokenised: they stay literal text and are therefore bound as part of the
- * last token's arguments, so user text is truncated deterministically and
- * never silently deleted (Decision 2).
+ * five more". Markers past the cap are never tokenised: they stay literal text
+ * and are therefore bound as part of the last token's arguments, so a chain that
+ * overruns degrades into text the model can still read, never into input that
+ * silently disappears.
  */
 export const MAX_CHAINED_SKILLS = 6;
 

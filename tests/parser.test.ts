@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { MAX_CHAINED_SKILLS, parseSkillChain } from "../src/parser.js";
 
 describe("parseSkillChain — tokenisation", () => {
-	it("pins the cap at 6 (Decision 2)", () => {
+	it("pins the cap at 6", () => {
 		expect(MAX_CHAINED_SKILLS).toBe(6);
 	});
 
@@ -43,7 +43,7 @@ describe("parseSkillChain — tokenisation", () => {
 		});
 	});
 
-	it("binds per-token arguments when text separates the tokens (Decision 1's superset)", () => {
+	it("binds per-token arguments when text separates the tokens", () => {
 		expect(parseSkillChain("/skill:a x /skill:b y")).toEqual({
 			preamble: "",
 			tokens: [
@@ -53,7 +53,7 @@ describe("parseSkillChain — tokenisation", () => {
 		});
 	});
 
-	it("expands a marker that sits inside prose (accepted cost of Decision 1)", () => {
+	it("expands a marker that sits inside prose, which is the accepted cost", () => {
 		expect(parseSkillChain("compare /skill:design and /skill:plan output")).toEqual({
 			preamble: "compare",
 			tokens: [

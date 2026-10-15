@@ -34,8 +34,9 @@ export const skillChainTransformer: MarkdownTransformer = (markdown, context) =>
 	// model output.
 	if (context.messageType !== "user") return markdown;
 
-	// Cheap early return before any regex work: this runs on every user-message
-	// render (`## Performance Considerations`).
+	// Cheap early return before any regex work: this runs on every USER message
+	// render in the session, so the substring test is what keeps the transformer
+	// out of the hot path.
 	if (!markdown.includes(SKILL_BLOCK_PREFIX)) return markdown;
 
 	return renderSkillChain(markdown);

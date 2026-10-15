@@ -82,7 +82,7 @@ export function handleInput(
 
 	const text = event.text;
 
-	// Rescue path (Decision 5). By default `rpiv-args` wins the ordering race —
+	// Rescue path. By default `rpiv-args` wins the ordering race —
 	// it sits at index 14 of the `packages` array in settings.json and `pi
 	// install` appends after it — so `/skill:a /skill:b args` arrives here as
 	// `<skill a …>…</skill>\n\n/skill:b args`, and a plain
