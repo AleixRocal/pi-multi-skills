@@ -32,6 +32,7 @@ pi install ./pi-multi-skills   # or install the local checkout
 | `npm run typecheck` | `tsc --noEmit`, `NodeNext`, no emit. |
 | `npm run check:pack` | Asserts what `npm publish` would ship (entry point + its imports in, tests out). |
 | `npm run diagrams` | Regenerates `docs/images/*` from `scripts/diagrams.mjs`, including the gallery cover. |
+| `npm run demo:video` | Re-renders `docs/images/demo.mp4` + its poster from `scripts/demo-video.mjs`. Needs Chromium (`CHROME_BIN`) and ffmpeg (`FFMPEG_BIN`); skips with a message when either is missing. |
 
 ## Pull request flow
 
@@ -155,10 +156,16 @@ If you ever need a release without trusted publishing, create a granular token, 
 `NPM_TOKEN` secret, run the tag release, then revoke the token and remove the secret.
 
 The package is eligible for the [pi package gallery](https://pi.dev/packages) through the
-`pi-package` keyword in `package.json`, and the card's preview comes from `pi.image` — an absolute
-`raw.githubusercontent.com` URL, the convention the other gallery packages use, so the image lives
-in the repository and not in the tarball. Regenerate it with `npm run diagrams`; both fields are
-manifest metadata, so they reach npm only with a published version.
+`pi-package` keyword in `package.json`, and the card's preview comes from `pi.image` / `pi.video` —
+absolute `raw.githubusercontent.com` URLs, the convention the other gallery packages use, so the
+assets live in the repository and not in the tarball. Regenerate them with `npm run diagrams` and
+`npm run demo:video`; these fields are manifest metadata, so they reach npm only with a published
+version.
+
+Note that the gallery's own index is not refreshed by the publish: a package can be installable from
+the moment it is published while the gallery still lists nothing for its name. The keyword and
+exactly this manifest shape are what eligibility is checked against — see `docs/packages.md`
+upstream.
 
 ## Reporting bugs and proposing features
 

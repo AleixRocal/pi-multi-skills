@@ -19,6 +19,13 @@ named skill, each followed by the argument text that skill owns.
   <img alt="Where pi-multi-skills hooks into pi: the message path, and the four extension surfaces" src="https://raw.githubusercontent.com/AleixRocal/pi-multi-skills/main/docs/images/architecture.light.svg">
 </picture>
 
+[![The autocomplete menu opening at the second token, then the two skill blocks the model receives](https://raw.githubusercontent.com/AleixRocal/pi-multi-skills/main/docs/images/demo-poster.png)](https://raw.githubusercontent.com/AleixRocal/pi-multi-skills/main/docs/images/demo.mp4)
+
+Twelve seconds of the flow, from the menu opening at the second `/skill:` token to the blocks the
+model receives ([`docs/images/demo.mp4`](docs/images/demo.mp4), 1280×720). Generated from the
+behaviour the test suite asserts rather than screen-recorded — `npm run demo:video` renders it frame
+by frame, which is why it does not drift from the code.
+
 | Document | For |
 | --- | --- |
 | [AGENTS.md](AGENTS.md) | AI agents: module map, invariants, recipes, what must not change. |
@@ -184,6 +191,7 @@ marker, the six-skill cap), and recipes for the usual changes.
 ```bash
 npm ci && npm run verify    # typecheck + 172 specs + the publish-tarball contract
 npm run diagrams            # regenerate docs/images from scripts/diagrams.mjs
+npm run demo:video          # re-render docs/images/demo.mp4 (needs Chromium + ffmpeg)
 ```
 
 Ground rules: one concern per PR, tests with the change, a `CHANGELOG.md` entry under
@@ -221,8 +229,10 @@ src/registry.ts       # name → SKILL.md index built from pi.getCommands()
 src/skills-tool.ts    # read-only `skills` listing tool
 src/renderer.ts       # the markdown transformer that renders a chain as typed
 tests/                # vitest specs: unit, plus the host provider and the host editor
-docs/images/          # the diagrams above (light + dark SVG, PNG renders)
-scripts/              # diagrams.mjs (generator), check-pack.mjs (tarball contract)
+docs/images/          # the diagrams above (light + dark SVG, PNG renders), the gallery cover
+                      #   and the demo animation
+scripts/              # diagrams.mjs and demo-video.mjs (generators), check-pack.mjs (tarball
+                      #   contract), release-notes.mjs
 .github/              # ci.yml, release.yml, dependabot, PR and issue templates
 ```
 

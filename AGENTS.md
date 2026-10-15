@@ -92,6 +92,14 @@ Each one is load-bearing against a host behaviour that fails **quietly**:
   rendered at 1x and is the file the gallery preview (`pi.image` in `package.json`) points at, so a
   change there is only visible on npm after a release. The script throws when a text run
   would overflow its box, so layout mistakes fail loudly instead of shipping.
+- **Regenerate the demo video** → `scripts/demo-video.mjs`: one HTML page whose `renderAt(ms)` is the
+  entire animation, driven over the DevTools protocol (`renderAt`, a double-`requestAnimationFrame`
+  wait, then a screenshot — a headless page that is not focused is throttled and would return the
+  previous paint). Two things are checked rather than trusted: every frame must be exactly 1280x720
+  (libx264 refuses odd heights, and a wrong viewport crops silently), and the page must expose
+  `window.renderAt` (a missing page once produced 240 identical frames of Chromium's error page).
+  It is a rendering of asserted behaviour, not a screen recording — keep any wording in it honest
+  about that, and remember `pi.video` only refreshes on npm when a version is published.
 - **Release** → see CONTRIBUTING.md → *Releasing*. Tag-driven; never publish by hand after the
   first release.
 
