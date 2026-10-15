@@ -39,11 +39,10 @@ export function registerMultiSkills(pi: ExtensionAPI): void {
 		// sessions (`interactive-mode.js:363-365` → `resetExtensionUI`).
 		registerChainAutocomplete(ctx, pi);
 	});
-	// Decision 7: read-only discovery, so a chain is never built from a guessed
-	// skill name.
+	// Read-only discovery, so a chain is never built from a guessed skill name.
 	registerSkillsTool(pi);
-	// Decision 8: blocks 2..N are collapsed in the transcript, so a chain reads
-	// as N references instead of raw XML.
+	// Blocks 2..N collapse in the transcript, so a chain reads as N references
+	// instead of raw XML.
 	registerSkillChainRenderer(pi);
 }
 

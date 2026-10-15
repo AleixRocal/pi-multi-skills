@@ -21,6 +21,9 @@ __pycache__/
 .ruff_cache/
 *.tgz
 
+# the author's working design notes, deliberately not part of the package
+/plan.md
+
 # test + coverage
 coverage/
 .vitest/

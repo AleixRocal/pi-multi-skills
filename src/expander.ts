@@ -18,10 +18,11 @@
  *    the byte-exactness note at `args.ts:150-158`), so the two extensions stay
  *    interchangeable in either handler order.
  *
- * `expandSkillTokens` is the single token→block rewrite shared by the clean
- * path and the rescue path (design Decision 5): it scans whatever text it is
- * given, replaces every token it can resolve, and leaves every token it cannot
- * resolve verbatim in place (design Decision 6, guard 3). It returns `null`
+ * `expandSkillTokens` is the single token→block rewrite shared by the clean path
+ * and the rescue path, which is why it scans whatever text it is handed instead
+ * of assuming the message starts with a token: it replaces every token it can
+ * resolve and leaves every token it cannot resolve verbatim in place, so one
+ * unknown skill never costs the caller the rest of the chain. It returns `null`
  * when nothing was expanded, which is the handler's signal to step aside and
  * let Pi's own expansion run.
  */

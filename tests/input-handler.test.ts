@@ -158,7 +158,7 @@ describe("handleInput — chains", () => {
 		);
 	});
 
-	it("binds per-skill arguments when text separates the tokens (Decision 1)", () => {
+	it("binds per-skill arguments when text separates the tokens", () => {
 		const { pi, entry } = harness(
 			{ name: "research", body: "RESEARCH BODY" },
 			{ name: "b", body: "B BODY" },
@@ -235,7 +235,7 @@ describe("handleInput — guard 3: unresolvable tokens stay verbatim", () => {
 	});
 });
 
-describe("handleInput — rescue path (Decision 5, order independence)", () => {
+describe("handleInput — rescue path, order independence", () => {
 	it("expands the residual token after an already-emitted block", () => {
 		const { pi, entry } = harness({ name: "a", body: "A BODY" }, { name: "b", body: "B BODY" });
 		const wrapped = buildSkillBlock(entry("a"), "A BODY");

@@ -7,6 +7,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Comments and test titles no longer cite a design document that lives outside the repository
+  (`Decision 1…8`, `plan.md §1`). Each rule states what it prevents where it is enforced: the
+  6-skill cap degrading into readable text, an unresolvable token staying verbatim, the renderer's
+  substring gate on the user-message hot path. The code comments are proof-carrying only when the
+  reader can follow them, and a private document cannot be followed.
+
 ## [0.2.1] - 2026-10-15
 
 ### Changed

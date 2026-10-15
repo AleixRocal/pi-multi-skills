@@ -112,7 +112,7 @@ describe("expandSkillTokens — chains", () => {
 		);
 	});
 
-	it("binds per-token arguments when text separates the tokens (Decision 1)", () => {
+	it("binds per-token arguments when text separates the tokens", () => {
 		const a = makeSkill("a", "A BODY");
 		const b = makeSkill("b", "B BODY");
 
@@ -140,7 +140,7 @@ describe("expandSkillTokens — chains", () => {
 	});
 });
 
-describe("expandSkillTokens — resolvable-only rewriting (Decision 6, guard 3)", () => {
+describe("expandSkillTokens — an unresolvable token is left verbatim", () => {
 	it("leaves an unknown token verbatim and still expands its siblings", () => {
 		const design = makeSkill("design");
 
@@ -182,7 +182,7 @@ describe("expandSkillTokens — resolvable-only rewriting (Decision 6, guard 3)"
 	});
 });
 
-describe("expandSkillTokens — cap at 6 (Decision 2)", () => {
+describe("expandSkillTokens — the cap at 6, where the 7th marker stays literal", () => {
 	it("emits at most 6 blocks and binds the 7th marker as literal arguments", () => {
 		const index = indexOf(...["a", "b", "c", "d", "e", "f"].map((name) => makeSkill(name)));
 

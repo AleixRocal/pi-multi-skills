@@ -10,14 +10,15 @@
  * skill invocation. Reporting the canonical SKILL.md path lets the model follow
  * up with the built-in `read` tool instead.
  *
- * Design Decision 7 fixes the surface: `exposure: "direct"`, TypeBox
- * `parameters` of `{ query?: string; limit?: number }`, and a result of
- * `{ name, description, location }[]`.
+ * The surface is deliberately small: `exposure: "direct"`, TypeBox `parameters`
+ * of `{ query?: string; limit?: number }`, and a result of
+ * `{ name, description, location }[]` — enough for the model to decide what to
+ * read, and no more surface to keep honest.
  *
  * Names and locations come from the registry the expander itself resolves
  * against (`src/registry.ts`), so the tool can never advertise a skill the
  * expander would miss, nor hide one it would find. Descriptions are not part of
- * a registry entry (Decision 3 fixes it to name/filePath/baseDir), so they are
+ * a registry entry (name, filePath and baseDir — `src/types.ts`), so they are
  * read from `pi.getCommands()` and joined on `sourceInfo.path` — the same value
  * the registry stores as `filePath`, which keeps the `skill:` name-prefix rule
  * owned by one module.
@@ -37,7 +38,7 @@ const DEFAULT_LIMIT = 20;
 /** Hard ceiling on `limit`; the model narrows `query` to page past it. */
 const MAX_LIMIT = 100;
 
-/** One skill as the tool reports it (Decision 7). */
+/** One skill as the tool reports it. */
 export interface SkillListing {
 	/** Skill name without the `skill:` prefix, e.g. `design`. */
 	readonly name: string;
@@ -62,7 +63,7 @@ export interface SkillsToolDetails {
  *
  * Keyed by path rather than by name so that joining needs no second copy of the
  * `skill:` name-prefix rule: `sourceInfo.path` is exactly the value
- * `src/registry.ts` stores as `SkillEntry.filePath` (Decision 3).
+ * `src/registry.ts` stores as `SkillEntry.filePath`.
  */
 function descriptionByPath(pi: ExtensionAPI): Map<string, string> {
 	const descriptions = new Map<string, string>();
@@ -129,7 +130,7 @@ The tool only lists; it never invokes a skill. Read the skill's SKILL.md at \`lo
 its full instructions.`,
 			promptSnippet:
 				"List the skills available in this session and their SKILL.md paths before chaining `/skill:<name>` invocations.",
-			// Decision 7: read-only discovery. `direct` keeps the tool declared to
+			// Read-only discovery. `direct` keeps the tool declared to
 			// the model while active, and the host activates it on registration
 			// (`docs/extensions.md:165`).
 			exposure: "direct",
