@@ -1,0 +1,78 @@
+name: CI
+
+# Runs on every pull request (including forks — no secrets are used here) and
+# on every push to main, so `main` is always known-green and a PR can be
+# merged the moment this check passes.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Read-only: a PR from a fork must never be able to make this workflow write.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: typecheck + test (node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 22.x is the `engines` floor in package.json; 24.x is current LTS.
+        node: ["22.x", "24.x"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          # Nothing here pushes; do not leave the token in .git/config.
+          persist-credentials: false
+
+      - name: Setup Node ${{ matrix.node }}
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      # `npm ci` refuses to run when package.json and package-lock.json
+      # disagree, which is the point: a PR that edits one without the other
+      # fails here instead of at publish time.
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+  package:
+    name: package (tarball contents)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          # Nothing here pushes; do not leave the token in .git/config.
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 24.x
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # The published tarball must carry the extension entry point and the
+      # sources it imports, and must NOT carry tests. `npm pack` is the only
+      # check that reads the real `files` globs, so it runs on every PR.
+      - name: Pack (dry run)
+        run: npm run check:pack

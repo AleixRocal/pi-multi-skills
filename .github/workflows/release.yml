@@ -1,0 +1,121 @@
+name: Release
+
+# Tag-driven, fully automatic: push `v0.2.0` and this publishes to npm (with
+# provenance) and opens the matching GitHub Release. Nothing else is required
+# on `main` — the version in package.json is the single source of truth and
+# the tag must match it.
+#
+# Authentication, in order of preference:
+#
+#   1. npm trusted publishing (no secret). Configure it on npmjs.com under
+#      the package's Settings -> Trusted Publisher, with repository
+#      `AleixRocal/pi-multi-skills` and workflow filename `release.yml`.
+#      It needs npm >= 11.5.1, which is why the job pins Node 24.
+#   2. A granular `NPM_TOKEN` repository secret, used automatically when
+#      trusted publishing is not configured.
+#
+# See CONTRIBUTING.md -> "Releasing" for the maintainer checklist.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Build and test, but do not publish or release"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write # create the GitHub Release
+  id-token: write # npm provenance + trusted publishing
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: publish to npm
+    runs-on: ubuntu-latest
+    # Read through `env` rather than `secrets` in step conditions: the
+    # `secrets` context is not available to a step-level `if`.
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          # Nothing here pushes; do not leave the token in .git/config.
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 24.x
+          # No dependency caching in this job on purpose: a release job must
+          # not restore artifacts a pull request could have influenced.
+          # registry-url writes the `_authToken` line that makes both auth
+          # paths work without a committed .npmrc.
+          registry-url: https://registry.npmjs.org
+
+      - name: Install
+        run: npm ci
+
+      # The tag, not the commit message, decides the version — and a tag that
+      # disagrees with package.json is a hard stop, because publishing the
+      # wrong number is not undoable.
+      - name: Check tag matches package.json
+        if: github.event_name == 'push'
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          pkg="$(node -p 'require("./package.json").version')"
+          echo "tag=$tag package.json=$pkg"
+          if [ "$tag" != "$pkg" ]; then
+            echo "::error::Tag v$tag does not match package.json $pkg"
+            exit 1
+          fi
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      # The gate a pull request already passed, re-run here: this job publishes
+      # an immutable version, so it must not assume `main` was green.
+      - name: Pack check
+        run: npm run check:pack
+
+      - name: Guard against republishing an existing version
+        run: |
+          name="$(node -p 'require("./package.json").name')"
+          version="$(node -p 'require("./package.json").version')"
+          if npm view "$name@$version" version >/dev/null 2>&1; then
+            echo "::error::$name@$version is already on npm."
+            exit 1
+          fi
+
+      - name: Publish (trusted publishing, no secret)
+        if: ${{ env.NPM_TOKEN == '' && inputs.dry_run != true }}
+        run: npm publish --provenance --access public
+
+      - name: Publish (granular token)
+        if: ${{ env.NPM_TOKEN != '' && inputs.dry_run != true }}
+        env:
+          NODE_AUTH_TOKEN: ${{ env.NPM_TOKEN }}
+        run: npm publish --provenance --access public
+
+      - name: Dry run (pack only)
+        if: ${{ inputs.dry_run == true }}
+        run: npm pack --dry-run
+
+      - name: Create GitHub Release
+        if: github.event_name == 'push' && inputs.dry_run != true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --verify-tag \
+            --generate-notes

@@ -1,0 +1,66 @@
+name: Dependabot auto-merge
+
+# Keeps dependency bumps moving without a maintainer in the loop, but only on
+# the terms that cannot silently change what ships: a patch or minor bump of a
+# DEV dependency, whose PR already passed CI. Anything else — a major, a
+# runtime dependency, a hand-written PR — needs a human.
+#
+# `--auto` is used, never `--admin`: GitHub merges the PR only once the
+# required checks on the branch protection rule are green, so a bump that
+# breaks the test suite stops here instead of landing.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    # `dependabot[bot]` is the only pull request author this workflow ever acts
+    # on. The author is read from the PR itself, not from `github.actor`:
+    # the actor of a `synchronize` event can be anyone who pushed to the branch.
+    if: |
+      github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      # dependabot/fetch-metadata v2, pinned to the release commit.
+      - name: Read update metadata
+        id: meta
+        uses: dependabot/fetch-metadata@21025c705c08248db411dc16f3619e6b5f9ea21a
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge (patch/minor dev bump)
+        if: |
+          steps.meta.outputs.dependency-type == 'direct:development' &&
+          (steps.meta.outputs.update-type == 'version-update:semver-patch' ||
+           steps.meta.outputs.update-type == 'version-update:semver-minor')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          gh pr merge --squash --auto "$PR_URL"
+          gh pr comment "$PR_URL" --body \
+            "Auto-merge enabled for this dev-dependency bump:
+            squash \`$PR_TITLE\` once CI is green."
+
+      - name: Flag the rest for review
+        if: |
+          steps.meta.outputs.dependency-type != 'direct:development' ||
+          (steps.meta.outputs.update-type != 'version-update:semver-patch' &&
+           steps.meta.outputs.update-type != 'version-update:semver-minor')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          DEP_TYPE: ${{ steps.meta.outputs.dependency-type }}
+          UPDATE_TYPE: ${{ steps.meta.outputs.update-type }}
+        run: |
+          gh label create needs-review --force >/dev/null 2>&1 || true
+          gh pr edit "$PR_URL" --add-label needs-review
+          gh pr comment "$PR_URL" --body \
+            "Not auto-merging: \`$DEP_TYPE\` / \`$UPDATE_TYPE\`.
+            A maintainer should review this one."

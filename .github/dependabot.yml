@@ -1,0 +1,31 @@
+version: 2
+
+updates:
+  # Runtime + dev dependencies. Host packages (`@earendil-works/*`,
+  # `typebox`) are declared `"*"` peer/dev deps on purpose — see AGENTS.md
+  # "Do not change" — so a bump PR touching only their lock entry is expected.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      # Conventional Commits, so a bump reads as one more `chore(deps)` in
+      # the changelog and never as a `feat`/`fix`.
+      prefix: "chore(deps)"
+    groups:
+      # One PR per week for the noise, one per major for the attention.
+      minor-and-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+    labels: [dependencies]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: "chore(ci)"
+    labels: [dependencies, ci]

@@ -1,0 +1,43 @@
+name: Feature request
+description: Propose a change to how skill chaining works
+title: "feat: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What you cannot do today, and what you type instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behaviour
+      description: |
+        If it changes syntax, spell out the exact message and what the model
+        should receive.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope
+      description: |
+        The README documents three things as out of scope. If your request is
+        one of them, say why it should change — that is a design discussion,
+        not a bug.
+      options:
+        - label: This needs a host API that extensions may not have
+        - label: This would break single-skill byte parity
+        - label: This changes behaviour only for chains

@@ -13,6 +13,14 @@ out/
 # rpiv local artifacts (research / designs / plans stay local)
 .rpiv/
 
+# pi local runtime state (stage logs, goal ledger, project guardrails)
+.pi/
+
+# scratch
+__pycache__/
+.ruff_cache/
+*.tgz
+
 # test + coverage
 coverage/
 .vitest/

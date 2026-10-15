@@ -1,0 +1,78 @@
+name: Bug report
+description: Something in a skill chain behaves differently than the README says
+title: "bug: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A chain is positional: `/skill:a /skill:b x` gives `a` no arguments and
+        gives `b` `x`, while `/skill:a x /skill:b` does the opposite. Please
+        paste the message **exactly** as typed — that detail decides most bugs
+        here.
+
+  - type: textarea
+    id: typed
+    attributes:
+      label: The message you typed
+      description: Including the `/skill:` markers and where the cursor was.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead
+      description: |
+        Transcript rendering, model output, or a missing autocomplete menu.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Which surface
+      options:
+        - Message expansion (the model did not get every skill)
+        - Transcript rendering (the chain does not read as typed)
+        - Autocomplete menu
+        - The `skills` tool
+        - Install / packaging
+        - Not sure
+    validations:
+      required: true
+
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: "`pi --version`, `node --version`, package version."
+      placeholder: pi 1.2.0 / node 22.19.0 / pi-multi-skills 0.1.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: isolation
+    attributes:
+      label: Does it reproduce with other extensions disabled?
+      description: |
+        `pi -e ./pi-multi-skills` loads only this package.
+        `@juicesharp/rpiv-args` in particular expands the same syntax, so its
+        presence is worth reporting.
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+    validations:
+      required: false
