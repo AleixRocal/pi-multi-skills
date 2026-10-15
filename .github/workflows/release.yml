@@ -112,22 +112,35 @@ jobs:
             exit 1
           fi
 
-      # npm uses trusted publishing (OIDC) whenever the package has a trusted
-      # publisher configured for this repository and workflow, and only then
-      # falls back to a token: "the npm CLI automatically detects OIDC
-      # environments and uses them for authentication before falling back to
-      # traditional tokens". The two steps below differ only in whether a token
-      # is offered as a fallback, so the secret can be deleted once the
-      # trusted publisher has seen one successful publish.
-      - name: Publish (OIDC; no token secret configured)
-        if: ${{ env.NPM_TOKEN == '' && inputs.dry_run != true }}
-        run: npm publish --provenance --access public
+      # Two attempts, in this order, so the log records which credential did
+      # the publishing. The first deliberately has no token in scope — it
+      # deletes the `_authToken` line setup-node writes, so npm can only
+      # authenticate with the GitHub OIDC token. A success there is proof that
+      # trusted publishing works for this repository and workflow, not an
+      # assumption; the second is the fallback for as long as an NPM_TOKEN
+      # secret exists.
+      - name: Publish (trusted publishing / OIDC)
+        id: oidc
+        if: ${{ inputs.dry_run != true }}
+        continue-on-error: true
+        run: |
+          npm config delete "//registry.npmjs.org/:_authToken" >/dev/null 2>&1 \
+            || true
+          npm publish --provenance --access public
 
-      - name: Publish (OIDC first, token as fallback)
-        if: ${{ env.NPM_TOKEN != '' && inputs.dry_run != true }}
+      - name: Publish (token fallback; OIDC did not apply)
+        if: ${{ steps.oidc.outcome == 'failure' && env.NPM_TOKEN != '' }}
         env:
           NODE_AUTH_TOKEN: ${{ env.NPM_TOKEN }}
-        run: npm publish --provenance --access public
+        run: |
+          npm config set "//registry.npmjs.org/:_authToken" "$NODE_AUTH_TOKEN"
+          npm publish --provenance --access public
+
+      - name: Fail when no publish path worked
+        if: ${{ steps.oidc.outcome == 'failure' && env.NPM_TOKEN == '' }}
+        run: |
+          echo "::error::trusted publishing failed and no NPM_TOKEN is set"
+          exit 1
 
       - name: Dry run (pack only)
         if: ${{ inputs.dry_run == true }}

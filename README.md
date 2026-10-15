@@ -247,9 +247,6 @@ peer dependencies provided by pi. Contributions are welcome — read
  </picture>
 </a>
 
-Rendered live by Star History, so the chart needs no committed file and re-renders with the latest
-stars on every view. The repository is young — it fills in as it is starred.
-
 ## Links
 
 | Where | What |
