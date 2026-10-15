@@ -7,8 +7,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-15
+
 ### Added
 
+- First public release: published to npm as `@aleixrocal/pi-multi-skills`, and eligible for the
+  [pi package gallery](https://pi.dev/packages) through the `pi-package` keyword.
 - `input` handler that rewrites `/skill:a /skill:b args` into N sibling `<skill …>` blocks, with
   positional argument binding and a six-skill cap.
 - Byte-exact emission of pi's native skill block (`dist/core/agent-session.js:1709`), so the
@@ -50,4 +54,5 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - README restructured around the diagrams and the documents above: badges, install, syntax,
   behaviour, cost, and pointer sections for contributors and agents.
 
-[Unreleased]: https://github.com/AleixRocal/pi-multi-skills/commits/main
+[Unreleased]: https://github.com/AleixRocal/pi-multi-skills/compare/v0.1.0...HEAD
+[0.1.0]: https://www.npmjs.com/package/@aleixrocal/pi-multi-skills/v/0.1.0

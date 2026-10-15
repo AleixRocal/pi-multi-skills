@@ -27,15 +27,14 @@ named skill, each followed by the argument text that skill owns.
 ## Install
 
 ```bash
-pi install npm:@aleixrocal/pi-multi-skills   # once published
+pi install npm:@aleixrocal/pi-multi-skills
 pi install git:github.com/AleixRocal/pi-multi-skills
 pi install ./pi-multi-skills                 # from a local checkout
 ```
 
-The package is not on npm yet — the scoped name above is reserved, and
-`pi install npm:@aleixrocal/pi-multi-skills` does not resolve today. Until it does, install from
-git or from a local checkout. Everything below is verified in the test suite and reproducible with
-`npm run verify`.
+The package carries the `pi-package` keyword, which is what makes it eligible for discovery in the
+[pi package gallery](https://pi.dev/packages) — the same package `pi install` resolves from npm.
+Requires Node `>=22.19.0`; the host packages are provided by pi.
 
 ## Syntax
 

@@ -1,0 +1,64 @@
+name: PR title
+
+# The merge is a squash, so the PR title becomes the commit subject on `main`
+# and the changelog groups on its prefix. This checks the title against
+# Conventional Commits as soon as the PR is opened, so a first-time contributor
+# learns the convention from the check rather than from a review comment.
+#
+# Deliberately a separate workflow from CI: it needs no checkout, no install and
+# no test run, so it answers in seconds, and it needs no third-party action —
+# the check is twenty lines of shell.
+#
+# See CONTRIBUTING.md -> "Commit / PR title convention".
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+# Nothing here writes: the PR title arrives in the event payload.
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-title-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: conventional title
+    runs-on: ubuntu-latest
+    # Dependabot writes its own `chore(deps): …` titles, which pass anyway;
+    # skipping saves a runner on every bump.
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
+    env:
+      TITLE: ${{ github.event.pull_request.title }}
+    steps:
+      - name: Check the title
+        run: |
+          echo "title: $TITLE"
+
+          if [[ ! "$TITLE" =~ ^([a-z]+)(\([a-z0-9._-]+\))?!?:\ .+$ ]]; then
+            echo "::error::$TITLE is not a Conventional Commit."
+            echo "Use: <type>(<optional scope>): <description>"
+            echo "Types: feat, fix, docs, chore, refactor, test, ci"
+            exit 1
+          fi
+
+          type="${BASH_REMATCH[1]}"
+          case "$type" in
+            feat|fix|docs|chore|refactor|test|ci) ;;
+            *)
+              echo "::error::unknown type '$type'."
+              echo "Allowed: feat, fix, docs, chore, refactor, test, ci"
+              exit 1
+              ;;
+          esac
+
+          subject="${TITLE#*: }"
+          if [[ "$subject" =~ ^[A-Z] ]]; then
+            echo "::error::the subject must start in lower case: '$subject'"
+            echo "It becomes the squash commit subject on main."
+            exit 1
+          fi
+
+          echo "ok: $type — $subject"

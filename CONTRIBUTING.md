@@ -60,6 +60,24 @@ Add your entry to the `## [Unreleased]` section of [CHANGELOG.md](CHANGELOG.md) 
 `### Changed`, `### Fixed` — in the same PR. Keep a Changelog order, one line per change, with
 the host call site or module you touched, because that is what makes the entry auditable later.
 
+## Repository settings the automation depends on
+
+Four settings make the workflows behave as documented. They are repository configuration, not
+files, so they cannot be reviewed in a diff — this is the record of them, and what to do if a
+workflow starts behaving oddly.
+
+| Setting | Value | Why it must stay |
+| --- | --- | --- |
+| *General → Pull Requests* → Allow auto-merge | on | Without it every `gh pr merge --auto` fails, and the Dependabot job goes red on each bump. |
+| *General → Pull Requests* → Allow squash merging | on (merge and rebase commits off) | The PR title is the release notes and the changelog subject; only squash preserves that. |
+| *Branches* → `main` protection → Require status checks | `typecheck + test (node 22.x)`, `typecheck + test (node 24.x)`, `package (tarball contents)` | This is what makes `--auto` *wait*. Without it, auto-merge merges immediately, before CI finishes. The names must match the `jobs.<id>.name` values in `ci.yml` — renaming a job there without updating the rule silently un-requires it. |
+| *Branches* → `main` protection → Allow force pushes / deletions | off | Keeps a published release commit reachable. Direct pushes to `main` are still allowed; only merges are gated by the checks. |
+
+Not required, but recommended after the first npm release: package *Settings → Publishing access* →
+"Require two-factor authentication and disallow tokens", once trusted publishing is configured and
+has completed one successful publish. The trusted-publisher configuration expires if it does not
+publish within two days, so set it up when you are ready to tag, not in advance.
+
 ## What belongs here
 
 In scope: making `/skill:` chaining work in pi — tokenising, argument binding, block emission,
@@ -96,20 +114,34 @@ verifies, publishes to npm with provenance, and opens the GitHub Release.
 Authentication for the npm publish, in order of preference:
 
 - **Trusted publishing (no secret).** On npmjs.com → the package → *Settings* → *Trusted
-  Publisher*, register repository `AleixRocal/pi-multi-skills` and workflow `release.yml`. Needs
-  npm ≥ 11.5.1, which CI pins via Node 24.
+  publishing* → GitHub Actions, with user `AleixRocal`, repository `pi-multi-skills` and workflow
+  filename `release.yml` (filename only, `.yml` included, case-sensitive). **Select “Allow npm
+  publish”** — a configuration created today gets `npm stage publish` for free but direct
+  publishing only if it is ticked. Needs npm ≥ 11.5.1 and Node ≥ 22.14, which the job pins via
+  Node 24.
 - **Granular token.** Add an `NPM_TOKEN` repository secret with publish rights to the scope. The
   workflow picks it up automatically when trusted publishing is not configured.
 
-The very first publish of a new package name cannot use trusted publishing (there is no package
-settings page yet), so it needs the token, published once by hand from a checkout:
+A trusted-publisher configuration that does not complete a successful publish **within two days
+expires** and cannot be edited back to life — delete and re-create it. Set it up when you are
+about to tag.
+
+### The first release, which is the exception
+
+`0.1.0` was published by hand before any trusted publisher could exist (there is no package
+settings page until the package does), and it has no tag: `release.yml` deliberately refuses to
+republish a version that is already on npm, so tagging it would only produce a red run. It is
+linked from `CHANGELOG.md` by its npm version page instead.
+
+From `0.2.0` on, the flow above is the whole flow:
 
 ```bash
-npm login
-npm publish --access public
+npm login              # once per machine; 2FA via the browser
+npm publish --access public   # 0.1.0 only, never again
 ```
 
-After that publish, register the trusted publisher and delete the token.
+If you ever need a release without trusted publishing, create a granular token, add it as the
+`NPM_TOKEN` secret, run the tag release, then revoke the token and remove the secret.
 
 The package is eligible for the [pi package gallery](https://pi.dev/packages) through the
 `pi-package` keyword in `package.json`; keep that keyword in place.
