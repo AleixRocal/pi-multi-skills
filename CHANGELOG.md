@@ -7,6 +7,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- The two inline diagrams and the star history chart render outside GitHub again. All three were
+  `<picture>` blocks, and the pi package gallery drops that element together with its children: the
+  README embedded on `pi.dev/packages/@aleixrocal/pi-multi-skills` showed the badges and the demo
+  GIF but neither diagram, which are the two pictures that explain the extension. They are markdown
+  images pointing at the light-palette SVG now, and the dark-palette renders are linked from
+  `Docs`; `AGENTS.md` records the constraint so the next diagram edit keeps it.
+
 ## [0.2.6] - 2026-10-15
 
 ### Changed

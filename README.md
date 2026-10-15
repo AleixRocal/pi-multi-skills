@@ -21,10 +21,7 @@ This extension runs an `input` handler before pi's own expansion and rewrites th
 A single `/skill:<name>` message is passed through untouched, byte-identical to what pi produces on
 its own.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://aleixrocal.github.io/pi-multi-skills/images/message-flow.dark.svg">
-  <img alt="One typed message: native pi resolves one skill and swallows the rest; with the extension both skills resolve" src="https://aleixrocal.github.io/pi-multi-skills/images/message-flow.light.svg">
-</picture>
+![One typed message: native pi resolves one skill and swallows the rest; with the extension both skills resolve](https://aleixrocal.github.io/pi-multi-skills/images/message-flow.light.svg)
 
 ![The autocomplete menu opening at the second /skill: token, then the two skill blocks the model receives](https://aleixrocal.github.io/pi-multi-skills/images/demo.gif)
 
@@ -101,10 +98,7 @@ commands all come from pi's own provider. Inside a chain token, <kbd>Tab</kbd> c
 rather than searching for a file path, and the six-skill cap applies to the menu too: once six
 markers are on the line, a seventh offers no names, because it would not expand.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://aleixrocal.github.io/pi-multi-skills/images/autocomplete.dark.svg">
-  <img alt="The wrapper answers at a chain position and delegates every other completion request to pi" src="https://aleixrocal.github.io/pi-multi-skills/images/autocomplete.light.svg">
-</picture>
+![The wrapper answers at a chain position and delegates every other completion request to pi](https://aleixrocal.github.io/pi-multi-skills/images/autocomplete.light.svg)
 
 ### `skills` — mid-turn discovery
 
@@ -160,21 +154,18 @@ message.
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Building, the PR flow, releasing. |
 | [CHANGELOG.md](CHANGELOG.md) | What changed, per version. |
 
-Deeper diagrams: [architecture](https://aleixrocal.github.io/pi-multi-skills/images/architecture.light.svg)
-· [the handler's paths](https://aleixrocal.github.io/pi-multi-skills/images/handler-flow.light.svg).
+Diagrams, light and dark: [message flow](https://aleixrocal.github.io/pi-multi-skills/images/message-flow.light.svg)
+· [autocomplete](https://aleixrocal.github.io/pi-multi-skills/images/autocomplete.light.svg) ·
+[architecture](https://aleixrocal.github.io/pi-multi-skills/images/architecture.light.svg) ·
+[the handler's paths](https://aleixrocal.github.io/pi-multi-skills/images/handler-flow.light.svg) — the
+`.dark.svg` beside each is the same diagram in the dark palette.
 Bug reports and feature requests go to
 [Issues](https://github.com/AleixRocal/pi-multi-skills/issues); every version is on
 [GitHub Releases](https://github.com/AleixRocal/pi-multi-skills/releases).
 
 ## Star History
 
-<a href="https://www.star-history.com/?repos=AleixRocal%2Fpi-multi-skills&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=AleixRocal/pi-multi-skills&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=AleixRocal/pi-multi-skills&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=AleixRocal/pi-multi-skills&type=date&legend=top-left" />
- </picture>
-</a>
+[![Star History Chart](https://api.star-history.com/chart?repos=AleixRocal/pi-multi-skills&type=date&legend=top-left)](https://www.star-history.com/?repos=AleixRocal%2Fpi-multi-skills&type=date&legend=top-left)
 
 ## License
 

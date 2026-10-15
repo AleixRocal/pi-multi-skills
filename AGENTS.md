@@ -91,7 +91,11 @@ Each one is load-bearing against a host behaviour that fails **quietly**:
   SVG for a light and a dark palette) and run `npm run diagrams`. The cover is one of them: it is
   rendered at 1x and is the file the gallery preview (`pi.image` in `package.json`) points at, so a
   change there is only visible on npm after a release. The script throws when a text run
-  would overflow its box, so layout mistakes fail loudly instead of shipping.
+  would overflow its box, so layout mistakes fail loudly instead of shipping. The README embeds
+  every diagram as a markdown image, never a `<picture>` block: the pi gallery renders the README
+  out of the published tarball and drops that element with its children, which cost the two inline
+  diagrams their place on the gallery page, and npm sanitizes the HTML the same way. The
+  dark-palette SVGs are linked from the README's `Docs` section instead.
 - **Regenerate the demo video** → `scripts/demo-video.mjs`: one HTML page whose `renderAt(ms)` is the
   entire animation, driven over the DevTools protocol (`renderAt`, a double-`requestAnimationFrame`
   wait, then a screenshot — a headless page that is not focused is throttled and would return the
