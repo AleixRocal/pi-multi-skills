@@ -1,0 +1,58 @@
+name: Pages
+
+# Publishes `docs/` to GitHub Pages, which is where the README's images and the
+# `pi.image` / `pi.video` previews are served from.
+#
+# Why Pages and not a raw URL: `raw.githubusercontent.com` returns
+# `application/octet-stream` for an mp4, so a browser downloads the video
+# instead of playing it, and a README cannot play a raw-hosted mp4 at all. Pages
+# sets `Content-Type` from the extension (`video/mp4`, `image/png`,
+# `image/svg+xml`), costs nothing, and is under this repository's control — a CDN
+# mirror of GitHub answered 503 for a freshly pushed ref while the same file
+# resolved through Pages immediately.
+
+on:
+  push:
+    branches: [main]
+    paths: ["docs/**", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          # Nothing here pushes; do not leave the token in .git/config.
+          persist-credentials: false
+
+      - name: Configure Pages
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b
+
+      # `docs/` is the site root, so assets land at /images/<name> — the paths
+      # the README and the manifest already use.
+      #
+      # A tag rather than a commit here, alone among the actions in this repo:
+      # the name plus a 40-character SHA is 84 columns, past the 80 this repo
+      # lints YAML against. Dependabot tracks it like the others.
+      - name: Upload docs/
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs
+
+      - name: Deploy
+        id: deploy
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346
