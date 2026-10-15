@@ -14,10 +14,17 @@
  * a single transform last, and every path that cannot serve the message returns
  * `{action:"continue"}` so Pi's native behaviour is left exactly as it is.
  *
+ * Both transform paths return through `markChainForDisplay`
+ * (`src/chain-display.ts`), which is what makes a multi-skill message render in
+ * the transcript as the `/skill:a x /skill:b y` the user typed: the host renders
+ * a leading well-formed block as a skill card, and cards run no markdown
+ * transformers, so a chain has to be marked not to take that path.
+ *
  * `ctx` is part of the host's handler signature (`ExtensionHandler`) and is
  * threaded through unchanged so the exported signature stays stable as the
- * extension grows. This expander itself reads no session state — unlike
- * `rpiv-args`, whose `${SESSION_ID}` substitution needs `ctx.sessionManager`.
+ * extension grows; it is declared `_ctx` because this expander itself reads no
+ * session state — unlike `rpiv-args`, whose `${SESSION_ID}` substitution needs
+ * `ctx.sessionManager`.
  */
 
 import type {
@@ -26,6 +33,7 @@ import type {
 	InputEvent,
 	InputEventResult,
 } from "@earendil-works/pi-coding-agent";
+import { markChainForDisplay } from "./chain-display.js";
 import { SKILL_BLOCK_PREFIX, expandSkillTokens } from "./expander.js";
 import { getSkillIndex } from "./registry.js";
 
@@ -66,7 +74,7 @@ const BLOCK_SEPARATOR = "\n\n";
  */
 export function handleInput(
 	event: InputEvent,
-	ctx: ExtensionContext,
+	_ctx: ExtensionContext,
 	pi: ExtensionAPI,
 ): InputEventResult {
 	// Guard 1.
@@ -98,7 +106,10 @@ export function handleInput(
 		const residual = expandSkillTokens(text.slice(boundary), getSkillIndex(pi));
 		if (residual === null) return { action: "continue" };
 
-		return { action: "transform", text: `${text.slice(0, boundary)}${BLOCK_SEPARATOR}${residual}` };
+		return {
+			action: "transform",
+			text: markChainForDisplay(`${text.slice(0, boundary)}${BLOCK_SEPARATOR}${residual}`),
+		};
 	}
 
 	// Clean path. `expandSkillTokens` returns null when the message names no skill
@@ -106,5 +117,5 @@ export function handleInput(
 	const expanded = expandSkillTokens(text, getSkillIndex(pi));
 	if (expanded === null) return { action: "continue" };
 
-	return { action: "transform", text: expanded };
+	return { action: "transform", text: markChainForDisplay(expanded) };
 }

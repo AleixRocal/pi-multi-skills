@@ -4,6 +4,7 @@ import { dirname, join } from "node:path";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import type { ExtensionAPI, InputEvent, InputEventResult } from "@earendil-works/pi-coding-agent";
 import { registerMultiSkills } from "../extensions/index.js";
+import { CHAIN_DISPLAY_MARKER } from "../src/chain-display.js";
 import { appendArgs, buildSkillBlock } from "../src/expander.js";
 import { handleInput } from "../src/input-handler.js";
 import { invalidateSkillIndex } from "../src/registry.js";
@@ -18,8 +19,8 @@ import {
 
 /**
  * Verbatim copy of Pi's `parseSkillBlock` regex (dist/core/agent-session.js:54).
- * Asserting against it is how these tests check that a transformed message is
- * still a skill invocation and not raw text.
+ * Asserting against it is how these tests check whether a transformed message
+ * reaches the host as a single skill invocation or as plain text.
  */
 const PARSE_SKILL_BLOCK =
 	/^<skill name="([^"]+)" location="([^"]+)">\n([\s\S]*?)\n<\/skill>(?:\n\n([\s\S]+))?$/;
@@ -153,7 +154,7 @@ describe("handleInput — chains", () => {
 		);
 
 		expect(textOf(emit(pi, "/skill:research /skill:design refactor auth"))).toBe(
-			`${buildSkillBlock(entry("research"), "RESEARCH BODY")}\n\n${appendArgs(buildSkillBlock(entry("design"), "DESIGN BODY"), "refactor auth")}`,
+			`${CHAIN_DISPLAY_MARKER}${buildSkillBlock(entry("research"), "RESEARCH BODY")}\n\n${appendArgs(buildSkillBlock(entry("design"), "DESIGN BODY"), "refactor auth")}`,
 		);
 	});
 
@@ -164,7 +165,7 @@ describe("handleInput — chains", () => {
 		);
 
 		expect(textOf(emit(pi, "/skill:research refactor auth /skill:b write tests"))).toBe(
-			`${appendArgs(buildSkillBlock(entry("research"), "RESEARCH BODY"), "refactor auth")}\n\n${appendArgs(buildSkillBlock(entry("b"), "B BODY"), "write tests")}`,
+			`${CHAIN_DISPLAY_MARKER}${appendArgs(buildSkillBlock(entry("research"), "RESEARCH BODY"), "refactor auth")}\n\n${appendArgs(buildSkillBlock(entry("b"), "B BODY"), "write tests")}`,
 		);
 	});
 
@@ -185,13 +186,25 @@ describe("handleInput — chains", () => {
 		expect(text.endsWith("</skill>\n\n/skill:g tail")).toBe(true);
 	});
 
-	it("stays parseable by Pi's parseSkillBlock regex", () => {
-		const { pi, entry } = harness({ name: "a", body: "A BODY" }, { name: "b", body: "B BODY" });
+	it("is not parsed as a card, so the transcript renders the typed chain", () => {
+		const { pi } = harness({ name: "a", body: "A BODY" }, { name: "b", body: "B BODY" });
 
-		const match = textOf(emit(pi, "/skill:a x /skill:b y")).match(PARSE_SKILL_BLOCK);
+		const text = textOf(emit(pi, "/skill:a x /skill:b y"));
+
+		// One character of marker defeats the `^…$` anchor: the host hands the
+		// whole message to a `UserMessageComponent`, which is where this
+		// extension's markdown transformer runs (`interactive-mode.js:3193-3207`).
+		expect(text.startsWith(CHAIN_DISPLAY_MARKER)).toBe(true);
+		expect(text.match(PARSE_SKILL_BLOCK)).toBeNull();
+	});
+
+	it("keeps the single-skill case parseable, so pi's card still renders", () => {
+		const { pi } = harness({ name: "a", body: "A BODY" });
+
+		const match = textOf(emit(pi, "/skill:a x")).match(PARSE_SKILL_BLOCK);
 
 		expect(match?.[1]).toBe("a");
-		expect(match?.[4]).toBe(`x\n\n${appendArgs(buildSkillBlock(entry("b"), "B BODY"), "y")}`);
+		expect(match?.[4]).toBe("x");
 	});
 });
 
@@ -228,7 +241,7 @@ describe("handleInput — rescue path (Decision 5, order independence)", () => {
 		const wrapped = buildSkillBlock(entry("a"), "A BODY");
 
 		expect(textOf(emit(pi, `${wrapped}\n\n/skill:b y`))).toBe(
-			`${wrapped}\n\n${appendArgs(buildSkillBlock(entry("b"), "B BODY"), "y")}`,
+			`${CHAIN_DISPLAY_MARKER}${wrapped}\n\n${appendArgs(buildSkillBlock(entry("b"), "B BODY"), "y")}`,
 		);
 	});
 
@@ -239,7 +252,7 @@ describe("handleInput — rescue path (Decision 5, order independence)", () => {
 		const wrapped = buildSkillBlock(entry("a"), "A BODY");
 
 		expect(textOf(emit(pi, `${wrapped}\n\nx /skill:b y`))).toBe(
-			`${wrapped}\n\nx\n\n${appendArgs(buildSkillBlock(entry("b"), "B BODY"), "y")}`,
+			`${CHAIN_DISPLAY_MARKER}${wrapped}\n\nx\n\n${appendArgs(buildSkillBlock(entry("b"), "B BODY"), "y")}`,
 		);
 	});
 

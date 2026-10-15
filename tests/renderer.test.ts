@@ -1,31 +1,37 @@
 import { describe, expect, it } from "vitest";
 import type { MarkdownTransformContext } from "@earendil-works/pi-coding-agent";
 import { registerMultiSkills } from "../extensions/index.js";
+import { CHAIN_DISPLAY_MARKER, markChainForDisplay } from "../src/chain-display.js";
 import { buildSkillBlock } from "../src/expander.js";
-import {
-	collapseSkillBlocks,
-	registerSkillChainRenderer,
-	skillChainTransformer,
-} from "../src/renderer.js";
+import { registerSkillChainRenderer, skillChainTransformer } from "../src/renderer.js";
 import { createMockPi, skillCommand } from "./helpers/mock-pi.js";
+
+/**
+ * `renderSkillChain` itself is covered in `tests/chain-display.test.ts`, together
+ * with the host's `parseSkillBlock`. This file covers the transformer around it:
+ * where it registers, when it stays out of the way, and what a chain looks like
+ * once it has run.
+ */
 
 /** A transform context as the interactive transcript builds it (`markdown-transform.js:2`). */
 function context(messageType: MarkdownTransformContext["messageType"]): MarkdownTransformContext {
 	return { messageType, isStreaming: false, availableWidth: 80 };
 }
 
-/** A block byte-exactly as Slice 3's emitter produces it. */
+/** A block byte-exactly as `src/expander.ts` emits it. */
 function emittedBlock(name: string, location: string, body: string): string {
 	return buildSkillBlock({ name, filePath: location, baseDir: `/skills/${name}` }, body);
 }
 
-/** The text the host hands a `UserMessageComponent` for a two-skill chain. */
-function secondOfTwo(): string {
-	return `${emittedBlock("plan", "/skills/plan/SKILL.md", "Plan body")}\n\nwrite tests`;
+/** An emitted two-skill chain, marker included — what the transformer receives. */
+function markedChain(): string {
+	return markChainForDisplay(
+		`${emittedBlock("research", "/skills/research/SKILL.md", "Research body")}\n\nrefactor auth\n\n${emittedBlock("design", "/skills/design/SKILL.md", "Design body")}\n\nwrite tests`,
+	);
 }
 
 describe("renderer — registration", () => {
-	it("registers exactly one markdown transformer and leaves the earlier surfaces intact", () => {
+	it("registers exactly one markdown transformer and leaves the other surfaces intact", () => {
 		const mock = createMockPi({
 			commands: [skillCommand("design", "/skills/design/SKILL.md", "Shape code")],
 		});
@@ -66,64 +72,40 @@ describe("renderer — gating", () => {
 		expect(skillChainTransformer(raw, context("user"))).toBe(raw);
 	});
 
-	it("collapses a user message that does carry a block", () => {
-		const raw = emittedBlock("design", "/skills/design/SKILL.md", "Body");
+	it("rewrites a user message that carries a chain", () => {
+		const out = skillChainTransformer(markedChain(), context("user"));
 
-		expect(skillChainTransformer(raw, context("user"))).not.toContain("<skill ");
+		expect(out).toBe("/skill:research refactor auth /skill:design write tests");
 	});
 });
 
-describe("renderer — collapsing", () => {
-	it("collapses an emitted block to a one-line reference carrying its name and path", () => {
-		const raw = emittedBlock("design", "/skills/design/SKILL.md", "Body");
+describe("renderer — what the transcript shows", () => {
+	it("shows one `/skill:<name>` per token, with the arguments the user typed", () => {
+		const out = skillChainTransformer(markedChain(), context("user"));
 
-		const out = collapseSkillBlocks(raw);
+		expect(out.match(/\/skill:/g)).toHaveLength(2);
+		expect(out).toContain("/skill:research refactor auth");
+		expect(out).toContain("/skill:design write tests");
+	});
 
-		expect(out).toContain("> **[skill] design**");
-		expect(out).toContain("/skills/design/SKILL.md");
+	it("leaks no block, no body and no marker into the transcript", () => {
+		const out = skillChainTransformer(markedChain(), context("user"));
+
 		expect(out).not.toContain("<skill ");
+		expect(out).not.toContain("</skill>");
+		expect(out).not.toContain("Research body");
+		expect(out).not.toContain(CHAIN_DISPLAY_MARKER);
 	});
 
-	it("collapses only the blocks it is handed and keeps trailing argument text", () => {
-		const out = collapseSkillBlocks(secondOfTwo());
+	it("is stable when the same message is rendered twice", () => {
+		const once = skillChainTransformer(markedChain(), context("user"));
 
-		expect(out).toContain("> **[skill] plan**");
-		expect(out.endsWith("\n\nwrite tests")).toBe(true);
-	});
-
-	it("keeps one reference per block — chained skills are never fused", () => {
-		const raw = [
-			emittedBlock("a", "/skills/a/SKILL.md", "Body a"),
-			emittedBlock("b", "/skills/b/SKILL.md", "Body b"),
-		].join("\n\n");
-
-		expect(collapseSkillBlocks(raw).split("[skill]").length - 1).toBe(2);
-	});
-
-	it("is idempotent — a collapsed message has nothing left to collapse", () => {
-		const once = collapseSkillBlocks(secondOfTwo());
-
-		expect(collapseSkillBlocks(once)).toBe(once);
-	});
-
-	it("collapses a multi-line body whole, even when the body mentions the block syntax", () => {
-		const body = [
-			"Line one.",
-			"",
-			'Pi wraps a skill as <skill name="x" location="y"> here.',
-			"Line three.",
-		].join("\n");
-
-		const out = collapseSkillBlocks(emittedBlock("design", "/skills/design/SKILL.md", body));
-
-		expect(out).toContain("> **[skill] design**");
-		expect(out).not.toContain("<skill ");
+		expect(skillChainTransformer(once, context("user"))).toBe(once);
 	});
 
 	it("leaves a hand-typed span that is not host-shaped verbatim", () => {
 		const spanned = '<skill name="design">\nbody\n</skill>';
 
-		expect(collapseSkillBlocks(spanned)).toBe(spanned);
 		expect(skillChainTransformer(spanned, context("user"))).toBe(spanned);
 	});
 });

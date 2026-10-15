@@ -3,7 +3,8 @@
  *
  * Registers the `input` handler that rewrites `/skill:a /skill:b args` chains
  * into N sibling `<skill …>` blocks, the `session_start` invalidator for the
- * name → path index, the read-only `skills` listing tool, and the markdown
+ * name → path index, the chain autocomplete wrapper for the `/skill:` menu past
+ * the first token, the read-only `skills` listing tool, and the markdown
  * transformer that collapses blocks 2..N in the transcript.
  *
  * Shape follows @juicesharp/rpiv-args: a thin default export delegating to a
@@ -11,6 +12,7 @@
  */
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { registerChainAutocomplete } from "../src/autocomplete.js";
 import { handleInput } from "../src/input-handler.js";
 import { invalidateSkillIndex } from "../src/registry.js";
 import { registerSkillChainRenderer } from "../src/renderer.js";
@@ -25,12 +27,17 @@ import { registerSkillsTool } from "../src/skills-tool.js";
  */
 export function registerMultiSkills(pi: ExtensionAPI): void {
 	pi.on("input", (event, ctx) => handleInput(event, ctx, pi));
-	pi.on("session_start", (event) => {
-		// The skill set is re-enumerated per session; `startup` and `reload` are
-		// the two reasons that can change it (`SessionStartEvent.reason`).
+	pi.on("session_start", (event, ctx) => {
+		// The skill set is re-enumerated on the two reasons that can change it
+		// (`SessionStartEvent.reason`): a fresh process, or a reload that
+		// re-reads settings and packages.
 		if (event.reason === "startup" || event.reason === "reload") {
 			invalidateSkillIndex();
 		}
+		// Every reason needs the wrapper back, including "new"/"resume"/"fork":
+		// the interactive host clears every registered wrapper before it swaps
+		// sessions (`interactive-mode.js:363-365` → `resetExtensionUI`).
+		registerChainAutocomplete(ctx, pi);
 	});
 	// Decision 7: read-only discovery, so a chain is never built from a guessed
 	// skill name.

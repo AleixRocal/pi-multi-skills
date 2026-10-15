@@ -19,6 +19,7 @@ import type {
 	InputEvent,
 	InputEventResult,
 	MarkdownTransformer,
+	SessionStartEvent,
 	SlashCommandInfo,
 	ToolDefinition,
 } from "@earendil-works/pi-coding-agent";
@@ -29,11 +30,19 @@ export type InputHandler = (
 	ctx: ExtensionContext,
 ) => Promise<InputEventResult | void> | InputEventResult | void;
 
+/** A `session_start` handler as the host would call it. */
+export type SessionStartHandler = (
+	event: SessionStartEvent,
+	ctx: ExtensionContext,
+) => Promise<void> | void;
+
 export interface MockPi {
 	/** The double itself, safe to hand to code that expects `ExtensionAPI`. */
 	readonly pi: ExtensionAPI;
 	/** Handlers registered on `input`, in registration order. */
 	readonly inputHandlers: InputHandler[];
+	/** Handlers registered on `session_start`, in registration order. */
+	readonly sessionStartHandlers: SessionStartHandler[];
 	/** Tools registered via `registerTool`. */
 	readonly tools: ToolDefinition[];
 	/** Transformers registered via `registerMarkdownTransformer`. */
@@ -44,17 +53,27 @@ export interface MockPi {
 export function createMockPi(options: { commands?: SlashCommandInfo[] } = {}): MockPi {
 	const commands = options.commands ?? [];
 	const inputHandlers: InputHandler[] = [];
+	const sessionStartHandlers: SessionStartHandler[] = [];
 	const tools: ToolDefinition[] = [];
 	const markdownTransformers: MarkdownTransformer[] = [];
 
 	const pi = {
-		on(event: string, handler: InputHandler) {
-			if (event !== "input") return () => {};
-			inputHandlers.push(handler);
-			return () => {
-				const index = inputHandlers.indexOf(handler);
-				if (index !== -1) inputHandlers.splice(index, 1);
-			};
+		on(event: string, handler: InputHandler | SessionStartHandler) {
+			if (event === "input") {
+				inputHandlers.push(handler as InputHandler);
+				return () => {
+					const index = inputHandlers.indexOf(handler as InputHandler);
+					if (index !== -1) inputHandlers.splice(index, 1);
+				};
+			}
+			if (event === "session_start") {
+				sessionStartHandlers.push(handler as SessionStartHandler);
+				return () => {
+					const index = sessionStartHandlers.indexOf(handler as SessionStartHandler);
+					if (index !== -1) sessionStartHandlers.splice(index, 1);
+				};
+			}
+			return () => {};
 		},
 		getCommands: () => commands,
 		registerTool: (tool: ToolDefinition) => {
@@ -66,7 +85,7 @@ export function createMockPi(options: { commands?: SlashCommandInfo[] } = {}): M
 		},
 	} as unknown as ExtensionAPI;
 
-	return { pi, inputHandlers, tools, markdownTransformers };
+	return { pi, inputHandlers, sessionStartHandlers, tools, markdownTransformers };
 }
 
 /** Build an `ExtensionContext` double with the few members this extension uses. */

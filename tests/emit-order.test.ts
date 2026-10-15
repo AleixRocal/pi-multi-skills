@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { stripFrontmatter, type ExtensionAPI, type InputEventResult } from "@earendil-works/pi-coding-agent";
 import { appendArgs, buildSkillBlock } from "../src/expander.js";
+import { CHAIN_DISPLAY_MARKER } from "../src/chain-display.js";
 import { handleInput } from "../src/input-handler.js";
 import { invalidateSkillIndex } from "../src/registry.js";
 import type { SkillEntry, SkillIndex } from "../src/types.js";
@@ -140,7 +141,7 @@ describe("input-handler order independence vs @juicesharp/rpiv-args", () => {
 		const text = textOf(await emitInput([ours(f.pi), rpivArgsStub(f.index)], "/skill:a x /skill:b y"));
 
 		expect(text).toBe(
-			`${appendArgs(buildSkillBlock(f.entry("a"), "A BODY"), "x")}\n\n${appendArgs(buildSkillBlock(f.entry("b"), "B BODY"), "y")}`,
+			`${CHAIN_DISPLAY_MARKER}${appendArgs(buildSkillBlock(f.entry("a"), "A BODY"), "x")}\n\n${appendArgs(buildSkillBlock(f.entry("b"), "B BODY"), "y")}`,
 		);
 	});
 
@@ -160,14 +161,23 @@ describe("input-handler order independence vs @juicesharp/rpiv-args", () => {
 		expect(textOf(await emitInput([rpivArgsStub(f.index), ours(f.pi)], "/skill:a x"))).toBe(expected);
 	});
 
-	it("stays parseable by Pi's parseSkillBlock regex in both orders", async () => {
+	it("leaves a chain off the card path in both orders, and a single skill on it", async () => {
 		const f = fixture("a", "b");
 		const stub = rpivArgsStub(f.index);
 
 		for (const handlers of [[ours(f.pi), stub], [stub, ours(f.pi)]]) {
-			const match = textOf(await emitInput(handlers, "/skill:a x /skill:b y")).match(PARSE_SKILL_BLOCK);
-			expect(match?.[1]).toBe("a");
+			const chain = textOf(await emitInput(handlers, "/skill:a x /skill:b y"));
+
+			// The transcript renders the typed chain, which requires the host to take
+			// its plain-text path and run this extension's markdown transformer.
+			expect(chain.startsWith(CHAIN_DISPLAY_MARKER)).toBe(true);
+			expect(chain.match(PARSE_SKILL_BLOCK)).toBeNull();
 		}
+
+		const single = fixture("a");
+		expect(textOf(await emitInput([ours(single.pi)], "/skill:a x")).match(PARSE_SKILL_BLOCK)?.[1]).toBe(
+			"a",
+		);
 	});
 
 	it("is idempotent when registered twice — no loop over its own output", async () => {
