@@ -7,6 +7,17 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-15
+
+### Changed
+
+- README: the Star History section is the chart alone; the sentence that explained what the
+  embed does sat between the reader and the thing it described.
+- `release.yml`: publishing is now two ordered attempts. The first runs with no token in scope —
+  it deletes the `_authToken` line `setup-node` writes — so npm can only authenticate with the
+  GitHub OIDC token, which makes "trusted publishing works" a fact in the log instead of an
+  assumption. The second keeps the `NPM_TOKEN` secret as a fallback, and the run says which one
+  published.
 ## [0.2.0] - 2026-10-15
 
 ### Changed
@@ -74,6 +85,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - README restructured around the diagrams and the documents above: badges, install, syntax,
   behaviour, cost, and pointer sections for contributors and agents.
 
-[Unreleased]: https://github.com/AleixRocal/pi-multi-skills/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/AleixRocal/pi-multi-skills/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.1
 [0.2.0]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.0
 [0.1.0]: https://www.npmjs.com/package/@aleixrocal/pi-multi-skills/v/0.1.0
