@@ -32,7 +32,7 @@ pi install ./pi-multi-skills   # or install the local checkout
 | `npm run typecheck` | `tsc --noEmit`, `NodeNext`, no emit. |
 | `npm run check:pack` | Asserts what `npm publish` would ship (entry point + its imports in, tests out). |
 | `npm run diagrams` | Regenerates `docs/images/*` from `scripts/diagrams.mjs`, including the gallery cover. |
-| `npm run demo:video` | Re-renders `docs/images/demo.mp4` + its poster from `scripts/demo-video.mjs`. Needs Chromium (`CHROME_BIN`) and ffmpeg (`FFMPEG_BIN`); skips with a message when either is missing. |
+| `npm run demo:video` | Re-renders `docs/images/demo.mp4` and `demo.gif` from `scripts/demo-video.mjs`. Needs Chromium (`CHROME_BIN`) and ffmpeg (`FFMPEG_BIN`); skips with a message when either is missing. |
 
 ## Pull request flow
 

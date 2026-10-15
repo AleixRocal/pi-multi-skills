@@ -7,6 +7,19 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.4] - 2026-10-15
+
+### Fixed
+
+- The demo's video URL now serves `video/mp4`. `raw.githubusercontent.com` returns
+  `application/octet-stream` for an mp4, so the preview was downloaded instead of played; `pi.video`
+  points at jsDelivr, which serves the right type (checked with `curl -I`). The URL uses `@main`
+  rather than a version tag on purpose: a tag that only exists after the release would 404 during
+  the window between publishing and jsDelivr caching it.
+- The README plays the demo inline. A README cannot play a raw-hosted mp4, so the poster-plus-link
+  is gone and an animated GIF (1000px, 66 kB, generated from the same frames) sits in its place,
+  with the mp4 one click away.
+
 ## [0.2.3] - 2026-10-15
 
 ### Added
@@ -117,7 +130,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - README restructured around the diagrams and the documents above: badges, install, syntax,
   behaviour, cost, and pointer sections for contributors and agents.
 
-[Unreleased]: https://github.com/AleixRocal/pi-multi-skills/compare/v0.2.3...HEAD
+[Unreleased]: https://github.com/AleixRocal/pi-multi-skills/compare/v0.2.4...HEAD
+[0.2.4]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.4
 [0.2.3]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.3
 [0.2.2]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.2
 [0.2.1]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.2.1

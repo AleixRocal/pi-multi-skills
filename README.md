@@ -19,12 +19,13 @@ named skill, each followed by the argument text that skill owns.
   <img alt="Where pi-multi-skills hooks into pi: the message path, and the four extension surfaces" src="https://raw.githubusercontent.com/AleixRocal/pi-multi-skills/main/docs/images/architecture.light.svg">
 </picture>
 
-[![The autocomplete menu opening at the second token, then the two skill blocks the model receives](https://raw.githubusercontent.com/AleixRocal/pi-multi-skills/main/docs/images/demo-poster.png)](https://raw.githubusercontent.com/AleixRocal/pi-multi-skills/main/docs/images/demo.mp4)
+![The autocomplete menu opening at the second /skill: token, then the two skill blocks the model receives](https://cdn.jsdelivr.net/gh/AleixRocal/pi-multi-skills@main/docs/images/demo.gif)
 
 Twelve seconds of the flow, from the menu opening at the second `/skill:` token to the blocks the
-model receives ([`docs/images/demo.mp4`](docs/images/demo.mp4), 1280×720). Generated from the
-behaviour the test suite asserts rather than screen-recorded — `npm run demo:video` renders it frame
-by frame, which is why it does not drift from the code.
+model receives. The animation is generated from the behaviour the test suite asserts rather than
+screen-recorded (`npm run demo:video` renders it frame by frame, so it cannot drift from the code),
+and the full-quality [demo.mp4](https://cdn.jsdelivr.net/gh/AleixRocal/pi-multi-skills@main/docs/images/demo.mp4)
+(1280×720) is one click away.
 
 | Document | For |
 | --- | --- |

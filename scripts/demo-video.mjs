@@ -49,6 +49,8 @@ function arg(name, fallback) {
 
 const FPS = arg("fps", 20);
 const SECONDS = arg("seconds", 12);
+const GIF_FPS = arg("gif-fps", 12);
+const GIF_WIDTH = arg("gif-width", 1000);
 
 /**
  * The animation, as one HTML document. `renderAt(ms)` is the whole contract:
@@ -417,21 +419,34 @@ function encode(ffmpeg, frames) {
 			"-pix_fmt", "yuv420p",
 			"-crf", "20",
 			"-preset", "slow",
-			// The first frame is also the poster, so an <img> shows the video's
-			// opening state without a second asset to keep in sync.
 			"-movflags", "+faststart",
 			mp4,
 		],
 		{ stdio: ["ignore", "inherit", "inherit"] },
 	);
+	console.log(`wrote docs/images/demo.mp4 (${frames} frames, ${FPS}fps, ${WIDTH}x${HEIGHT})`);
+
+	// A GIF as well, and not for nostalgia: GitHub renders an animated GIF inline in
+	// a README, while a raw-hosted MP4 is downloaded rather than played, and
+	// `raw.githubusercontent.com` serves it as application/octet-stream. Scaled and
+	// palettised so it stays in the hundreds of kB instead of tens of MB.
 	execFileSync(
 		ffmpeg,
-		["-y", "-loglevel", "error", "-i", join(FRAME_DIR, "frame-0000.png"),
-			join(OUT_DIR, "demo-poster.png")],
+		[
+			"-y",
+			"-loglevel", "error",
+			"-framerate", String(FPS),
+			"-i", join(FRAME_DIR, "frame-%04d.png"),
+			"-vf",
+			`fps=${GIF_FPS},scale=${GIF_WIDTH}:-1:flags=lanczos,` +
+				"split[a][b];[a]palettegen=max_colors=96[p];" +
+				"[b][p]paletteuse=dither=bayer:bayer_scale=5",
+			"-loop", "0",
+			join(OUT_DIR, "demo.gif"),
+		],
 		{ stdio: ["ignore", "inherit", "inherit"] },
 	);
-	console.log(`wrote docs/images/demo.mp4 (${frames} frames, ${FPS}fps, ${WIDTH}x${HEIGHT})`);
-	console.log("wrote docs/images/demo-poster.png");
+	console.log(`wrote docs/images/demo.gif (${GIF_WIDTH}px, ${GIF_FPS}fps)`);
 }
 
 async function main() {

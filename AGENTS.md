@@ -99,7 +99,11 @@ Each one is load-bearing against a host behaviour that fails **quietly**:
   (libx264 refuses odd heights, and a wrong viewport crops silently), and the page must expose
   `window.renderAt` (a missing page once produced 240 identical frames of Chromium's error page).
   It is a rendering of asserted behaviour, not a screen recording — keep any wording in it honest
-  about that, and remember `pi.video` only refreshes on npm when a version is published.
+  about that, and remember `pi.video` only refreshes on npm when a version is published. Two
+  outputs are produced from the same frames: the mp4 (`pi.video`, served by jsDelivr because
+  `raw.githubusercontent.com` returns `application/octet-stream` for mp4, which downloads instead
+  of plays) and the GIF the README shows inline (GitHub plays an animated GIF and cannot play a
+  raw-hosted mp4).
 - **Release** → see CONTRIBUTING.md → *Releasing*. Tag-driven; never publish by hand after the
   first release.
 
