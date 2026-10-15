@@ -13,6 +13,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - First public release: published to npm as `@aleixrocal/pi-multi-skills`, and eligible for the
   [pi package gallery](https://pi.dev/packages) through the `pi-package` keyword.
+- `LICENSE` (MIT, extensionless — the name GitHub, npm and SPDX tooling detect), shipped in the
+  publish tarball and asserted by `npm run check:pack`.
+- `scripts/release-notes.mjs` (`npm run release:notes`): the GitHub Release body is the
+  `CHANGELOG.md` section for the released version. A tag whose version has no dated entry now
+  fails the release job before the publish, instead of shipping generated PR titles.
+- Star history chart in the README, rendered live from star-history.com (light and dark variants),
+  with a stars badge in the header.
 - `input` handler that rewrites `/skill:a /skill:b args` into N sibling `<skill …>` blocks, with
   positional argument binding and a six-skill cap.
 - Byte-exact emission of pi's native skill block (`dist/core/agent-session.js:1709`), so the

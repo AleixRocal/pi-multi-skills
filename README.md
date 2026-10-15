@@ -5,6 +5,7 @@ Chain several `/skill:` invocations in a single pi message.
 [![CI](https://github.com/AleixRocal/pi-multi-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/AleixRocal/pi-multi-skills/actions/workflows/ci.yml)
 [![Release](https://github.com/AleixRocal/pi-multi-skills/actions/workflows/release.yml/badge.svg)](https://github.com/AleixRocal/pi-multi-skills/actions/workflows/release.yml)
 [![npm](https://img.shields.io/npm/v/@aleixrocal/pi-multi-skills?label=npm)](https://www.npmjs.com/package/@aleixrocal/pi-multi-skills)
+[![GitHub stars](https://img.shields.io/github/stars/AleixRocal/pi-multi-skills?label=stars&color=blue)](https://www.star-history.com/#AleixRocal/pi-multi-skills&Date)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 pi expands exactly one skill per message. Given `/skill:a /skill:b args` it resolves `a` and
@@ -236,6 +237,18 @@ Requires Node `>=22.19.0`; the host packages (`@earendil-works/pi-coding-agent`,
 peer dependencies provided by pi. Contributions are welcome — read
 [CONTRIBUTING.md](CONTRIBUTING.md) first, and see [AGENTS.md](AGENTS.md) if you are an agent.
 
+## Star history
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=AleixRocal/pi-multi-skills&type=Date&theme=dark">
+  <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=AleixRocal/pi-multi-skills&type=Date">
+  <img alt="Star history chart" src="https://api.star-history.com/svg?repos=AleixRocal/pi-multi-skills&type=Date" width="800">
+</picture>
+
+Rendered live by [Star History](https://www.star-history.com/#AleixRocal/pi-multi-skills&Date) — the
+image is an API call, not a committed file, so it re-renders with the latest stars every time this
+page is viewed. The repository is young; the chart fills in as it is starred.
+
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE).

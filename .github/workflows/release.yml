@@ -87,6 +87,20 @@ jobs:
       - name: Pack check
         run: npm run check:pack
 
+      # Release notes come from CHANGELOG.md, so a tag with no dated entry for
+      # its version stops here — before an immutable publish, not after.
+      - name: Release notes from CHANGELOG.md
+        env:
+          # Through the environment, never interpolated into the script body.
+          ALLOW_MISSING: ${{ inputs.dry_run == true }}
+        run: |
+          if [ "$ALLOW_MISSING" = "true" ]; then
+            node scripts/release-notes.mjs --allow-missing > release-notes.md
+          else
+            node scripts/release-notes.mjs > release-notes.md
+          fi
+          wc -l release-notes.md
+
       - name: Guard against republishing an existing version
         run: |
           name="$(node -p 'require("./package.json").name')"
@@ -118,4 +132,4 @@ jobs:
           gh release create "$GITHUB_REF_NAME" \
             --title "$GITHUB_REF_NAME" \
             --verify-tag \
-            --generate-notes
+            --notes-file release-notes.md

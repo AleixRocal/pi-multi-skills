@@ -16,7 +16,13 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, normalize } from "node:path";
 
 /** Always in the tarball. */
-const REQUIRED = ["package.json", "README.md", "CHANGELOG.md", "extensions/index.ts"];
+const REQUIRED = [
+	"package.json",
+	"README.md",
+	"CHANGELOG.md",
+	"LICENSE",
+	"extensions/index.ts",
+];
 
 /** Never in the tarball: tests, CI, tooling, local state. */
 const FORBIDDEN_PREFIXES = ["tests/", "scripts/", ".github/", ".pi/", ".rpiv/"];

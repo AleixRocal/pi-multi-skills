@@ -72,7 +72,7 @@ workflow starts behaving oddly.
 | Setting | Value | Why it must stay |
 | --- | --- | --- |
 | *General → Pull Requests* → Allow auto-merge | on | Without it every `gh pr merge --auto` fails, and the Dependabot job goes red on each bump. |
-| *General → Pull Requests* → Allow squash merging | on (merge and rebase commits off) | The PR title is the release notes and the changelog subject; only squash preserves that. |
+| *General → Pull Requests* → Allow squash merging | on | Recommended, not enforced: a merge commit replaces the PR title on `main`, so the changelog loses the `feat:`/`fix:` grouping that comes from it. Merge commits still work; the history is just less useful. |
 | *Branches* → `main` protection → Require status checks | `typecheck + test (node 22.x)`, `typecheck + test (node 24.x)`, `package (tarball contents)`, `conventional title` | This is what makes `--auto` *wait*. Without it, auto-merge merges immediately, before CI finishes. The names must match the `jobs.<id>.name` values in `ci.yml` and `pr-title.yml` — renaming a job there without updating the rule silently un-requires it. |
 | *Branches* → `main` protection → Allow force pushes / deletions | off | Keeps a published release commit reachable. Direct pushes to `main` are still allowed; only merges are gated by the checks. |
 
