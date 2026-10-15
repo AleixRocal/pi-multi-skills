@@ -65,13 +65,16 @@ jobs:
           DEP_TYPE: ${{ steps.meta.outputs.dependency-type }}
           UPDATE_TYPE: ${{ steps.meta.outputs.update-type }}
         run: |
-          # A missing label must not fail the run: the label is a convenience,
-          # the comment is the signal.
-          gh label create needs-review --force --color FBCA04 \
-            --description "Needs a maintainer decision" >/dev/null 2>&1 ||
-            echo "::warning::could not create the needs-review label"
-          gh pr edit "$PR_URL" --add-label needs-review >/dev/null 2>&1 ||
-            echo "::warning::could not add the needs-review label"
+          # Label creation and application are best-effort: a token minted for a
+          # Dependabot-triggered run cannot always touch labels, and the comment
+          # below is the signal that matters. Assert the outcome instead of the
+          # exit code, so the run only warns when the label really is missing.
+          gh label create needs-review || true
+          gh pr edit "$PR_URL" --add-label needs-review >/dev/null 2>&1 || true
+          if ! gh pr view "$PR_URL" --json labels \
+            --jq '.labels[].name' | grep -qx needs-review; then
+            echo "::warning::could not apply the needs-review label"
+          fi
           gh pr comment "$PR_URL" --body \
             "Not auto-merging: \`$DEP_TYPE\` / \`$UPDATE_TYPE\`.
             A maintainer should review this one."
