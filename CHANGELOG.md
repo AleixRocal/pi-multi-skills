@@ -26,6 +26,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   the stack and becoming that argument text. The skill now identifies the shape before splitting,
   says a broadcast split must not be re-split per skill, and keeps the six-skill ceiling for both
   hosts; `references/lookup.md` resolves a stacked run through the folder name that is its command.
+- The lockfile tracks pi **1.3.0** (`@earendil-works/pi-coding-agent`, `pi-tui` and the `pi-*`
+  packages their manifests pin exactly), and every host `file:line` cited by the source, the tests
+  and `AGENTS.md` was re-resolved against it. No cited region changed its text — only its line
+  number, by `+1` in `agent-session.js`, `+2` in `interactive-mode.js` and `+5` in
+  `export-html/template.js` — so the 20 citations that moved were renumbered and the rest left
+  alone. The upstream delta is the tool loadout restore on resume, model selection, and codemode
+  timeouts; nothing in it touches skill-block parsing, the input hook or the markdown transformer.
+  Nothing changes for an install: the host ranges stay `"*"` peers, and the lockfile's own root
+  version, stale at 0.2.5 since that release, now matches `package.json`.
 
 ## [0.3.0] - 2026-10-15
 

@@ -7,7 +7,7 @@
  * message. That is positional binding.
  *
  * Two deliberate divergences from Pi's native `_expandSkillCommand`
- * (`dist/core/agent-session.js:1697-1721`):
+ * (`dist/core/agent-session.js:1698-1722`):
  *
  *  - Native splits at the FIRST space (`text.indexOf(" ")`, `:1701-1703`) and
  *    swallows everything after it as one skill's argument text, so
@@ -25,7 +25,7 @@
 
 import type { SkillChain, SkillToken } from "./types.js";
 
-/** Marker pi's own expansion recognises (`agent-session.js:1698`). */
+/** Marker pi's own expansion recognises (`agent-session.js:1699`). */
 const TOKEN_MARKER = "/skill:";
 
 /**
