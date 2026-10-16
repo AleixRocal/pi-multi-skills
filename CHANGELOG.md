@@ -7,6 +7,25 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `tests/manifest.test.ts` holds the `pi` manifest contract: the `pi-package` keyword, the resource
+  fields and shapes the host actually reads, every non-glob entry resolving inside the package root,
+  host packages staying peers with a `"*"` range, and absolute `https:` preview URLs. Each rule is a
+  failure that is silent in the host — a dropped field, an ignored key, a path that loads nothing —
+  so it is asserted rather than assumed.
+- `scripts/check-pack.mjs` now validates the same contract against the published tarball. The
+  manifest is the only source of resources a package has: with a `pi` block the host reads the
+  manifest and returns before it walks the conventional directories, so an entry that misses the
+  tarball would ship a package pi loads nothing from. The check also refuses a manifest that omits a
+  resource the tarball still carries, and a host-provided package listed in `dependencies`.
+
+### Fixed
+
+- `CONTRIBUTING.md` no longer describes `pi.image` / `pi.video` as `raw.githubusercontent.com` URLs.
+  They point at GitHub Pages, which is what the manifest has used since the previews moved there for
+  the mp4 content type (`.github/workflows/pages.yml`).
+
 ## [0.3.1] - 2026-10-16
 
 ### Added
