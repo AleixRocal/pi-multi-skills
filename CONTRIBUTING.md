@@ -66,9 +66,9 @@ the host call site or module you touched, because that is what makes the entry a
 
 ## Repository settings the automation depends on
 
-Four settings make the workflows behave as documented. They are repository configuration, not
-files, so they cannot be reviewed in a diff — this is the record of them, and what to do if a
-workflow starts behaving oddly.
+These repository settings make the automation behave as documented. They are repository
+configuration, not files, so they cannot be reviewed in a diff — this is the record of them, and what
+to do if a workflow starts behaving oddly.
 
 | Setting | Value | Why it must stay |
 | --- | --- | --- |
@@ -76,6 +76,7 @@ workflow starts behaving oddly.
 | *General → Pull Requests* → Allow squash merging | on | Recommended, not enforced: a merge commit replaces the PR title on `main`, so the changelog loses the `feat:`/`fix:` grouping that comes from it. Merge commits still work; the history is just less useful. |
 | *Branches* → `main` protection → Require status checks | `typecheck + test (node 22.x)`, `typecheck + test (node 24.x)`, `package (tarball contents)`, `conventional title` | This is what makes `--auto` *wait*. Without it, auto-merge merges immediately, before CI finishes. The names must match the `jobs.<id>.name` values in `ci.yml` and `pr-title.yml` — renaming a job there without updating the rule silently un-requires it. |
 | *Branches* → `main` protection → Allow force pushes / deletions | off | Keeps a published release commit reachable. Direct pushes to `main` are still allowed; only merges are gated by the checks. |
+| *Advanced Security* → Dependabot alerts + Dependabot security updates | on | Alerts alone are a dashboard nobody opens; with security updates on, a vulnerable package anywhere in the tree opens a PR within minutes of the advisory, instead of waiting for Monday's version check. `dependabot-auto-merge.yml` never auto-merges one — a security update reports as `direct:production` or `indirect`, not `direct:development` — so it arrives labelled `needs-review`. Nothing else in this repository scans dependencies. |
 
 Not required, but recommended after the first npm release: package *Settings → Publishing access* →
 "Require two-factor authentication and disallow tokens", once trusted publishing is configured and

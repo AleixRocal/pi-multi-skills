@@ -20,6 +20,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   tarball would ship a package pi loads nothing from. The check also refuses a manifest that omits a
   resource the tarball still carries, and a host-provided package listed in `dependencies`.
 
+### Changed
+
+- Dependabot security updates are on, and recorded in `CONTRIBUTING.md` → *Repository settings*
+  alongside the settings the workflows already depend on. A vulnerable package anywhere in the tree
+  now opens a PR when the advisory lands instead of waiting for Monday's version check, and
+  `dependabot-auto-merge.yml` never merges one — a security update reports as `direct:production`
+  or `indirect`, never `direct:development` — so it arrives labelled `needs-review` for a human.
+
 ### Fixed
 
 - `CONTRIBUTING.md` no longer describes `pi.image` / `pi.video` as `raw.githubusercontent.com` URLs.
