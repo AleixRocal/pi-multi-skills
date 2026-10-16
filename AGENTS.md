@@ -19,10 +19,10 @@ pass and the extension can still be wrong. Re-read the cited host file before tr
 ```bash
 npm ci                 # lockfile-exact; Node >= 22.19.0
 npm run verify         # typecheck + tests + tarball check (what CI runs)
-npm test               # vitest run — 12 files, 180 specs
+npm test               # vitest run — 13 files, 191 specs
 npm run test:watch
 npm run typecheck      # tsc --noEmit, NodeNext
-npm run check:pack     # what `npm publish` would ship
+npm run check:pack     # what `npm publish` would ship, manifest included
 npm run diagrams       # regenerate docs/images/*.svg+.png from scripts/diagrams.mjs
 npm run skill:zip      # dist/<skill>.zip — the marketplace upload artifact
 ```
@@ -44,6 +44,7 @@ npm run skill:zip      # dist/<skill>.zip — the marketplace upload artifact
 | `src/autocomplete.ts` | Chain-token detection at the cursor and the `ctx.ui` provider wrapper. | `tests/autocomplete.test.ts`, `tests/host-provider.test.ts` |
 | `src/skills-tool.ts` | Read-only `skills` listing tool (TypeBox params, direct exposure). | `tests/skills-tool.test.ts` |
 | `skills/skill-chain/` | The model-facing half: what a chain is, positional binding, the closing report. Ships in the package and installs standalone into any agent. | `tests/skill-package.test.ts` |
+| `tests/manifest.test.ts` | The `pi` manifest contract: the gallery keyword, the resource shapes the host reads, entry resolution, host packages as peers, absolute preview URLs. | `scripts/check-pack.mjs` (the same rules against the tarball) |
 | `tests/helpers/mock-pi.ts` | Host fake: commands, UI surface, input events. | — |
 
 `tests/editor-integration.test.ts` drives the real pi-tui editor against the wrapper, which is why
@@ -79,6 +80,12 @@ Each one is load-bearing against a host behaviour that fails **quietly**:
     under `skills/` must ship, and `tests/`/`scripts/`/`.github/` must not. `npm run check:pack`
     derives the import list from the entry point and walks the skill directories, so adding a module
     or a `references/` page without shipping it fails CI.
+11. **The `pi` manifest is the only source of resources.** With a `pi` block, the host reads the
+    manifest and returns before it ever walks the conventional directories
+    (`package-manager.js:1865-1871`), and a field that is not an array of strings is dropped without
+    a word (`pi-manifest.js:16-18`). A shipped resource the manifest omits — or an entry that misses
+    the tarball — is a package pi loads nothing from, silently. `scripts/check-pack.mjs` and
+    `tests/manifest.test.ts` hold the same rules against the tarball and the working tree.
 
 ## Recipes
 

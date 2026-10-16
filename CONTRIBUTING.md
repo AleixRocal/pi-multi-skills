@@ -28,9 +28,9 @@ pi install ./pi-multi-skills   # or install the local checkout
 | Command | What it does |
 | --- | --- |
 | `npm run verify` | `typecheck` + `test` + `check:pack`. The full local gate. |
-| `npm test` | Vitest, 180 specs. `npm run test:watch` while iterating. |
+| `npm test` | Vitest, 191 specs. `npm run test:watch` while iterating. |
 | `npm run typecheck` | `tsc --noEmit`, `NodeNext`, no emit. |
-| `npm run check:pack` | Asserts what `npm publish` would ship (entry point + its imports in, tests out). |
+| `npm run check:pack` | Asserts what `npm publish` would ship (entry point + its imports in, tests out) and that every `pi` manifest entry resolves inside the tarball. |
 | `npm run diagrams` | Regenerates `docs/images/*` from `scripts/diagrams.mjs`, including the gallery cover. |
 | `npm run demo:video` | Re-renders `docs/images/demo.mp4` and `demo.gif` from `scripts/demo-video.mjs`. Needs Chromium (`CHROME_BIN`) and ffmpeg (`FFMPEG_BIN`); skips with a message when either is missing. |
 
@@ -157,10 +157,13 @@ If you ever need a release without trusted publishing, create a granular token, 
 
 The package is eligible for the [pi package gallery](https://pi.dev/packages) through the
 `pi-package` keyword in `package.json`, and the card's preview comes from `pi.image` / `pi.video` —
-absolute `raw.githubusercontent.com` URLs, the convention the other gallery packages use, so the
-assets live in the repository and not in the tarball. Regenerate them with `npm run diagrams` and
-`npm run demo:video`; these fields are manifest metadata, so they reach npm only with a published
-version.
+absolute `https://aleixrocal.github.io/pi-multi-skills/…` URLs, served by GitHub Pages from
+`docs/images/` (`.github/workflows/pages.yml` explains why Pages and not a raw URL: a raw-hosted mp4
+arrives as `application/octet-stream` and downloads instead of playing), so the assets live in the
+repository and not in the tarball. Regenerate them with `npm run diagrams` and `npm run demo:video`;
+these fields are manifest metadata, so they reach npm only with a published version. Both fields are
+checked as absolute `https:` URLs by `npm run verify` — by `scripts/check-pack.mjs` against the
+published tarball and by `tests/manifest.test.ts` against the working tree.
 
 Note that the gallery's own index is not refreshed by the publish: the package *page* exists from
 the moment it is published (`https://pi.dev/packages/@aleixrocal/pi-multi-skills` answers 200 with
