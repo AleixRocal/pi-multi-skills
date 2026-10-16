@@ -4,7 +4,7 @@
  *
  * Why a markdown transformer and not a message renderer: transformers are the
  * only display hook an extension has, and they run on the plain-text path only
- * — `interactive-mode.js:3193-3207` sends a message whose text starts with a
+ * — `interactive-mode.js:3195-3209` sends a message whose text starts with a
  * well-formed block to the collapsible skill card, which runs no transformers
  * (`components/skill-invocation-message.js:9-37`). Blocks that do reach a
  * `UserMessageComponent` are rewritten there (`components/user-message.js:37`).

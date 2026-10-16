@@ -8,9 +8,9 @@ the user-facing behaviour lives in [README.md](README.md).
 A pi package: one TypeScript extension (`extensions/index.ts` → `src/`) that makes a single user
 message able to chain several skills — `/skill:a x /skill:b y` — where native pi expands exactly
 one and silently swallows the rest as argument text
-(`@earendil-works/pi-coding-agent/dist/core/agent-session.js:1697-1721`).
+(`@earendil-works/pi-coding-agent/dist/core/agent-session.js:1698-1722`).
 
-Everything here is pinned to **pi 1.2.0** by reading, not by an API contract: the code comments
+Everything here is pinned to **pi 1.3.0** by reading, not by an API contract: the code comments
 cite `file:line` of the host it was verified against. If pi changes those lines, the tests still
 pass and the extension can still be wrong. Re-read the cited host file before trusting a comment.
 
@@ -119,6 +119,11 @@ Each one is load-bearing against a host behaviour that fails **quietly**:
   raw-hosted mp4).
 - **Release** → see CONTRIBUTING.md → *Releasing*. Tag-driven; never publish by hand after the
   first release.
+
+A host bump is a re-read, not a lockfile edit: re-resolve every cited `file:line` against the new
+`node_modules/@earendil-works/*` before trusting it. From 1.2.0 to 1.3.0 no cited region changed
+its text — only its line number, by `+1` in `agent-session.js`, `+2` in `interactive-mode.js` and
+`+5` in `export-html/template.js` — which is exactly the drift a reader cannot see.
 
 ## Conventions
 

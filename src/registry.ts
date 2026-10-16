@@ -14,7 +14,7 @@ import { dirname } from "node:path";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import type { SkillEntry, SkillIndex } from "./types.js";
 
-/** pi publishes skill-sourced commands as `skill:<name>` (agent-session.js:2726-2732). */
+/** pi publishes skill-sourced commands as `skill:<name>` (agent-session.js:2727-2733). */
 const SKILL_COMMAND_PREFIX = "skill:";
 
 let skillIndex: SkillIndex | null = null;

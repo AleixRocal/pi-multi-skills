@@ -51,7 +51,7 @@ type AutocompleteItem = NonNullable<
 	Awaited<ReturnType<AutocompleteProvider["getSuggestions"]>>
 >["items"][number];
 
-/** Marker the parser and pi's own expansion both recognise (`agent-session.js:1698`). */
+/** Marker the parser and pi's own expansion both recognise (`agent-session.js:1699`). */
 const TOKEN_MARKER = "/skill:";
 
 /**

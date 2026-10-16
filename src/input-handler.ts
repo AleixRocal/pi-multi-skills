@@ -3,7 +3,7 @@
  * skills into N sibling `<skill …>` blocks.
  *
  * Why this hook: Pi dispatches `input` BEFORE its own skill expansion — `prompt()`
- * runs `_runInputHandlers` at `agent-session.js:1622` and only then
+ * runs `_runInputHandlers` at `agent-session.js:1623` and only then
  * `_expandSkillCommand` at `:1631`, and the `steer`/`followUp` path does the same
  * at `:1726`/`:1729`. A `{action:"transform"}` return therefore replaces the text
  * Pi goes on to expand, and because the replacement no longer starts with
@@ -60,7 +60,7 @@ const BLOCK_SEPARATOR = "\n\n";
  *
  *  1. `source === "extension"` → `continue`. The only way an extension re-enters
  *     this hook is `pi.sendUserMessage`, which forces `source: "extension"`
- *     (`agent-session.js:1906`), so this single check breaks any loop over our
+ *     (`agent-session.js:1907`), so this single check breaks any loop over our
  *     own output.
  *  2. Nothing resolves → `continue`. Pi's own expansion then runs, which also
  *     preserves Pi's error behaviour for a single unknown skill.

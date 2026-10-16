@@ -9,7 +9,7 @@
  *
  *  - `parseSkillBlock` (`core/agent-session.js:53-63`) is `^…$`-anchored. A
  *    message that does not start with a well-formed block takes the plain-text
- *    path (`interactive-mode.js:3193-3207`) and is rendered by
+ *    path (`interactive-mode.js:3195-3209`) and is rendered by
  *    `UserMessageComponent`.
  *  - Markdown transformers — the only display hook an extension has — run on
  *    that plain-text path only (`components/user-message.js:37`). The skill card
@@ -30,7 +30,7 @@
  * `@juicesharp/rpiv-args`.
  *
  * Cost, recorded because it cannot be repaired from here: the HTML export
- * (`core/export-html/template.js:1208`) parses the same anchored way and runs no
+ * (`core/export-html/template.js:1213`) parses the same anchored way and runs no
  * transformers, so an exported chain shows its blocks as plain text.
  */
 

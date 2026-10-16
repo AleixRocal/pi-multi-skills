@@ -39,7 +39,7 @@ afterAll(() => {
 });
 
 describe("buildSkillBlock — byte parity with native Pi", () => {
-	it("emits the native template literal field for field (agent-session.js:1709)", () => {
+	it("emits the native template literal field for field (agent-session.js:1710)", () => {
 		const entry: SkillEntry = {
 			name: "design",
 			filePath: "/x/skills/design/SKILL.md",
@@ -64,7 +64,7 @@ describe("appendArgs — native trailing-argument rule", () => {
 		expect(appendArgs(block, "")).toBe(block);
 	});
 
-	it("appends the arguments after exactly one blank line (agent-session.js:1710)", () => {
+	it("appends the arguments after exactly one blank line (agent-session.js:1711)", () => {
 		expect(appendArgs("BLOCK", "refactor auth")).toBe("BLOCK\n\nrefactor auth");
 	});
 });
@@ -207,7 +207,7 @@ describe("expandSkillTokens — contract with Pi's parseSkillBlock regex", () =>
 
 	it("stays parseable for a 2-skill chain — block 2 lands in the user-message group", () => {
 		// Only text after the FIRST `</skill>` reaches a UserMessageComponent
-		// (interactive-mode.js:3187-3211), which is the surface Slice 6 rewrites.
+		// (interactive-mode.js:3189-3213), which is the surface Slice 6 rewrites.
 		const a = makeSkill("a", "A BODY");
 		const b = makeSkill("b", "B BODY");
 		const result = expandSkillTokens("/skill:a x /skill:b y", indexOf(a, b)) ?? "";

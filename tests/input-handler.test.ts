@@ -127,7 +127,7 @@ describe("handleInput — a bare slash never triggers", () => {
 });
 
 describe("handleInput — N=1 is byte-identical to native Pi", () => {
-	it("reproduces agent-session.js:1709-1710 for `/skill:design refactor auth`", () => {
+	it("reproduces agent-session.js:1710-1711 for `/skill:design refactor auth`", () => {
 		const { pi, entry } = harness({ name: "design", body: "Refactor carefully." });
 
 		expect(emit(pi, "/skill:design refactor auth")).toEqual({
@@ -193,7 +193,7 @@ describe("handleInput — chains", () => {
 
 		// One character of marker defeats the `^…$` anchor: the host hands the
 		// whole message to a `UserMessageComponent`, which is where this
-		// extension's markdown transformer runs (`interactive-mode.js:3193-3207`).
+		// extension's markdown transformer runs (`interactive-mode.js:3195-3209`).
 		expect(text.startsWith(CHAIN_DISPLAY_MARKER)).toBe(true);
 		expect(text.match(PARSE_SKILL_BLOCK)).toBeNull();
 	});
