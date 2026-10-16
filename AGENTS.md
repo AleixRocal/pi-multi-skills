@@ -111,7 +111,9 @@ Each one is load-bearing against a host behaviour that fails **quietly**:
   every diagram as a markdown image, never a `<picture>` block: the pi gallery renders the README
   out of the published tarball and drops that element with its children, which cost the two inline
   diagrams their place on the gallery page, and npm sanitizes the HTML the same way. The
-  dark-palette SVGs are linked from the README's `Docs` section instead.
+  dark-palette SVGs are linked from the README's `Docs` section instead. `docs/index.html` is the
+  Pages site root: `pages.yml` publishes `docs/`, and GitHub Pages answers 404 for a directory with
+  no `index.html`, so deleting that file breaks no asset URL and still 404s the root.
 - **Regenerate the demo video** → `scripts/demo-video.mjs`: one HTML page whose `renderAt(ms)` is the
   entire animation, driven over the DevTools protocol (`renderAt`, a double-`requestAnimationFrame`
   wait, then a screenshot — a headless page that is not focused is throttled and would return the

@@ -1,0 +1,179 @@
+<!doctype html>
+<!--
+	The Pages site root.
+
+	`pages.yml` publishes `docs/` as the site root so the README's images and the
+	package's `pi.image` / `pi.video` previews resolve at `/images/…`. GitHub Pages
+	answers 404 for a directory with no `index.html`, so without this file the one
+	URL a human is likely to type — the site root — was the only one that failed.
+
+	Hand-written, not generated: `scripts/diagrams.mjs` owns `images/`, and nothing
+	here needs to be kept in sync with a build.
+-->
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>pi-multi-skills — chain several /skill: invocations in one pi message</title>
+		<meta
+			name="description"
+			content="A pi package that rewrites /skill:a x /skill:b y into one skill block per named skill, each with its own argument text."
+		/>
+		<style>
+			:root {
+				color-scheme: light dark;
+				--bg: #ffffff;
+				--fg: #1f2328;
+				--muted: #59636e;
+				--line: #d1d9e0;
+				--accent: #0969da;
+				--card: #f6f8fa;
+			}
+			@media (prefers-color-scheme: dark) {
+				:root {
+					--bg: #0d1117;
+					--fg: #e6edf3;
+					--muted: #9198a1;
+					--line: #30363d;
+					--accent: #4493f8;
+					--card: #161b22;
+				}
+			}
+			* {
+				box-sizing: border-box;
+			}
+			body {
+				margin: 0;
+				padding: 3rem 1.25rem 4rem;
+				background: var(--bg);
+				color: var(--fg);
+				font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+			}
+			main {
+				max-width: 46rem;
+				margin: 0 auto;
+			}
+			h1 {
+				margin: 0 0 0.5rem;
+				font-size: 2rem;
+				letter-spacing: -0.02em;
+			}
+			h2 {
+				margin: 2.5rem 0 0.75rem;
+				font-size: 0.8rem;
+				text-transform: uppercase;
+				letter-spacing: 0.08em;
+				color: var(--muted);
+			}
+			p {
+				margin: 0 0 1rem;
+			}
+			code {
+				background: var(--card);
+				border-radius: 0.25rem;
+				padding: 0.1rem 0.35rem;
+				font-size: 0.9em;
+			}
+			a {
+				color: var(--accent);
+			}
+			ul.links {
+				list-style: none;
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.5rem;
+				margin: 1.5rem 0 0;
+				padding: 0;
+			}
+			ul.links a {
+				display: inline-block;
+				padding: 0.45rem 0.8rem;
+				border: 1px solid var(--line);
+				border-radius: 999px;
+				text-decoration: none;
+				font-size: 0.9rem;
+			}
+			figure {
+				margin: 2rem 0 0;
+			}
+			img {
+				display: block;
+				width: 100%;
+				height: auto;
+				border: 1px solid var(--line);
+				border-radius: 0.5rem;
+			}
+			figcaption {
+				margin-top: 0.6rem;
+				color: var(--muted);
+				font-size: 0.85rem;
+			}
+			footer {
+				margin-top: 3rem;
+				padding-top: 1rem;
+				border-top: 1px solid var(--line);
+				color: var(--muted);
+				font-size: 0.85rem;
+			}
+		</style>
+	</head>
+	<body>
+		<main>
+			<h1>pi-multi-skills</h1>
+			<p>
+				Chain several <code>/skill:</code> invocations in one pi message:
+				<code>/skill:a x /skill:b y</code>.
+			</p>
+			<p>
+				pi expands exactly one skill per message and swallows the rest as argument text. This
+				package runs an <code>input</code> handler first and rewrites the message into one skill
+				block per named skill, each followed by the argument text that skill owns.
+			</p>
+			<ul class="links">
+				<li>
+					<a href="https://www.npmjs.com/package/@aleixrocal/pi-multi-skills">npm</a>
+				</li>
+				<li><a href="https://github.com/AleixRocal/pi-multi-skills">GitHub</a></li>
+				<li>
+					<a href="https://github.com/AleixRocal/pi-multi-skills#readme">README</a>
+				</li>
+				<li>
+					<a href="https://pi.dev/packages/@aleixrocal/pi-multi-skills">pi package gallery</a>
+				</li>
+				<li>
+					<a href="https://github.com/AleixRocal/pi-multi-skills/blob/main/CHANGELOG.md"
+						>Changelog</a
+					>
+				</li>
+			</ul>
+			<figure>
+				<img
+					src="images/demo.gif"
+					alt="The autocomplete menu opening at the second /skill: token, then the two skill blocks the model receives"
+					width="1000"
+					height="563"
+				/>
+				<figcaption>
+					Twelve seconds of the flow, rendered frame by frame from the behaviour the test suite
+					asserts rather than screen-recorded, so it cannot drift from the code —
+					<a href="images/demo.mp4">demo.mp4</a>, full quality.
+				</figcaption>
+			</figure>
+			<h2>Assets this site serves</h2>
+			<p>
+				The README's images and the package's gallery previews (<code>pi.image</code>,
+				<code>pi.video</code>) resolve to <code>/images/…</code> here:
+				<a href="images/cover.png">cover.png</a>,
+				<a href="images/message-flow.light.svg">message flow</a>,
+				<a href="images/autocomplete.light.svg">autocomplete</a>,
+				<a href="images/architecture.light.svg">architecture</a>,
+				<a href="images/handler-flow.light.svg">the handler's paths</a>. Each has a dark render
+				one filename away (<code>.dark.svg</code>).
+			</p>
+			<footer>
+				Documents live in the repository. This page exists so the site root answers instead of a
+				404; nothing links to it.
+			</footer>
+		</main>
+	</body>
+</html>

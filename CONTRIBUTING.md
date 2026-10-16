@@ -161,7 +161,9 @@ The package is eligible for the [pi package gallery](https://pi.dev/packages) th
 absolute `https://aleixrocal.github.io/pi-multi-skills/…` URLs, served by GitHub Pages from
 `docs/images/` (`.github/workflows/pages.yml` explains why Pages and not a raw URL: a raw-hosted mp4
 arrives as `application/octet-stream` and downloads instead of playing), so the assets live in the
-repository and not in the tarball. Regenerate them with `npm run diagrams` and `npm run demo:video`;
+repository and not in the tarball. Pages serves `docs/` as the site root, so `index.html` is what
+answers at that root — every asset URL keeps working with or without it, but without it the one URL
+a human is likely to type returns GitHub's 404. Regenerate the images with `npm run diagrams` and
 these fields are manifest metadata, so they reach npm only with a published version. Both fields are
 checked as absolute `https:` URLs by `npm run verify` — by `scripts/check-pack.mjs` against the
 published tarball and by `tests/manifest.test.ts` against the working tree.
