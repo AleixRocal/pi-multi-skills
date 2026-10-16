@@ -142,8 +142,21 @@ says how, declared in the manifest so pi loads it beside the extension:
 - report what ran, so a wrong split is visible instead of silent.
 
 The same `SKILL.md` is portable: it installs into any agent with a skills directory (Claude Code,
-Cursor, Copilot), where it does the chaining by hand. `npm run skill:zip` builds the archive for a
-marketplace upload; the skill is `skills/skill-chain/` in this repository.
+Cursor, Copilot), where it does the chaining by hand. It says which of the two splits it is looking
+at, because the host decides: pi binds **positionally** — each `/skill:<name>` token owns the text
+up to the next one — while Claude Code **stacks** user-invocable skills at the start of a message
+(`/write-tests /fix-issue 123`), expands the first plus up to five more, and hands the same trailing
+text to every skill in the run. The stack must be contiguous: the first token that is not a skill
+ends it, and that token with everything after it becomes the argument text for the rest.
+
+Drop the skill in and it works:
+
+```bash
+cp -r skills/skill-chain ~/.claude/skills/     # personal; /skill-chain, or Claude invokes it
+```
+
+`npm run skill:zip` builds the archive for a marketplace upload; the skill is
+`skills/skill-chain/` in this repository.
 
 ## Out of scope
 

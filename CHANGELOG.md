@@ -7,6 +7,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- `skills/skill-chain/SKILL.md` names the two splits it can be handed instead of assuming the
+  positional one. pi binds each `/skill:<name>` token to the text up to the next token; Claude Code
+  stacks user-invocable skills at the start of a message, expands the first plus up to five more,
+  and hands the same trailing text to every skill in the run, with the first non-skill token ending
+  the stack and becoming that argument text. The skill now identifies the shape before splitting,
+  says a broadcast split must not be re-split per skill, and keeps the six-skill ceiling for both
+  hosts; `references/lookup.md` resolves a stacked run through the folder name that is its command.
+
 ## [0.3.0] - 2026-10-15
 
 ### Added

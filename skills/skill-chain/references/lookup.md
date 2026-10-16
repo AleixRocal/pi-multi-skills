@@ -9,6 +9,7 @@ at the first hit.
 | A `skills` tool | Some agents expose the same list as a callable tool; in pi it is `skills` (`query` filters by name and description, `limit` pages). |
 | `~/.agents/skills/` and `.agents/skills/` | The portable Agent Skills locations, read by several agents. Any directory containing a `SKILL.md` is a skill, discovered recursively. |
 | The agent's own skills directory | Claude Code reads `~/.claude/skills/` and `.claude/skills/`; other agents use the same shape under their own config directory. If you cannot find one, go back to the agent's own list rather than guessing paths. |
+| A skill's command name | In Claude Code the folder name is the command you type (`skill-chain/` → `/skill-chain`), so a stacked `/name` run has resolved its names before you see it. |
 
 A skill is a directory holding a `SKILL.md`. Its frontmatter `name` is what the chain refers to.
 When two skills declare the same name, prefer the one the agent announced.
@@ -22,6 +23,7 @@ When two skills declare the same name, prefer the one the agent announced.
 | Seven or more markers | Expand the first six. The seventh marker and everything after it belong to the sixth skill's argument text. |
 | One skill, no chain | Not a chain: invoke it normally, with the whole trailing text as its argument. |
 | The same skill named twice | Apply it twice, in place. The second pass may deliberately build on the first. |
+| The chain arrived as a stack of `/name` commands | Nothing to resolve: take them in order. The names are the folders those commands loaded from. |
 | No argument text at all | Run the skill with an empty argument. Never invent one. |
 
 ## Reporting lines
