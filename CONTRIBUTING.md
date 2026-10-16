@@ -162,10 +162,18 @@ assets live in the repository and not in the tarball. Regenerate them with `npm 
 `npm run demo:video`; these fields are manifest metadata, so they reach npm only with a published
 version.
 
-Note that the gallery's own index is not refreshed by the publish: a package can be installable from
-the moment it is published while the gallery still lists nothing for its name. The keyword and
-exactly this manifest shape are what eligibility is checked against — see `docs/packages.md`
-upstream.
+Note that the gallery's own index is not refreshed by the publish: the package *page* exists from
+the moment it is published (`https://pi.dev/packages/@aleixrocal/pi-multi-skills` answers 200 with
+the README, while an unknown name is `Page Not Found`), but the *index* is a snapshot of ranked
+packages, so the package is absent from it. Measured on 2026-10-16: `pi.dev/packages` has exactly
+two sections — *Recently published* (the newest publishes, minutes old) and *All packages* (a
+capped, ranked list; the entries sampled carry 30k–56k downloads/month, against 0 for a package
+published the day before). There is no pagination (`?page=2` returns the same HTML) and no API
+(`/packages.json` 404, `/api/packages` 501). Recency and installs are what move a package into that
+snapshot; the keyword and exactly this manifest shape are what eligibility is checked against — see
+`docs/packages.md` upstream. Searching for the name is unreliable for a third reason: the unscoped
+`pi-multi-skills` on npm belongs to a different author (QuangThai's pi extension) and outranks ours
+in the registry search, so the gallery is reached by URL or by the `pi install` name.
 
 ## Reporting bugs and proposing features
 

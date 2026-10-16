@@ -7,6 +7,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- The gallery note in `CONTRIBUTING.md` now separates the package *page* from the *index*. The page
+  is live with the publish (`pi.dev/packages/@aleixrocal/pi-multi-skills` answers 200, an unknown
+  name 404s); the index is a snapshot of ranked packages, in which every entry sampled carried
+  30k–56k downloads/month and the newest-publishes section ages out in minutes — so recency and
+  installs are what move a package into it, and nothing in this repository can. The unscoped
+  `pi-multi-skills` on npm also belongs to a different author, which is why the registry search
+  for the name does not lead here.
+
 ### Changed
 
 - `skills/skill-chain/SKILL.md` names the two splits it can be handed instead of assuming the
