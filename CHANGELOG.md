@@ -19,6 +19,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   manifest and returns before it walks the conventional directories, so an entry that misses the
   tarball would ship a package pi loads nothing from. The check also refuses a manifest that omits a
   resource the tarball still carries, and a host-provided package listed in `dependencies`.
+- `docs/index.html`, so the Pages site root answers instead of returning GitHub's 404. `pages.yml`
+  publishes `docs/` as the site root, which is what puts every asset at `/images/…` — and a
+  directory with no `index.html` is a 404 at `/`, the one URL a human is likely to type. The page
+  is hand-written, links the repository, npm and the gallery card, and repeats the demo GIF. No
+  asset URL changed, and none of them ever needed it.
 
 ### Changed
 
