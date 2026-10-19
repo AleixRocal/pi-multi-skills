@@ -32,9 +32,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   now opens a PR when the advisory lands instead of waiting for Monday's version check, and
   `dependabot-auto-merge.yml` never merges one — a security update reports as `direct:production`
   or `indirect`, never `direct:development` — so it arrives labelled `needs-review` for a human.
+- `.gitignore` covers `plans/`, next to `.rpiv/`. Both hold rpiv artifacts that stay local, and a
+  plan written by a skill lands there by default, so leaving it untracked made `git status` noisy
+  after every run.
 
 ### Fixed
 
+- `package.json` `description` carried the em-dash as escape text — `\\u2014` in the manifest, which
+  JSON decodes to the six characters `\u2014` — so the npm page and the gallery card printed them
+  verbatim. It is a real `—` now. npm only re-reads a manifest on publish, so the fix ships with the
+  next release.
 - `CONTRIBUTING.md` no longer describes `pi.image` / `pi.video` as `raw.githubusercontent.com` URLs.
   They point at GitHub Pages, which is what the manifest has used since the previews moved there for
   the mp4 content type (`.github/workflows/pages.yml`).
