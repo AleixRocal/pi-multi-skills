@@ -12,6 +12,7 @@ out/
 
 # rpiv local artifacts (research / designs / plans stay local)
 .rpiv/
+plans/
 
 # pi local runtime state (stage logs, goal ledger, project guardrails)
 .pi/
