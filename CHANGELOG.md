@@ -35,6 +35,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- `package.json` `description` carried the em-dash as escape text — `\\u2014` in the manifest, which
+  JSON decodes to the six characters `\u2014` — so the npm page and the gallery card printed them
+  verbatim. It is a real `—` now. npm only re-reads a manifest on publish, so the fix ships with the
+  next release.
 - `CONTRIBUTING.md` no longer describes `pi.image` / `pi.video` as `raw.githubusercontent.com` URLs.
   They point at GitHub Pages, which is what the manifest has used since the previews moved there for
   the mp4 content type (`.github/workflows/pages.yml`).
