@@ -180,15 +180,6 @@ message.
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Building, the PR flow, releasing. |
 | [CHANGELOG.md](CHANGELOG.md) | What changed, per version. |
 
-Diagrams, light and dark: [message flow](https://aleixrocal.github.io/pi-multi-skills/images/message-flow.light.svg)
-· [autocomplete](https://aleixrocal.github.io/pi-multi-skills/images/autocomplete.light.svg) ·
-[architecture](https://aleixrocal.github.io/pi-multi-skills/images/architecture.light.svg) ·
-[the handler's paths](https://aleixrocal.github.io/pi-multi-skills/images/handler-flow.light.svg) — the
-`.dark.svg` beside each is the same diagram in the dark palette.
-Bug reports and feature requests go to
-[Issues](https://github.com/AleixRocal/pi-multi-skills/issues); every version is on
-[GitHub Releases](https://github.com/AleixRocal/pi-multi-skills/releases).
-
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/chart?repos=AleixRocal/pi-multi-skills&type=date&legend=top-left)](https://www.star-history.com/?repos=AleixRocal%2Fpi-multi-skills&type=date&legend=top-left)

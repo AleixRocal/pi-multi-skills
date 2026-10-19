@@ -7,6 +7,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- The README's *Docs* section drops the "diagrams, light and dark" link list and the closing
+  pointers to Issues and Releases. The two diagrams readers actually need are embedded inline where
+  they are discussed, and the rest — including both palettes — are linked from the Pages root,
+  which is what `docs/index.html` is for: a second index in the README only gave the reader a
+  choice between two lists of the same four files.
+
 ## [0.3.2] - 2026-10-19
 
 ### Added
