@@ -53,6 +53,13 @@ jobs:
       - name: Test
         run: npm test
 
+      # The comments pin this package to the host by citing its source lines
+      # (`AGENTS.md` → *What this is*). A host bump can move a cited function
+      # without changing a word of the test suite, so the citations are checked
+      # against the installed host here rather than trusted.
+      - name: Host citations
+        run: npm run check:host
+
   package:
     name: package (tarball contents)
     runs-on: ubuntu-latest

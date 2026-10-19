@@ -42,11 +42,12 @@
 		"test:watch": "vitest",
 		"typecheck": "tsc --noEmit",
 		"check:pack": "node scripts/check-pack.mjs",
+		"check:host": "node scripts/check-host.mjs",
 		"diagrams": "node scripts/diagrams.mjs",
 		"demo:video": "node scripts/demo-video.mjs",
 		"release:notes": "node scripts/release-notes.mjs",
 		"skill:zip": "node scripts/skill-zip.mjs",
-		"verify": "npm run typecheck && npm test && npm run check:pack"
+		"verify": "npm run typecheck && npm test && npm run check:pack && npm run check:host"
 	},
 	"files": [
 		"extensions/",

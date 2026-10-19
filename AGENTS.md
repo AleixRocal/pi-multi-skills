@@ -18,11 +18,13 @@ pass and the extension can still be wrong. Re-read the cited host file before tr
 
 ```bash
 npm ci                 # lockfile-exact; Node >= 22.19.0
-npm run verify         # typecheck + tests + tarball check (what CI runs)
-npm test               # vitest run — 13 files, 191 specs
+npm run verify         # typecheck + tests + tarball + host citations (what CI runs)
+npm test               # vitest run — 14 files, 195 specs
 npm run test:watch
 npm run typecheck      # tsc --noEmit, NodeNext
 npm run check:pack     # what `npm publish` would ship, manifest included
+npm run check:host     # every cited host `file:line` still holds its text
+npm run check:host -- --update  # re-snapshot after a host bump; the diff is the re-read
 npm run diagrams       # regenerate docs/images/*.svg+.png from scripts/diagrams.mjs
 npm run skill:zip      # dist/<skill>.zip — the marketplace upload artifact
 ```
@@ -46,6 +48,8 @@ npm run skill:zip      # dist/<skill>.zip — the marketplace upload artifact
 | `skills/skill-chain/` | The model-facing half: what a chain is, positional binding, the closing report. Ships in the package and installs standalone into any agent. | `tests/skill-package.test.ts` |
 | `tests/manifest.test.ts` | The `pi` manifest contract: the gallery keyword, the resource shapes the host reads, entry resolution, host packages as peers, absolute preview URLs. | `scripts/check-pack.mjs` (the same rules against the tarball) |
 | `tests/helpers/mock-pi.ts` | Host fake: commands, UI surface, input events. | — |
+| `scripts/check-host.mjs` | Resolves every cited host `file:line`, hashes the cited range, and fails when the text moved — or when a citation was never snapshotted. `--update` rewrites the snapshot. | `tests/host-baseline.test.ts` |
+| `scripts/host-baseline.json` | The committed snapshot: host versions, one entry per citation (resolved file, line spec, range hash, boundary text), and a hash per shipped host doc. Generated, never hand-edited. | `scripts/check-host.mjs` |
 
 `tests/editor-integration.test.ts` drives the real pi-tui editor against the wrapper, which is why
 autocomplete regressions show up as a test failure rather than as a menu that does not open.
@@ -86,6 +90,13 @@ Each one is load-bearing against a host behaviour that fails **quietly**:
     a word (`pi-manifest.js:16-18`). A shipped resource the manifest omits — or an entry that misses
     the tarball — is a package pi loads nothing from, silently. `scripts/check-pack.mjs` and
     `tests/manifest.test.ts` hold the same rules against the tarball and the working tree.
+12. **A citation is a claim, and the baseline is what makes it checkable.** Every cited `file:line`
+    is registered in `scripts/host-baseline.json` with a hash of the cited range. `npm run check:host`
+    fails when the range's text moves, when the lines vanish, or when a source cites a host line that
+    was never snapshotted — it cannot fail on a citation that merely *reads* wrong, which is why the
+    prose still has to be re-read on a bump. Adding a citation means running
+    `npm run check:host -- --update` and committing the resulting entry; a citation the baseline does
+    not carry is unverified, not passing.
 
 ## Recipes
 
@@ -129,10 +140,23 @@ Each one is load-bearing against a host behaviour that fails **quietly**:
 - **Release** → see CONTRIBUTING.md → *Releasing*. Tag-driven; never publish by hand after the
   first release.
 
-A host bump is a re-read, not a lockfile edit: re-resolve every cited `file:line` against the new
-`node_modules/@earendil-works/*` before trusting it. From 1.2.0 to 1.3.0 no cited region changed
-its text — only its line number, by `+1` in `agent-session.js`, `+2` in `interactive-mode.js` and
-`+5` in `export-html/template.js` — which is exactly the drift a reader cannot see.
+A host bump is a re-read, not a lockfile edit — and `npm run check:host` is what turns it into a
+mechanical one:
+
+```bash
+npm run check:host -- --update      # re-snapshot against node_modules/@earendil-works/*
+git diff scripts/host-baseline.json # THIS diff is the re-read
+```
+
+Line numbers moving is a bump that changed no cited text. A `first`/`last`/`sha256` changing is a
+bump that changed cited behaviour: read that function. The failure path names the new line
+(`the expected text now starts at :54 (+1)`), so a red CI run is a work instruction, not a search.
+From 1.2.0 to 1.3.0 no cited region changed its text — only its line number, by `+1` in
+`agent-session.js`, `+2` in `interactive-mode.js` and `+5` in `export-html/template.js` — which is
+exactly the drift a reader cannot see, and the case the range hash exists for. The same run lists
+the shipped host docs whose text changed since the snapshot (`docs/extensions.md`, `docs/tui.md`, …)
+because those are the pages worth reading before trusting a moved citation; a docs-only change warns
+and does not fail, since it is not a behaviour change.
 
 ## Conventions
 
@@ -140,7 +164,8 @@ its text — only its line number, by `+1` in `agent-session.js`, `+2` in `inter
   extensions in relative imports.
 - Comments explain *why*, and cite the host `file:line` that makes the reason true. A comment that
   restates the code is noise; a comment that names the host line is the reason the next agent can
-  verify the decision.
+  verify the decision — and the line is registered in `scripts/host-baseline.json`, so the next agent
+  can also find out that it moved.
 - Tests are Vitest, no network, no sleeps; the host is faked through `tests/helpers/mock-pi.ts`.
 - Docs are `##`-structured, wrapped near 100 columns, and reference host lines the same way.
 - One concern per PR, Conventional Commit title, changelog entry in the same PR.
