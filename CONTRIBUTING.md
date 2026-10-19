@@ -13,7 +13,7 @@ the invariants you must not break, and the recipes for the usual changes.
 git clone https://github.com/AleixRocal/pi-multi-skills
 cd pi-multi-skills
 npm ci                # lockfile-exact install; Node >= 22.19.0
-npm run verify        # typecheck + tests + tarball check — what CI runs
+npm run verify        # typecheck + tests + tarball + host citations — what CI runs
 ```
 
 To try your working copy inside pi, without publishing anything:
@@ -27,10 +27,11 @@ pi install ./pi-multi-skills   # or install the local checkout
 
 | Command | What it does |
 | --- | --- |
-| `npm run verify` | `typecheck` + `test` + `check:pack`. The full local gate. |
-| `npm test` | Vitest, 191 specs. `npm run test:watch` while iterating. |
+| `npm run verify` | `typecheck` + `test` + `check:pack` + `check:host`. The full local gate. |
+| `npm test` | Vitest, 195 specs. `npm run test:watch` while iterating. |
 | `npm run typecheck` | `tsc --noEmit`, `NodeNext`, no emit. |
 | `npm run check:pack` | Asserts what `npm publish` would ship (entry point + its imports in, tests out) and that every `pi` manifest entry resolves inside the tarball. |
+| `npm run check:host` | Asserts every host `file:line` cited in a comment still points at the text the comment assumes, and that no citation is missing from `scripts/host-baseline.json`. `-- --update` re-snapshots after a host bump; the diff of that file is the re-read. |
 | `npm run diagrams` | Regenerates `docs/images/*` from `scripts/diagrams.mjs`, including the gallery cover. |
 | `npm run demo:video` | Re-renders `docs/images/demo.mp4` and `demo.gif` from `scripts/demo-video.mjs`. Needs Chromium (`CHROME_BIN`) and ffmpeg (`FFMPEG_BIN`); skips with a message when either is missing. |
 
@@ -39,7 +40,7 @@ pi install ./pi-multi-skills   # or install the local checkout
 1. **Branch from `main`.** Fork for external contributions; `fix/…`, `feat/…`, `docs/…` names.
 2. **Keep the diff to one concern.** A behaviour change plus its tests; a docs change on its own.
 3. **Run `npm run verify` before pushing.** CI runs exactly this, on Node 22 and 24, plus the
-   tarball job.
+   tarball job and the host-citation check.
 4. **Open the PR** and fill in the template. CI needs no secrets, so it runs on fork PRs. A
    `PR title` check reads the title against the convention below, and it runs in seconds — fix the
    title rather than waiting on a review to hear about it.
@@ -48,8 +49,8 @@ pi install ./pi-multi-skills   # or install the local checkout
    auto-merge themselves, and GitHub waits for the same checks.
 
 Nothing merges with a red check. If a check looks wrong rather than your change being wrong, say
-so in the PR — the byte-parity and packaging checks exist because their failures are silent in
-production, not because the rule is sacred.
+so in the PR — the byte-parity, packaging and citation checks exist because their failures are
+silent in production, not because the rule is sacred.
 
 ### Commit / PR title convention
 

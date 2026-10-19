@@ -1,0 +1,630 @@
+{
+	"host": {
+		"@earendil-works/pi-coding-agent": "1.3.0",
+		"@earendil-works/pi-tui": "1.3.0",
+		"@earendil-works/pi-ai": "1.3.0",
+		"@earendil-works/pi-agent-core": "1.3.0"
+	},
+	"citations": {
+		"@earendil-works/pi-coding-agent/dist/core/agent-session.js:1698-1722": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/agent-session.js",
+			"lines": "1698-1722",
+			"count": 25,
+			"sha256": "2cd1236033a16307f342294fbdf56a8b7d53d4e75045f89034c2518cda6ee57f",
+			"first": "_expandSkillCommand(text) {",
+			"last": "}"
+		},
+		"@earendil-works/pi-coding-agent/dist/core/extensions/runner.js:1202-1237": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/extensions/runner.js",
+			"lines": "1202-1237",
+			"count": 36,
+			"sha256": "33dfb28c3f645fcad22e65881ef97b098b1626fe5bd0b7dac9e5d9c57e54df48",
+			"first": "const ctx = this.createContext();",
+			"last": "}"
+		},
+		"@earendil-works/pi-tui/dist/autocomplete.js:232-235": {
+			"package": "@earendil-works/pi-tui",
+			"path": "dist/autocomplete.js",
+			"lines": "232-235",
+			"count": 4,
+			"sha256": "ac8d1f741bfe67d836e2a34abab5ef42eb6efa34c4f28575ddec421559d80a94",
+			"first": "const commandText = textBeforeCursor.trimStart();",
+			"last": "if (spaceIndex === -1) {"
+		},
+		"agent-session.js:1623": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/agent-session.js",
+			"lines": "1623",
+			"count": 1,
+			"sha256": "bb1affd959d0c10e0ef356b0e235d330b0627b6086d43cb1669b36a9305e31c6",
+			"first": "const processedInput = await this._runInputHandlers(text, options?.images, options?.source ?? \"interactive\", this.isStreaming ? options?.streamingBehavior : undefined);",
+			"last": "const processedInput = await this._runInputHandlers(text, options?.images, options?.source ?? \"interactive\", this.isStreaming ? options?.streamingBehavior : undefined);"
+		},
+		"agent-session.js:1632": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/agent-session.js",
+			"lines": "1632",
+			"count": 1,
+			"sha256": "ff7d0a9d88d5f33070ce9335687f71c13811efeaecfaa45e91d16b5914059a9f",
+			"first": "expandedText = this._expandSkillCommand(expandedText);",
+			"last": "expandedText = this._expandSkillCommand(expandedText);"
+		},
+		"agent-session.js:1697-1721": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/agent-session.js",
+			"lines": "1697-1721",
+			"count": 25,
+			"sha256": "61142100d2544a47e95418a899d31ff0170a262024f3a74262e4ef1189063006",
+			"first": "*/",
+			"last": "}"
+		},
+		"agent-session.js:1698": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/agent-session.js",
+			"lines": "1698",
+			"count": 1,
+			"sha256": "26fbe4e18440b259f5939613328f7b5302416ac66f7e9c0d9d048fc2981f333f",
+			"first": "_expandSkillCommand(text) {",
+			"last": "_expandSkillCommand(text) {"
+		},
+		"agent-session.js:1699": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/agent-session.js",
+			"lines": "1699",
+			"count": 1,
+			"sha256": "5d15c85256a1920f4a704c82049614a24a86ab890c4266666bd31898f6df32d5",
+			"first": "if (!text.startsWith(\"/skill:\"))",
+			"last": "if (!text.startsWith(\"/skill:\"))"
+		},
+		"agent-session.js:1708": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/agent-session.js",
+			"lines": "1708",
+			"count": 1,
+			"sha256": "1e83c1562351668c0b7063d888f942099c936cc7b392ed45e1c7d11a9d11ff5f",
+			"first": "const content = readFileSync(skill.filePath, \"utf-8\");",
+			"last": "const content = readFileSync(skill.filePath, \"utf-8\");"
+		},
+		"agent-session.js:1710": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/agent-session.js",
+			"lines": "1710",
+			"count": 1,
+			"sha256": "5fcd4f75613d90cf94c825b4f475ca04b632f6679f0f620be339302794bbf7b0",
+			"first": "const skillBlock = `<skill name=\"${skill.name}\" location=\"${skill.filePath}\">\\nReferences are relative to ${skill.baseDir}.\\n\\n${body}\\n</skill>`;",
+			"last": "const skillBlock = `<skill name=\"${skill.name}\" location=\"${skill.filePath}\">\\nReferences are relative to ${skill.baseDir}.\\n\\n${body}\\n</skill>`;"
+		},
+		"agent-session.js:1710-1711": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/agent-session.js",
+			"lines": "1710-1711",
+			"count": 2,
+			"sha256": "e249e60199c895929ccfbb5da965d2d840316834fff1e794dc6f8cf4f146e713",
+			"first": "const skillBlock = `<skill name=\"${skill.name}\" location=\"${skill.filePath}\">\\nReferences are relative to ${skill.baseDir}.\\n\\n${body}\\n</skill>`;",
+			"last": "return args ? `${skillBlock}\\n\\n${args}` : skillBlock;"
+		},
+		"agent-session.js:1711": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/agent-session.js",
+			"lines": "1711",
+			"count": 1,
+			"sha256": "83be8939e8d6ab137a1d3139b4b84bd1d94c77b2c312ecfbc69b3e653c91f823",
+			"first": "return args ? `${skillBlock}\\n\\n${args}` : skillBlock;",
+			"last": "return args ? `${skillBlock}\\n\\n${args}` : skillBlock;"
+		},
+		"agent-session.js:1907": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/agent-session.js",
+			"lines": "1907",
+			"count": 1,
+			"sha256": "74f6695961bfb7bd1a7339be5a032061c609441475822da4cd8c27d63ac45a52",
+			"first": "source: \"extension\",",
+			"last": "source: \"extension\","
+		},
+		"agent-session.js:2727-2733": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/agent-session.js",
+			"lines": "2727-2733",
+			"count": 7,
+			"sha256": "6c4f512b2ff3bca419ed848abf07a3416b73c22fe698f582f53b2dcb9d93ac8d",
+			"first": "const skills = this._resourceLoader.getSkills().skills.map((skill) => ({",
+			"last": "return [...extensionCommands, ...templates, ...skills];"
+		},
+		"agent-session.js:53-63": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/agent-session.js",
+			"lines": "53-63",
+			"count": 11,
+			"sha256": "3daed72faf66568ce7aec2653ff77733282267475973dbd10c012d7528f78c21",
+			"first": "export function parseSkillBlock(text) {",
+			"last": "}"
+		},
+		"agent-session.js:54": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/agent-session.js",
+			"lines": "54",
+			"count": 1,
+			"sha256": "f50b2d45729440042085424fb9ba4ee071fbaa3d773a277057eedc073a554bd3",
+			"first": "const match = text.match(/^<skill name=\"([^\"]+)\" location=\"([^\"]+)\">\\n([\\s\\S]*?)\\n<\\/skill>(?:\\n\\n([\\s\\S]+))?$/);",
+			"last": "const match = text.match(/^<skill name=\"([^\"]+)\" location=\"([^\"]+)\">\\n([\\s\\S]*?)\\n<\\/skill>(?:\\n\\n([\\s\\S]+))?$/);"
+		},
+		"args.ts:150-158": {
+			"external": "@juicesharp/rpiv-args"
+		},
+		"args.ts:313-338": {
+			"external": "@juicesharp/rpiv-args"
+		},
+		"args.ts:367-373": {
+			"external": "@juicesharp/rpiv-args"
+		},
+		"args.ts:381,388-390": {
+			"external": "@juicesharp/rpiv-args"
+		},
+		"args.ts:392-395": {
+			"external": "@juicesharp/rpiv-args"
+		},
+		"args.ts:400-448": {
+			"external": "@juicesharp/rpiv-args"
+		},
+		"args.ts:409": {
+			"external": "@juicesharp/rpiv-args"
+		},
+		"args.ts:414-416": {
+			"external": "@juicesharp/rpiv-args"
+		},
+		"args.ts:419,425": {
+			"external": "@juicesharp/rpiv-args"
+		},
+		"args.ts:477-486": {
+			"external": "@juicesharp/rpiv-args"
+		},
+		"args.ts:71": {
+			"external": "@juicesharp/rpiv-args"
+		},
+		"autocomplete.js:233-262": {
+			"package": "@earendil-works/pi-tui",
+			"path": "dist/autocomplete.js",
+			"lines": "233-262",
+			"count": 30,
+			"sha256": "214f01c5ae55f56336d64c42dbdcd5a972624f64fd4d15edb31af2297d631504",
+			"first": "if (!options.force && commandText.startsWith(\"/\")) {",
+			"last": "}"
+		},
+		"autocomplete.js:303-313": {
+			"package": "@earendil-works/pi-tui",
+			"path": "dist/autocomplete.js",
+			"lines": "303-313",
+			"count": 11,
+			"sha256": "f8a6348fdaec86c10f4a8c002b1ed99bfc08cdc7f3d9cf2c569e46fa8e447e2d",
+			"first": "const isSlashCommand = prefix.startsWith(\"/\") && beforePrefix.trim() === \"\" && !prefix.slice(1).includes(\"/\");",
+			"last": "};"
+		},
+		"autocomplete.js:388-390": {
+			"package": "@earendil-works/pi-tui",
+			"path": "dist/autocomplete.js",
+			"lines": "388-390",
+			"count": 3,
+			"sha256": "2240d516539f84c8520524ffe3bddaa8640a28fc993356cf83afbada3c3d466e",
+			"first": "if (pathPrefix.includes(\"/\") || pathPrefix.startsWith(\".\") || pathPrefix.startsWith(\"~/\")) {",
+			"last": "}"
+		},
+		"components/assistant-message.js:86,118": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/modes/interactive/components/assistant-message.js",
+			"lines": "86,118",
+			"count": 2,
+			"sha256": "fc863bcb4ec69b9a2aec871738f878db2752151cada15f8f293725e9ff7be544",
+			"first": "transform: createMarkdownTransform(\"assistant\", this.isStreaming, this.markdownTransformers),",
+			"last": "transform: createMarkdownTransform(\"assistant-thinking\", this.isStreaming, this.markdownTransformers),"
+		},
+		"components/editor.js:1022-1027": {
+			"package": "@earendil-works/pi-tui",
+			"path": "dist/components/editor.js",
+			"lines": "1022-1027",
+			"count": 6,
+			"sha256": "04ee0a3a71e9df8665adee529ec65e20d68324eb51733aff64e141d5d266a3b2",
+			"first": "this.tryTriggerAutocomplete();",
+			"last": "const textBeforeCursor = currentLine.slice(0, this.state.cursorCol);"
+		},
+		"components/editor.js:1848-1873": {
+			"package": "@earendil-works/pi-tui",
+			"path": "dist/components/editor.js",
+			"lines": "1848-1873",
+			"count": 26,
+			"sha256": "2eb7a4d36489abfff550fba9c8d4283e33df29411389e6c7b0c841c7cfbc0501",
+			"first": "// Autocomplete methods",
+			"last": "return firstPrefixIndex;"
+		},
+		"components/editor.js:405": {
+			"package": "@earendil-works/pi-tui",
+			"path": "dist/components/editor.js",
+			"lines": "405",
+			"count": 1,
+			"sha256": "f483e4a935e315c81798b4bac8c55817a6072a8828cd5b41a4fd3c00a57e9bc5",
+			"first": "const terminalRows = this.tui.terminal.rows;",
+			"last": "const terminalRows = this.tui.terminal.rows;"
+		},
+		"components/skill-invocation-message.js:9-37": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/modes/interactive/components/skill-invocation-message.js",
+			"lines": "9-37",
+			"count": 29,
+			"sha256": "e21e76fd9d1b8e7654db8b4474eae4fb7c6f4e2f3225312a0c6dc34b9ccad0c1",
+			"first": "export class SkillInvocationMessageComponent extends Box {",
+			"last": "const header = `**${this.skillBlock.name}**\\n\\n`;"
+		},
+		"components/user-message.js:31-41": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/modes/interactive/components/user-message.js",
+			"lines": "31-41",
+			"count": 11,
+			"sha256": "72ff172f0af5b0daf70ae6c52c00bd0c7e94dd91e84638c62154ec080d17a5ab",
+			"first": "this.addChild(new Markdown(this.text, this.outputPad, 1, this.markdownTheme, {",
+			"last": "const lines = super.render(width);"
+		},
+		"components/user-message.js:37": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/modes/interactive/components/user-message.js",
+			"lines": "37",
+			"count": 1,
+			"sha256": "20de5bc6fe2a29ff6016e65bbd8eaca708d78a77036dbf2dceef84b0e91534e7",
+			"first": "transform: createMarkdownTransform(\"user\", false, this.markdownTransformers),",
+			"last": "transform: createMarkdownTransform(\"user\", false, this.markdownTransformers),"
+		},
+		"core/agent-session.js:53-63": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/agent-session.js",
+			"lines": "53-63",
+			"count": 11,
+			"sha256": "3daed72faf66568ce7aec2653ff77733282267475973dbd10c012d7528f78c21",
+			"first": "export function parseSkillBlock(text) {",
+			"last": "}"
+		},
+		"core/export-html/template.js:1213": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/export-html/template.js",
+			"lines": "1213",
+			"count": 1,
+			"sha256": "fcc4fcb02a7781977badd4b11200075f2ebaa23d7b79a41ba7eec9fbdd730c90",
+			"first": "const skillBlock = parseSkillBlock(text);",
+			"last": "const skillBlock = parseSkillBlock(text);"
+		},
+		"core/extensions/runner.js:152": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/extensions/runner.js",
+			"lines": "152",
+			"count": 1,
+			"sha256": "824a79ec2c5a51754fd5b06603c6d9fad072826ce203ab2764d1d253f0b46534",
+			"first": "addAutocompleteProvider: () => { },",
+			"last": "addAutocompleteProvider: () => { },"
+		},
+		"core/extensions/types.d.ts:66": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/extensions/types.d.ts",
+			"lines": "66",
+			"count": 1,
+			"sha256": "4880c02e133f377c8c11be2e610e070b07497fe8a2aee67fe36b30c00b705057",
+			"first": "export type AutocompleteProviderFactory = (current: AutocompleteProvider) => AutocompleteProvider;",
+			"last": "export type AutocompleteProviderFactory = (current: AutocompleteProvider) => AutocompleteProvider;"
+		},
+		"core/extensions/types.d.ts:66,141": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/extensions/types.d.ts",
+			"lines": "66,141",
+			"count": 2,
+			"sha256": "fad44739c4ec0265882ada412e6fe46a2690f00beeeba4a190b97fab0e8eff1a",
+			"first": "export type AutocompleteProviderFactory = (current: AutocompleteProvider) => AutocompleteProvider;",
+			"last": "addAutocompleteProvider(factory: AutocompleteProviderFactory): void;"
+		},
+		"dist/core/agent-session.js:1698-1722": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/agent-session.js",
+			"lines": "1698-1722",
+			"count": 25,
+			"sha256": "2cd1236033a16307f342294fbdf56a8b7d53d4e75045f89034c2518cda6ee57f",
+			"first": "_expandSkillCommand(text) {",
+			"last": "}"
+		},
+		"dist/core/agent-session.js:1709-1711": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/agent-session.js",
+			"lines": "1709-1711",
+			"count": 3,
+			"sha256": "0fcc21af093af4411791bd5e21ba0a92615f29827af4ca286b26051aa46d4b6d",
+			"first": "const body = stripFrontmatter(content).trim();",
+			"last": "return args ? `${skillBlock}\\n\\n${args}` : skillBlock;"
+		},
+		"dist/core/agent-session.js:54": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/agent-session.js",
+			"lines": "54",
+			"count": 1,
+			"sha256": "f50b2d45729440042085424fb9ba4ee071fbaa3d773a277057eedc073a554bd3",
+			"first": "const match = text.match(/^<skill name=\"([^\"]+)\" location=\"([^\"]+)\">\\n([\\s\\S]*?)\\n<\\/skill>(?:\\n\\n([\\s\\S]+))?$/);",
+			"last": "const match = text.match(/^<skill name=\"([^\"]+)\" location=\"([^\"]+)\">\\n([\\s\\S]*?)\\n<\\/skill>(?:\\n\\n([\\s\\S]+))?$/);"
+		},
+		"dist/core/extensions/loader.js:280-283": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/extensions/loader.js",
+			"lines": "280-283",
+			"count": 4,
+			"sha256": "bb095ce5f3acc1fca8d54828231e8aac25aa3600431f68d95ed1b184f68aab47",
+			"first": "registerMarkdownTransformer(transformer) {",
+			"last": "},"
+		},
+		"dist/core/extensions/runner.js:538-540": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/extensions/runner.js",
+			"lines": "538-540",
+			"count": 3,
+			"sha256": "55a1826dfb23370ad031f69fddf9c7d823d0aa7ab01fa4e7880fbae98b05921c",
+			"first": "getMarkdownTransformers() {",
+			"last": "}"
+		},
+		"dist/core/package-manager.js:135-137": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/package-manager.js",
+			"lines": "135-137",
+			"count": 3,
+			"sha256": "a8784573effae76b31d8c415828dc5572fc301a9b0cfc1451ed3e94848a10519",
+			"first": "function isOverridePattern(s) {",
+			"last": "}"
+		},
+		"dist/core/package-manager.js:135-140": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/package-manager.js",
+			"lines": "135-140",
+			"count": 6,
+			"sha256": "d65a312b685ed70b6c19d056944cffa9d59a05deb622fcc3f8c4c565d99eba68",
+			"first": "function isOverridePattern(s) {",
+			"last": "}"
+		},
+		"dist/core/package-manager.js:138-140": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/package-manager.js",
+			"lines": "138-140",
+			"count": 3,
+			"sha256": "ceb407321814041fd463dfda22b9b06f7a8d8c60e44e7daf302724775fcb2e93",
+			"first": "function hasGlobPattern(s) {",
+			"last": "}"
+		},
+		"dist/core/package-manager.js:1865-1871": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/package-manager.js",
+			"lines": "1865-1871",
+			"count": 7,
+			"sha256": "d9764bc62701cb4abd26003596eba6a8aa8f719b12c08fe8edd8e4ed815e9dfd",
+			"first": "const manifest = readPiManifest(join(packageRoot, \"package.json\"));",
+			"last": "return true;"
+		},
+		"dist/core/package-manager.js:1963": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/package-manager.js",
+			"lines": "1963",
+			"count": 1,
+			"sha256": "017cc893ffb172c7869e0e9258105d325ec0799c759cfb43c45fb7e53ae21b22",
+			"first": "const sourceEntries = entries.filter((entry) => !isOverridePattern(entry));",
+			"last": "const sourceEntries = entries.filter((entry) => !isOverridePattern(entry));"
+		},
+		"dist/core/package-manager.js:62-70": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/package-manager.js",
+			"lines": "62-70",
+			"count": 9,
+			"sha256": "54376f798f9115b5b06a0c7b16ae38c1799772df872f545563e7eb12ead44708",
+			"first": "function resourcePrecedenceRank(m) {",
+			"last": "}"
+		},
+		"dist/core/pi-manifest.js:16-18": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/pi-manifest.js",
+			"lines": "16-18",
+			"count": 3,
+			"sha256": "89e51687396bb6f972ccdba8e66c745a29b1293048882823ea1bb815b691a50f",
+			"first": "if (Array.isArray(entries) && entries.every((entry) => typeof entry === \"string\")) {",
+			"last": "}"
+		},
+		"dist/core/pi-manifest.js:3": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/pi-manifest.js",
+			"lines": "3",
+			"count": 1,
+			"sha256": "452fe78dbb87f66ffea6a3d49aa093fb4195e13364c890bd9abee0f9888ec921",
+			"first": "const RESOURCE_FIELDS = [\"extensions\", \"skills\", \"prompts\", \"themes\"];",
+			"last": "const RESOURCE_FIELDS = [\"extensions\", \"skills\", \"prompts\", \"themes\"];"
+		},
+		"dist/core/resource-loader.js:18-29": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/resource-loader.js",
+			"lines": "18-29",
+			"count": 12,
+			"sha256": "3259566914adfe14c35cd61e727df18af031212459b32c4b68bda97aed092609",
+			"first": "const HOST_PROVIDED_EXTENSION_PACKAGES = new Set([",
+			"last": "]);"
+		},
+		"dist/core/resource-loader.js:50-53": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/resource-loader.js",
+			"lines": "50-53",
+			"count": 4,
+			"sha256": "ae32e9e459a88fd6bfec89341a47cc9b6999680037a0154719258f6d94d5d114",
+			"first": "warnings.push({",
+			"last": "});"
+		},
+		"editor.js:1022-1027": {
+			"package": "@earendil-works/pi-tui",
+			"path": "dist/components/editor.js",
+			"lines": "1022-1027",
+			"count": 6,
+			"sha256": "04ee0a3a71e9df8665adee529ec65e20d68324eb51733aff64e141d5d266a3b2",
+			"first": "this.tryTriggerAutocomplete();",
+			"last": "const textBeforeCursor = currentLine.slice(0, this.state.cursorCol);"
+		},
+		"editor.js:1845-1847": {
+			"package": "@earendil-works/pi-tui",
+			"path": "dist/components/editor.js",
+			"lines": "1845-1847",
+			"count": 3,
+			"sha256": "1cb52e4603554dcd3008f2fceebf99288d315795ca48a9a08a7a96c652bde7f0",
+			"first": "isInSlashCommandContext(textBeforeCursor) {",
+			"last": "}"
+		},
+		"editor.js:1952-1956": {
+			"package": "@earendil-works/pi-tui",
+			"path": "dist/components/editor.js",
+			"lines": "1952-1956",
+			"count": 5,
+			"sha256": "6b054ccd1bb0fc739f62d7209fc3bb6142238dadf8146e7fcc22cd6341c553d2",
+			"first": "setAutocompleteTriggerCharacters(triggerCharacters) {",
+			"last": "continue;"
+		},
+		"interactive-mode.js:3189-3213": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/modes/interactive/interactive-mode.js",
+			"lines": "3189-3213",
+			"count": 25,
+			"sha256": "42133acfe5e86d6de2f2e251c1214ba3e5f2d2d103389bb67d1a92b7951057a9",
+			"first": "case \"user\": {",
+			"last": "this.editor.addToHistory?.(textContent);"
+		},
+		"interactive-mode.js:3195-3209": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/modes/interactive/interactive-mode.js",
+			"lines": "3195-3209",
+			"count": 15,
+			"sha256": "934d75e0a2e1e21da1016d3bc879977cc85ec8a4e94b632b74a557b7069468ec",
+			"first": "const skillBlock = parseSkillBlock(textContent);",
+			"last": "const userComponent = new UserMessageComponent(textContent, this.getMarkdownThemeWithSettings(), this.outputPad, this.getMarkdownTransformers());"
+		},
+		"interactive-mode.js:363-365": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/modes/interactive/interactive-mode.js",
+			"lines": "363-365",
+			"count": 3,
+			"sha256": "11979ff50a35e895b6363d540db68f6bf965a063a21c608204ab601e125fcb40",
+			"first": "const tuiMode = options.tuiMode ?? this.settingsManager.getTuiMode();",
+			"last": "this.autoTrustOnReloadCwd = options.autoTrustOnReloadCwd;"
+		},
+		"loader.js:233": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/extensions/loader.js",
+			"lines": "233",
+			"count": 1,
+			"sha256": "a2e2b1987aa55dbbc3c6990cb58ba84443cb3429968dbd43d4bd11b05fdf8d56",
+			"first": "if (typeof tool.parameters !== \"object\" || tool.parameters === null || Array.isArray(tool.parameters)) {",
+			"last": "if (typeof tool.parameters !== \"object\" || tool.parameters === null || Array.isArray(tool.parameters)) {"
+		},
+		"markdown-transform.js:2": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/modes/interactive/components/markdown-transform.js",
+			"lines": "2",
+			"count": 1,
+			"sha256": "8f01ece555762bf7d483eca2b22c65b37212487d1e4d2ab432de9b6dbee11f1d",
+			"first": "return (markdown, availableWidth) => applyMarkdownTransformers(markdown, { messageType, isStreaming, availableWidth }, transformers);",
+			"last": "return (markdown, availableWidth) => applyMarkdownTransformers(markdown, { messageType, isStreaming, availableWidth }, transformers);"
+		},
+		"modes/rpc/rpc-mode.js:194": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/modes/rpc/rpc-mode.js",
+			"lines": "194",
+			"count": 1,
+			"sha256": "401a125785e8731dc8fbc112b5ba40b1a5e98bcce3386f892aa7c1a679cb2fd3",
+			"first": "addAutocompleteProvider() {",
+			"last": "addAutocompleteProvider() {"
+		},
+		"package-manager.js:1865-1871": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/package-manager.js",
+			"lines": "1865-1871",
+			"count": 7,
+			"sha256": "d9764bc62701cb4abd26003596eba6a8aa8f719b12c08fe8edd8e4ed815e9dfd",
+			"first": "const manifest = readPiManifest(join(packageRoot, \"package.json\"));",
+			"last": "return true;"
+		},
+		"pi-manifest.js:16-18": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/pi-manifest.js",
+			"lines": "16-18",
+			"count": 3,
+			"sha256": "89e51687396bb6f972ccdba8e66c745a29b1293048882823ea1bb815b691a50f",
+			"first": "if (Array.isArray(entries) && entries.every((entry) => typeof entry === \"string\")) {",
+			"last": "}"
+		},
+		"rpiv-args/index.ts:12-14": {
+			"external": "@juicesharp/rpiv-args"
+		},
+		"runner.js:1201-1236": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/extensions/runner.js",
+			"lines": "1201-1236",
+			"count": 36,
+			"sha256": "a9013a5ce8909648cced408fa2dcb426e9790181a2f9b22721150537a6427e56",
+			"first": "async emitInput(text, images, source, streamingBehavior) {",
+			"last": "}"
+		},
+		"runner.js:1216-1217": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/extensions/runner.js",
+			"lines": "1216-1217",
+			"count": 2,
+			"sha256": "73ca07b3dc23b3646872b9d6ff4b5a25f148481e59263f6b2bbff885223fb15f",
+			"first": "if (result?.action === \"handled\")",
+			"last": "return result;"
+		},
+		"runner.js:1223-1230": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/extensions/runner.js",
+			"lines": "1223-1230",
+			"count": 8,
+			"sha256": "e504ecb2e151c7ee4bc60851367390d508561ed93e1ecc3141c128c09f1cdb80",
+			"first": "catch (err) {",
+			"last": "}"
+		}
+	},
+	"docs": {
+		"docs/cli-integration.md": "edf8e723a70b4c3c40275db0391219e55d30597936212a9cfdef33963dd37f93",
+		"docs/cli.md": "c45e59f31574de71770a71c9a7c9b6ac03bf9cad4928aa31bb6614d661733679",
+		"docs/codemode.md": "a0672912a5754f577bff24f736f47e646477d534ddfd0f223f78fbf4d340ddc0",
+		"docs/compaction.md": "163e80b4ec1580c6e967507492715a0acd878db8d4e4586dfd8a6001d8ec7822",
+		"docs/configuration.md": "fc48d1ce7d885c5253222415fb7a4b46d75f80e6431eb924174657ff775099eb",
+		"docs/containerization.md": "e309fcb9a0a7592c0dba000ef8ee90f2d7ef1e01e6a1ac2f0cd9760dd63dee0c",
+		"docs/custom-provider.md": "5345ac346429a3862b46533ee810944b2c756079dcf5d3aad272ab579c58c129",
+		"docs/docs.json": "678294ad9bd3e13b1df85edd66978fca4db0c8f2208da544cc3716d463084a99",
+		"docs/environment-variables.md": "187cc118f46a9f63879727dbbd7195fad7548b2667535324afcabb1a7d270d97",
+		"docs/extensions.md": "a2b5ff0f95e7e470ed0846d7c4fbfc5781fe7e694b8e7f51ea08859f3ad7325d",
+		"docs/how-pi-works.md": "7d43ab8e2b886cd1047dcee503588a1c828b92333dd4f177526b89e6db8aaa8b",
+		"docs/index.md": "c107426e88eac570e9ecbea325cb45c2a6b778a324fd6e424bd032380a65614d",
+		"docs/json.md": "f103191816fdcf3627dfc98b89acad8a28eee737697130ddaeb2581131213543",
+		"docs/keybindings.md": "413aa1c5e95a934d216aa5aba20052fa2cf35940ba5f02d1f4b22ff53c6ec678",
+		"docs/llama-cpp.md": "dccba80951463657c57a831aa2da3a576b92c05455f9b73610b208c942dfc8f4",
+		"docs/mcp.md": "23b9cca35d1340e8adce6bed8b495da0ebb58931179a937db87d610a1b40b9bf",
+		"docs/message-types.md": "b832893fb762f87fdbbfd694241d484592942823791f3e81a6c4d915421ff5db",
+		"docs/models.md": "d5bd0d886f0e1541648081ae01da91e1a218cd454713336d5100fc820f6c1527",
+		"docs/nvidia-rtx-llama-cpp.md": "bcd12ebfd283d8f528cf206ee4ec74f981ab36d3604419acc434c595decbebdb",
+		"docs/packages.md": "5fe4a3009d7260fe1e2f54b64086fc3c8b4d678232bfa2dbc7e91fe588fc9ea5",
+		"docs/prompt-templates.md": "ad5113cce0d05ef0ac77b3c71f9ebe41ea68c072275f9273b9616e4924feda42",
+		"docs/providers.md": "bc8798e4cc3209e455e3dc50c6652ae73c057d40122a4a741d8b5b65a041c2f1",
+		"docs/quickstart.md": "10c69b394304f6e7d6409b6bde02b0165f5723ff4acfd49cfa8f7414f977266a",
+		"docs/rpc-commands.md": "4deeee367852f4633ef594bc079f9e9fb14640a4e3ba8a69b7c89b6f54740838",
+		"docs/rpc-extension-ui.md": "3c6f2c6edfc8b1ace6642343727aef97a7e9234c85509850921b52d6ff09a48e",
+		"docs/rpc.md": "37a03d180115460a0a275022f4aeabef1e5345458df6a9b6e8a6de18474de720",
+		"docs/sdk.md": "d9034ccbf2219a58712d8dd4fcdf47e687d77131e71dd5d119d8a71e9bd2a2e8",
+		"docs/security.md": "3b1e40a8d28b17c9eb7e496a7ba88fbe04665e3e6ae02873a58b943e325ad504",
+		"docs/session-format.md": "4f8fc42179b332bcf71fe4c85cc95d914853ff7486d68742954a45316b512a4a",
+		"docs/sessions.md": "152d6489f61a6de9349c8ceaade95d5498fbc74f21771f41ba8e87ce0e5d8936",
+		"docs/settings.md": "d417857359bb07cf752cc9d642b935814530e216836206259d2a3647d17c8fdd",
+		"docs/shell-aliases.md": "ebb55456870455b4da91cfd054ae2ac9b3a417e6ff48a009587c33e68ecd7807",
+		"docs/skills.md": "5b9805525b194474ef1fe5455a0917ef15ed7f710aa9bec2eee11879556469e5",
+		"docs/slash-commands.md": "d7e1db36e9186ff146a6c27de31fe169671f52cb6f7b93e1bf8d7fe76209a79c",
+		"docs/terminal-setup.md": "583381fb9dc466135a865ca406a3be299a7a8da2c9d810c5b73f401912a0a357",
+		"docs/termux.md": "1b0687157f2384385d07800ec23e6c225ef28fbf6648f55453cc7ce62f4c64ea",
+		"docs/themes.md": "6f11eb43ca6dad4c71bcfa2fc72ac13c013e3cb9383688b88923e0139b2d097c",
+		"docs/tmux.md": "9ec0abdbf74c57d51d4a93f308fb4aec4d8a3574a24cbfd9ba481d2e39f1273c",
+		"docs/tui.md": "0263c7a102a6d972038645448d568abf01108ad839b12a374dad7150811ae8a3",
+		"docs/usage.md": "6dfe7446c81d601d5ebef5769523115229f802da364fe90fcdf96e322ae9fbcd",
+		"docs/virtual-models.md": "5ab04dee3b3712b317522bb0784e28a3fef2e6b7fe1aeb1c1ca27778685a38f7",
+		"docs/windows.md": "6e05d30d8d4ade81f6c453b98538d98188cecbc1d4aa81750c6d690c486eeea1"
+	}
+}

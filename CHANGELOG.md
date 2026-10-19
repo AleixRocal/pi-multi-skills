@@ -24,6 +24,18 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   directory with no `index.html` is a 404 at `/`, the one URL a human is likely to type. The page
   is hand-written, links the repository, npm and the gallery card, and repeats the demo GIF. No
   asset URL changed, and none of them ever needed it.
+- `npm run check:host` resolves the host `file:line` every comment cites and fails when the text it
+  points at has moved. This package is pinned to a host version by *reading*, not by an API
+  contract, so a bump that shifts a function by one line leaves every comment plausible and every
+  test green — which is what 1.2.0 → 1.3.0 did to `agent-session.js` (`+1`) and both
+  `interactive-mode.js` (`+2`) and `export-html/template.js` (`+5`). The check registers 72
+  citations in `scripts/host-baseline.json`, verifies 60 against the installed host, counts the 12
+  `@juicesharp/rpiv-args` ones as external rather than as verified, and refuses a citation that was
+  never snapshotted. It hashes the whole cited range, not just its boundaries, so an edit *inside* a
+  range is caught; on failure it names the line the cited text moved to. `-- --update` re-snapshots
+  after a bump, and the diff of the baseline is the re-read. The shipped host docs are hashed too,
+  reported when they change: a docs-only bump warns instead of failing, because it is not a
+  behaviour change. Runs in `npm run verify` and as its own CI step.
 
 ### Changed
 
