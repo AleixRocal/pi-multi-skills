@@ -138,6 +138,13 @@ Each one is load-bearing against a host behaviour that fails **quietly**:
   `raw.githubusercontent.com` returns `application/octet-stream` for mp4, which downloads instead
   of plays) and the GIF the README shows inline (GitHub plays an animated GIF and cannot play a
   raw-hosted mp4).
+- **Change what the CodeRabbit review says** → `.coderabbit.yaml` (not shipped; `files` keeps it out of
+  the tarball). Keys are validated against CodeRabbit's published JSON schema, so a typo is rejected
+  on the next PR rather than silently ignored — but nothing here checks it offline, and the network
+  is not available to CI. The review is advisory on purpose: it is not one of the required status
+  checks in CONTRIBUTING.md → *Repository settings*, and `request_changes_workflow: false` keeps it
+  from ever blocking. When it asks for a change this repo rejects by design (tabs, a comment that
+  cites a host line, the byte-exact skill block), the fix belongs in this file, not in the code.
 - **Release** → see CONTRIBUTING.md → *Releasing*. Tag-driven; never publish by hand after the
   first release.
 
