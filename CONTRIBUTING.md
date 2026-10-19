@@ -78,11 +78,18 @@ to do if a workflow starts behaving oddly.
 | *Branches* → `main` protection → Require status checks | `typecheck + test (node 22.x)`, `typecheck + test (node 24.x)`, `package (tarball contents)`, `conventional title` | This is what makes `--auto` *wait*. Without it, auto-merge merges immediately, before CI finishes. The names must match the `jobs.<id>.name` values in `ci.yml` and `pr-title.yml` — renaming a job there without updating the rule silently un-requires it. |
 | *Branches* → `main` protection → Allow force pushes / deletions | off | Keeps a published release commit reachable. Direct pushes to `main` are still allowed; only merges are gated by the checks. |
 | *Advanced Security* → Dependabot alerts + Dependabot security updates | on | Alerts alone are a dashboard nobody opens; with security updates on, a vulnerable package anywhere in the tree opens a PR within minutes of the advisory, instead of waiting for Monday's version check. `dependabot-auto-merge.yml` never auto-merges one — a security update reports as `direct:production` or `indirect`, not `direct:development` — so it arrives labelled `needs-review`. Nothing else in this repository scans dependencies. |
+| *Integrations → GitHub Apps* → CodeRabbit | installed, public-repo plan | A second reviewer on every PR, tuned in `.coderabbit.yaml` — the file is the record of what it was told, since the App's behaviour cannot be reviewed in a diff. It is **advisory by design**: not a required status check, and `request_changes_workflow: false`, so it can never be the reason a green PR does not merge. What it is told is that this repo's oddities are deliberate; what it must not be told is to reformat the byte-exact skill block or add docstrings to comments whose point is a cited `file:line` (`AGENTS.md` → *Invariants*). |
 
 Not required, but recommended after the first npm release: package *Settings → Publishing access* →
 "Require two-factor authentication and disallow tokens", once trusted publishing is configured and
 has completed one successful publish. The trusted-publisher configuration expires if it does not
 publish within two days, so set it up when you are ready to tag, not in advance.
+
+`.coderabbit.yaml` is validated against CodeRabbit's published JSON schema
+(`https://coderabbit.ai/integrations/schema.v2.json`), which GitHub renders in the file view and
+editors pick up from the `$schema` URL in the header. Nothing in this repository checks it — the
+schema lives on their host, and a check that needs the network is not a check this repo runs. The
+App reports a configuration it cannot parse on the next PR, which is the feedback loop that matters.
 
 ## What belongs here
 

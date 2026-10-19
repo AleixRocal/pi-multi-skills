@@ -7,6 +7,20 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `.coderabbit.yaml`, so the CodeRabbit review of every pull request is told what this repository
+  already knows: the oddities here are deliberate. Without it the reviewer applies generic advice —
+  reformat the byte-exact `<skill>` block, add docstrings to comments whose entire purpose is a
+  cited `file:line`, "test against the real package" where the host is faked on purpose. The file
+  pins `profile: chill`, never requests changes (the four CI checks are the gate, not a bot's
+  opinion), skips Dependabot's lockfile bumps, disables the linters this repo does not configure
+  (ESLint, markdownlint, ShellCheck), turns off docstring and unit-test generation, and switches
+  web search off — search answers from whatever host version is newest, while this package pins one
+  by reading it. Every key is checked against CodeRabbit's published JSON schema. The App install
+  and what it must never be allowed to block are recorded in `CONTRIBUTING.md` → *Repository
+  settings*.
+
 ### Changed
 
 - The README's *Docs* section drops the "diagrams, light and dark" link list and the closing

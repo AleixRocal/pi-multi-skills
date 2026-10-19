@@ -1,0 +1,152 @@
+---
+# CodeRabbit configuration. Schema (what the keys below are checked
+# against): https://coderabbit.ai/integrations/schema.v2.json
+#
+# The settings below are not taste: this repository's rules are load-bearing
+# against host behaviour that fails *quietly* (`AGENTS.md` → *Invariants*), so
+# a reviewer that does not know them will confidently ask for the opposite —
+# reformat the byte-exact skill block, add docstrings to comments whose whole
+# point is a cited `file:line`, or "improve" a test that deliberately fakes
+# the host. Each entry names the reason it is set the way it is.
+#
+# Installation is a GitHub App on the account (public repositories are free);
+# this file is what the App reads on every pull request.
+
+language: en-US
+
+reviews:
+  # `assertive` reads as nitpicky here, because the oddities are deliberate.
+  # The four CI checks are the gate (CONTRIBUTING.md → *Repository
+  # settings*), not this review.
+  profile: chill
+
+  # Advisory only: never approve, never request changes. A bot review that
+  # can block turns a stylistic opinion into a stuck PR, and nothing in this
+  # repo merges on a human opinion either — it merges on green checks.
+  request_changes_workflow: false
+  review_status: false
+
+  # No decorative output; the walkthrough comment is the review.
+  poem: false
+  in_progress_fortune: false
+
+  auto_review:
+    enabled: true
+    drafts: false
+    # Dependabot bumps enable auto-merge themselves, and a lockfile diff is
+    # not reviewable prose. What matters about a host bump — whether any
+    # cited `file:line` still holds — is already asserted by
+    # `npm run check:host`.
+    ignore_usernames:
+      - dependabot[bot]
+
+  path_filters:
+    # Rendered by `scripts/diagrams.mjs`. A diff here is a re-render of the
+    # same diagram, and the script is the source of truth, not the SVG.
+    - "!docs/images/**"
+
+  path_instructions:
+    - path: "**"
+      instructions: |
+        Deliberate choices — do not suggest changing them:
+        - Indentation is TABS. TypeScript is `NodeNext` with explicit `.js`
+          extensions on relative imports.
+        - Comments explain WHY and cite the host `file:line` that makes the
+          reason true (e.g. `agent-session.js:53-63`). Do not suggest
+          docstrings, JSDoc, or comments that restate the code — a comment
+          that restates the code is noise here.
+        - Every cited host line is registered in
+          `scripts/host-baseline.json`, and `npm run check:host` fails when
+          the cited text moves. Do not treat a host citation as
+          unverifiable from the diff: the baseline is the verification.
+        - Host packages (`@earendil-works/*`, `typebox`) are
+          `peerDependencies` with a `"*"` range. Never suggest moving one
+          to `dependencies`: a physical copy bypasses the host's module
+          mapping and pi warns about it.
+        - One concern per PR, Conventional Commit title, CHANGELOG entry in
+          the same PR.
+        - Docs are `##`-structured, wrapped near 100 columns, and cite host
+          `file:line` the same way comments do.
+    - path: "**/*.ts"
+      instructions: |
+        The `<skill>` block that `src/expander.ts` emits is byte-exact: the
+        host anchors it with `^…$` and one optional trailing group separated
+        by exactly `\n\n` (`agent-session.js:53-63`). Whitespace, quoting or
+        attribute-order "cleanups" there break skill expansion with no
+        error. A change to that emission is reviewed against
+        `tests/expander.test.ts` and `tests/emit-order.test.ts`, not by eye.
+        A single `/skill:<name>` message must stay byte-identical to native
+        pi — that is the interop contract. The display marker is a
+        zero-width space (U+200B) on purpose: `trim()` does not remove it,
+        which is what keeps the host from taking a different rendering path.
+        It is never whitespace.
+    - path: "tests/**"
+      instructions: |
+        Vitest, offline, no sleeps, no network; the host is faked through
+        `tests/helpers/mock-pi.ts`. Do not suggest snapshot tests, network
+        mocks, or "test against the real package" — the one deliberate
+        exception is `tests/editor-integration.test.ts`, which exists
+        because an autocomplete regression has to fail as a test.
+    - path: "AGENTS.md"
+      instructions: |
+        The contract for the next agent: module map, invariants, recipes.
+        Every claim here must match what the code and CI actually do — a
+        rule this file states but nothing enforces is the exact failure it
+        was written to prevent, so flag a claim that no test or script
+        backs. Do not suggest splitting or reformatting the file; its length
+        is the point.
+    - path: "CHANGELOG.md"
+      instructions: |
+        Keep a Changelog. New entries go under `[Unreleased]`; a released
+        section is dated and is never edited again. Entries say why a reader
+        cares, not what the diff did.
+    - path: "package.json"
+      instructions: |
+        The `pi` manifest is read only in the shapes
+        `tests/manifest.test.ts` asserts — a field that is not an array of
+        strings is dropped by the host without a word, and the package then
+        loads nothing. `description` is what the npm page and the gallery
+        card print, and npm re-reads a manifest only on publish: a change
+        there is invisible until the next release, which is not a reason to
+        treat it as unreviewable.
+    - path: ".github/workflows/**"
+      instructions: |
+        Actions are pinned to a release commit with the version in a
+        trailing comment, and the workflows stay secret-free so they run on
+        fork PRs (`ci.yml` reads `permissions: contents: read`). Do not
+        suggest `@v3`-style floating tags, `pull_request_target`, or
+        anything that needs a repository secret.
+
+  finishing_touches:
+    # A generator cannot know why a line number is cited; see `**` above.
+    docstrings:
+      enabled: false
+    # The host is faked; a generated test would not know the mock's shape.
+    unit_tests:
+      enabled: false
+
+  tools:
+    # No ESLint config in this repository. The default run reports the style
+    # this repo rejects on purpose (tabs, `NodeNext` imports) — noise, not
+    # review.
+    eslint:
+      enabled: false
+    # No markdownlint config either, and the docs wrap near 100 columns by
+    # convention rather than the default 80.
+    markdownlint:
+      enabled: false
+    # The shipped tooling is ESM (`scripts/*.mjs`), not shell.
+    shellcheck:
+      enabled: false
+
+chat:
+  auto_reply: true
+
+knowledge_base:
+  # Off on purpose. Web results describe whichever host version is newest,
+  # while this package pins a version *by reading* it: `docs/packages.md` on
+  # GitHub main already differs from the installed 1.3.0 while npm `latest`
+  # is still 1.3.0, so a search would answer from the wrong tree. Review
+  # against this repository.
+  web_search:
+    enabled: false
