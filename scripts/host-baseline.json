@@ -192,6 +192,15 @@
 			"first": "if (!options.force && commandText.startsWith(\"/\")) {",
 			"last": "}"
 		},
+		"autocomplete.js:263-271": {
+			"package": "@earendil-works/pi-tui",
+			"path": "dist/autocomplete.js",
+			"lines": "263-271",
+			"count": 9,
+			"sha256": "227749779ccf930c077600df314b2c1829c2968d2766a3cf75ea93962b9f0bbb",
+			"first": "const commandName = commandText.slice(1, spaceIndex);",
+			"last": "}"
+		},
 		"autocomplete.js:303-313": {
 			"package": "@earendil-works/pi-tui",
 			"path": "dist/autocomplete.js",
