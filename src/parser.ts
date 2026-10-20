@@ -18,43 +18,41 @@
  *    rescue path (text that already starts with `<skill ` and still carries a
  *    residual `/skill:`) reuse this same function.
  *
- * The parser imports nothing — not the host, not the filesystem — so the
- * tokeniser stays unit-testable in isolation and is shared by the clean and
- * the rescue path.
+ * The parser imports no host code and touches no filesystem, so the tokeniser
+ * stays unit-testable in isolation and is shared by the clean and the rescue
+ * path. The cap is an argument, not a constant: what the ceiling *is* belongs to
+ * `src/config.ts`, and a default here would be a second copy of that policy.
  */
 
-import type { SkillChain, SkillToken } from "./types.js";
+import type { SkillChain, SkillToken, TokenStart } from "./types.js";
 
 /** Marker pi's own expansion recognises (`agent-session.js:1699`). */
 const TOKEN_MARKER = "/skill:";
 
-/**
- * Hard ceiling on chained skills — Claude Code's "the first skill plus up to
- * five more". Markers past the cap are never tokenised: they stay literal text
- * and are therefore bound as part of the last token's arguments, so a chain that
- * overruns degrades into text the model can still read, never into input that
- * silently disappears.
- */
-export const MAX_CHAINED_SKILLS = 6;
-
 /** A skill name is a non-whitespace run; pi's own tokenisation is single-space (`:1701`). */
 const WHITESPACE = /\s/;
 
-/** A token boundary, before argument binding. */
-interface TokenStart {
-	readonly name: string;
-	/** Offset of the leading `/` of `/skill:`. */
-	readonly start: number;
-	/** Offset just past the name. */
-	readonly end: number;
-}
-
-/** Collect token boundaries left to right, stopping at the cap. */
-function collectTokenStarts(text: string): TokenStart[] {
-	const starts: TokenStart[] = [];
+/**
+ * Collect token boundaries left to right.
+ *
+ * The first `max` become `tokens`; every later marker becomes `overflow`. The
+ * scan deliberately does not stop at the cap: an over-cap marker is not a skill,
+ * but it is something the caller has to be able to name ("`/skill:g` did not
+ * run"), and this is the only place that can still tell one marker from another.
+ *
+ * Overflow entries are never bound — their text stays inside the last admitted
+ * token's arguments, which is the invariant that makes an overrun degrade into
+ * readable text instead of input that disappears.
+ */
+function collectTokenStarts(
+	text: string,
+	max: number,
+): { tokens: TokenStart[]; overflow: TokenStart[] } {
+	const tokens: TokenStart[] = [];
+	const overflow: TokenStart[] = [];
 	let cursor = 0;
 
-	while (starts.length < MAX_CHAINED_SKILLS) {
+	while (true) {
 		const marker = text.indexOf(TOKEN_MARKER, cursor);
 		if (marker === -1) break;
 
@@ -72,11 +70,13 @@ function collectTokenStarts(text: string): TokenStart[] {
 			continue;
 		}
 
-		starts.push({ name, start: marker, end: nameEnd });
+		const token: TokenStart = { name, start: marker, end: nameEnd };
+		if (tokens.length < max) tokens.push(token);
+		else overflow.push(token);
 		cursor = nameEnd;
 	}
 
-	return starts;
+	return { tokens, overflow };
 }
 
 /** Bind each boundary to the text it owns, up to the next boundary. */
@@ -99,10 +99,17 @@ function bindArgs(text: string, starts: readonly TokenStart[]): SkillToken[] {
  * Returns the preamble (text before the first token) plus every token in
  * message order, each with the offsets needed to rebuild the message exactly —
  * which is how the input handler keeps unresolvable tokens verbatim in place.
+ *
+ * `max` is the caller's ceiling (`resolveMaxChainedSkills` in `src/config.ts`).
+ * It is required, not defaulted, so the number lives in exactly one module.
  */
-export function parseSkillChain(text: string): SkillChain {
-	const starts = collectTokenStarts(text);
-	if (starts.length === 0) return { preamble: "", tokens: [] };
+export function parseSkillChain(text: string, max: number): SkillChain {
+	const { tokens: starts, overflow } = collectTokenStarts(text, max);
+	if (starts.length === 0) return { preamble: "", tokens: [], overflow };
 	const first = starts[0];
-	return { preamble: text.slice(0, first.start).trim(), tokens: bindArgs(text, starts) };
+	return {
+		preamble: text.slice(0, first.start).trim(),
+		tokens: bindArgs(text, starts),
+		overflow,
+	};
 }

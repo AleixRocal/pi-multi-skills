@@ -34,6 +34,7 @@ import type {
 	InputEventResult,
 } from "@earendil-works/pi-coding-agent";
 import { markChainForDisplay } from "./chain-display.js";
+import { resolveMaxChainedSkills } from "./config.js";
 import { SKILL_BLOCK_PREFIX, expandSkillTokens } from "./expander.js";
 import { getSkillIndex } from "./registry.js";
 
@@ -81,6 +82,9 @@ export function handleInput(
 	if (event.source === "extension") return { action: "continue" };
 
 	const text = event.text;
+	// Resolved once per message and never cached: the flag is a lookup, and a
+	// cached copy would be one more thing that can go stale across a session swap.
+	const max = resolveMaxChainedSkills(pi);
 
 	// Rescue path. By default `rpiv-args` wins the ordering race —
 	// it sits at index 14 of the `packages` array in settings.json and `pi
@@ -103,19 +107,19 @@ export function handleInput(
 
 		const boundary = closeIndex + SKILL_BLOCK_CLOSE.length;
 
-		const residual = expandSkillTokens(text.slice(boundary), getSkillIndex(pi));
+		const residual = expandSkillTokens(text.slice(boundary), getSkillIndex(pi), max);
 		if (residual === null) return { action: "continue" };
 
 		return {
 			action: "transform",
-			text: markChainForDisplay(`${text.slice(0, boundary)}${BLOCK_SEPARATOR}${residual}`),
+			text: markChainForDisplay(`${text.slice(0, boundary)}${BLOCK_SEPARATOR}${residual.text}`),
 		};
 	}
 
 	// Clean path. `expandSkillTokens` returns null when the message names no skill
 	// at all, or when every token it names failed to resolve (guard 2).
-	const expanded = expandSkillTokens(text, getSkillIndex(pi));
+	const expanded = expandSkillTokens(text, getSkillIndex(pi), max);
 	if (expanded === null) return { action: "continue" };
 
-	return { action: "transform", text: markChainForDisplay(expanded) };
+	return { action: "transform", text: markChainForDisplay(expanded.text) };
 }

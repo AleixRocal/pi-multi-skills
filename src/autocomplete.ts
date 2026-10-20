@@ -36,7 +36,8 @@
  */
 
 import type { AutocompleteProviderFactory, ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
-import { MAX_CHAINED_SKILLS, parseSkillChain } from "./parser.js";
+import { resolveMaxChainedSkills } from "./config.js";
+import { parseSkillChain } from "./parser.js";
 import { getSkillIndex } from "./registry.js";
 
 /**
@@ -108,7 +109,12 @@ export function chainTokenAt(line: string): ChainToken | null {
 	}
 
 	if (!run.text.startsWith("/") || run.text.slice(1).includes("/")) return null;
-	if (parseSkillChain(line.slice(0, run.start)).tokens.length === 0) return null;
+	// `max` of 1 answers "is any token committed at all?", which is the only
+	// question this function asks. Keeping it out of the configured cap is what
+	// keeps `chainTokenAt` a pure line reader: the cap belongs to the menu that
+	// counts tokens (`committedSkills`), not to the question of whether the
+	// cursor sits in a chain position.
+	if (parseSkillChain(line.slice(0, run.start), 1).tokens.length === 0) return null;
 
 	// `/s` is a half-typed marker, so it filters nothing (`""` lists every skill);
 	// `/pl` is a name fragment, so it filters on `pl`.
@@ -152,15 +158,15 @@ function chainSuggestions(token: ChainToken, pi: ExtensionAPI): AutocompleteItem
 }
 
 /**
- * Tokens already committed on the line before `token`.
+ * Tokens already committed before `token`.
  *
- * The parser's own cap is the ceiling (`MAX_CHAINED_SKILLS`): once it is
- * reached the menu offers nothing, because a further marker would not expand —
- * the expander stops at the cap and leaves the rest as literal argument text
- * (`src/parser.ts:50-56`).
+ * `max` is the ceiling the menu is bounded by (`resolveMaxChainedSkills`): once
+ * it is reached the menu offers nothing, because a further marker would not
+ * expand — the expander stops at the cap and leaves the rest as literal argument
+ * text (`collectTokenStarts` in `src/parser.ts`).
  */
-function committedSkills(line: string, token: ChainToken): number {
-	return parseSkillChain(line.slice(0, token.start)).tokens.length;
+function committedSkills(line: string, token: ChainToken, max: number): number {
+	return parseSkillChain(line.slice(0, token.start), max).tokens.length;
 }
 
 /**
@@ -186,8 +192,9 @@ export function wrapWithChainAutocomplete(
 		async getSuggestions(lines, cursorLine, cursorCol, options) {
 			const line = lines[cursorLine] ?? "";
 			const token = chainTokenAt(line.slice(0, cursorCol));
+			const max = resolveMaxChainedSkills(pi);
 
-			if (token !== null && committedSkills(line, token) < MAX_CHAINED_SKILLS) {
+			if (token !== null && committedSkills(line, token, max) < max) {
 				const items = chainSuggestions(token, pi);
 				if (items.length > 0) return { items, prefix: token.text };
 			}

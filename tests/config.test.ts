@@ -47,6 +47,12 @@ describe("resolveMaxChainedSkills", () => {
 });
 
 describe("the flag declaration", () => {
+	it("keeps the cap at 6 by default", () => {
+		// Claude Code's "the first skill plus up to five more", and the number
+		// `MAX_CHAINED_SKILLS` carried before it became configurable.
+		expect(DEFAULT_MAX_CHAINED_SKILLS).toBe(6);
+	});
+
 	it("registers a string flag defaulting to the code default", () => {
 		const mock = createMockPi();
 		registerMultiSkills(mock.pi);
