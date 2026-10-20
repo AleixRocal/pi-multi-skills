@@ -123,8 +123,9 @@ export function registerSkillsTool(pi: ExtensionAPI): void {
 
 Several skills can be invoked in one message by naming them in order:
 \`/skill:research /skill:design refactor auth\`. Each \`/skill:<name>\` token of the chain owns
-the text that follows it up to the next token, and a chain carries at most 6 skills. This tool
-reports which names exist, so a chain is never built from a guessed name.
+the text that follows it up to the next token. A chain carries 6 skills by default, and
+\`--skill-chain-max\` raises or lowers that ceiling. Naming the same skill twice expands its body
+once. This tool reports which names exist, so a chain is never built from a guessed name.
 
 The tool only lists; it never invokes a skill. Read the skill's SKILL.md at \`location\` to see
 its full instructions.`,

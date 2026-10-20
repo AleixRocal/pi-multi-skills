@@ -36,10 +36,11 @@ npm run skill:zip      # dist/<skill>.zip — the marketplace upload artifact
 | Path | Owns | Spec |
 | --- | --- | --- |
 | `extensions/index.ts` | Registration only: `input`, `session_start`, the `skills` tool, the markdown transformer. Thin by design. | — |
-| `src/types.ts` | Shared vocabulary (`SkillEntry`, `SkillToken`, `SkillChain`). Imports no host code. | — |
-| `src/parser.ts` | `/skill:` tokenisation, positional argument binding, `MAX_CHAINED_SKILLS = 6`. Pure, no I/O. | `tests/parser.test.ts` |
+| `src/types.ts` | Shared vocabulary (`SkillEntry`, `SkillToken`, `SkillChain`, `SkillExpansion`, `TokenStart`). Imports no host code. | — |
+| `src/config.ts` | The cap and the cost threshold: `DEFAULT_MAX_CHAINED_SKILLS`, `MAX_CHAINED_SKILLS_FLAG`, `COST_WARN_CHARS`, `resolveMaxChainedSkills(pi)`. One place a number is decided, and the only reader of the `--skill-chain-max` flag. | `tests/config.test.ts` |
+| `src/parser.ts` | `/skill:` tokenisation, positional argument binding, and the markers a cap did not admit (`overflow`). The cap arrives as an argument, never as a constant. Pure, no I/O. | `tests/parser.test.ts` |
 | `src/registry.ts` | Name → `SKILL.md` index built from `pi.getCommands()`; one module-level cache, invalidated on `session_start`. | `tests/registry.test.ts` |
-| `src/expander.ts` | Byte-exact `<skill …>` block emission; reads skill bodies; `null` when nothing expanded. | `tests/expander.test.ts`, `tests/emit-order.test.ts` |
+| `src/expander.ts` | Byte-exact `<skill …>` block emission; reads skill bodies; collapses a repeated name to one body; `null` when nothing expanded, else the emitted text plus the plan it came from. | `tests/expander.test.ts`, `tests/emit-order.test.ts` |
 | `src/input-handler.ts` | The `input` hook: guards, clean path, rescue path, marking for display. | `tests/input-handler.test.ts` |
 | `src/chain-display.ts` | The display marker (U+200B) and the block → `/skill:` rewrite. | `tests/chain-display.test.ts` |
 | `src/renderer.ts` | The markdown transformer: user-message markdown only, and only when a block is present. | `tests/renderer.test.ts` |
@@ -47,7 +48,7 @@ npm run skill:zip      # dist/<skill>.zip — the marketplace upload artifact
 | `src/skills-tool.ts` | Read-only `skills` listing tool (TypeBox params, direct exposure). | `tests/skills-tool.test.ts` |
 | `skills/skill-chain/` | The model-facing half: what a chain is, positional binding, the closing report. Ships in the package and installs standalone into any agent. | `tests/skill-package.test.ts` |
 | `tests/manifest.test.ts` | The `pi` manifest contract: the gallery keyword, the resource shapes the host reads, entry resolution, host packages as peers, absolute preview URLs. | `scripts/check-pack.mjs` (the same rules against the tarball) |
-| `tests/helpers/mock-pi.ts` | Host fake: commands, UI surface, input events. | — |
+| `tests/helpers/mock-pi.ts` | Host fake: commands, flags, UI surface, input events. | — |
 | `scripts/check-host.mjs` | Resolves every cited host `file:line`, hashes the cited range, and fails when the text moved — or when a citation was never snapshotted. `--update` rewrites the snapshot. | `tests/host-baseline.test.ts` |
 | `scripts/host-baseline.json` | The committed snapshot: host versions, one entry per citation (resolved file, line spec, range hash, boundary text), and a hash per shipped host doc. Generated, never hand-edited. | `scripts/check-host.mjs` |
 
@@ -73,8 +74,10 @@ Each one is load-bearing against a host behaviour that fails **quietly**:
    /skill:typo y` must still expand `real`.
 6. **The rescue path scans only the text after the last `</skill>`.** A skill body is prose and
    may mention `/skill:` legitimately; scanning a block's body emits phantom blocks.
-7. **The cap is six.** A seventh marker stays literal text and therefore ends up inside the sixth
-   skill's argument text — user text is truncated deterministically, never deleted.
+7. **The cap defaults to six and the default is the only fixed part.** `--skill-chain-max` moves the
+   ceiling; a marker past it stays literal text and therefore ends up inside the last skill's
+   argument text — user text is truncated deterministically, never deleted. Nothing may read the
+   number from anywhere but `src/config.ts`.
 8. **Host packages stay in `peerDependencies` / `devDependencies`, never `dependencies`.** A
    physical copy of `@earendil-works/*` or `typebox` bypasses pi's module mapping and produces
    duplicate classes and registries; pi warns when it detects this.
@@ -97,11 +100,26 @@ Each one is load-bearing against a host behaviour that fails **quietly**:
     prose still has to be re-read on a bump. Adding a citation means running
     `npm run check:host -- --update` and committing the resulting entry; a citation the baseline does
     not carry is unverified, not passing.
+13. **The expansion plan is the only source of chain facts.** A display or UI decision that the plan
+    can answer must use the plan, not a re-parse of the emitted text. Re-deriving is what made a
+    two-token chain with one failed name render as a single-skill card: the block count could not
+    see the token that carried no block.
+14. **Dedupe merges arguments, never drops them.** One body per distinct name per message; every
+    argument run of a collapsed name appears exactly once, in message order, in the surviving
+    block's trailer.
+15. **The notice never fires on a path that returns `continue`.** A single `/skill:<name>` message
+    must stay byte-identical to native pi and silent. The notice is the only surface that can state
+    what a chain did, and everything it says must come from the plan.
 
 ## Recipes
 
 - **Change tokenising or argument binding** → `src/parser.ts` + `tests/parser.test.ts`. Keep it
-  free of host and filesystem imports; the rescue path reuses it.
+  free of host and filesystem imports; the rescue path reuses it. The cap is an argument, never a
+  default: `src/config.ts` owns the number.
+- **Change the cap, the threshold, or the notice** → `src/config.ts` for the number,
+  `src/input-handler.ts` for the wording, `tests/config.test.ts` and `tests/input-handler.test.ts`
+  for the rules. The plan the notice reads is `SkillExpansion` (`src/types.ts`); a new fact belongs
+  there, not in a second regex over the emitted text.
 - **Add a new surface** → implement in `src/<name>.ts`, export a `register<Name>(pi)` helper,
   call it from `registerMultiSkills` in `extensions/index.ts`, add `tests/<name>.test.ts`, then
   update the README's behaviour sections (user-facing only; dev material belongs in this file and
