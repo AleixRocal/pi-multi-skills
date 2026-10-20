@@ -21,10 +21,9 @@
  * transformers, so a chain has to be marked not to take that path.
  *
  * `ctx` is part of the host's handler signature (`ExtensionHandler`) and is
- * threaded through unchanged so the exported signature stays stable as the
- * extension grows; it is declared `_ctx` because this expander itself reads no
- * session state — unlike `rpiv-args`, whose `${SESSION_ID}` substitution needs
- * `ctx.sessionManager`.
+ * threaded through unchanged. It is read for exactly one thing — the warning a
+ * chain produces (`ctx.ui.notify`, `core/extensions/types.d.ts:548`) — because
+ * the facts that warning names are known here and nowhere else.
  */
 
 import type {
@@ -34,9 +33,13 @@ import type {
 	InputEventResult,
 } from "@earendil-works/pi-coding-agent";
 import { markChainForDisplay } from "./chain-display.js";
-import { resolveMaxChainedSkills } from "./config.js";
+import { COST_WARN_CHARS, resolveMaxChainedSkills } from "./config.js";
 import { SKILL_BLOCK_PREFIX, expandSkillTokens } from "./expander.js";
 import { getSkillIndex } from "./registry.js";
+import type { SkillExpansion } from "./types.js";
+
+/** The marker this module names in its notice; same literal the parser tokenises. */
+const MARKER = "/skill:";
 
 /**
  * Closing tag of the emitted wrapper — the counterpart of `SKILL_BLOCK_PREFIX`
@@ -53,6 +56,66 @@ const SKILL_BLOCK_CLOSE = "</skill>";
  * before its trailing user-message group.
  */
 const BLOCK_SEPARATOR = "\n\n";
+
+/**
+ * One notice per transformed message, built from the expansion plan.
+ *
+ * Built from the plan rather than from the emitted text because only the
+ * expander knows which names resolved, which overran the cap and which were
+ * collapsed; a reader that has to re-parse the text can only guess. This is the
+ * surface that keeps the transcript honest: the transcript shows what the user
+ * typed (it is rebuilt from blocks and cannot see a failed name), and the notice
+ * says what actually ran.
+ *
+ * Empty when there is nothing to say, which is every well-behaved chain below
+ * the cost threshold.
+ */
+function buildNotice(expansion: SkillExpansion, chars: number, max: number): string {
+	const lines: string[] = [];
+
+	if (chars >= COST_WARN_CHARS) {
+		const skills = expansion.expanded.length;
+		lines.push(`${skills} skill${skills === 1 ? "" : "s"} · ${formatChars(chars)} chars injected`);
+	}
+	if (expansion.unresolved.length > 0) {
+		lines.push(`${formatNames(expansion.unresolved)} not found — left as text`);
+	}
+	if (expansion.overflow.length > 0) {
+		lines.push(`${formatNames(expansion.overflow)} past the cap (${max}) — left as argument text`);
+	}
+	if (expansion.duplicated.length > 0) {
+		lines.push(`${formatNames(expansion.duplicated)} expanded once`);
+	}
+
+	return lines.join(" · ");
+}
+
+/** `31.2k` above a thousand, the raw count below it. */
+function formatChars(chars: number): string {
+	return chars >= 1000 ? `${(chars / 1000).toFixed(1)}k` : String(chars);
+}
+
+/** `/skill:a, /skill:b` — the syntax the user typed, not a bare name. */
+function formatNames(names: readonly string[]): string {
+	return names.map((name) => `${MARKER}${name}`).join(", ");
+}
+
+/**
+ * Emit the notice, if this message has anything worth saying.
+ *
+ * `chars` is the length of the text actually handed to pi, not the plan's own
+ * cost: on the rescue path the message also carries blocks another extension
+ * emitted, and those are context the model pays for too.
+ */
+function reportIfWorthwhile(
+	ctx: ExtensionContext,
+	expansion: SkillExpansion,
+	chars: number,
+	max: number,
+): void {
+	const notice = buildNotice(expansion, chars, max);
+	if (notice.length > 0) ctx.ui.notify(notice, "warning");
+}
 
 /**
  * Handle one `input` event.
@@ -75,7 +138,7 @@ const BLOCK_SEPARATOR = "\n\n";
  */
 export function handleInput(
 	event: InputEvent,
-	_ctx: ExtensionContext,
+	ctx: ExtensionContext,
 	pi: ExtensionAPI,
 ): InputEventResult {
 	// Guard 1.
@@ -110,10 +173,10 @@ export function handleInput(
 		const residual = expandSkillTokens(text.slice(boundary), getSkillIndex(pi), max);
 		if (residual === null) return { action: "continue" };
 
-		return {
-			action: "transform",
-			text: markChainForDisplay(`${text.slice(0, boundary)}${BLOCK_SEPARATOR}${residual.text}`),
-		};
+		const finalText = `${text.slice(0, boundary)}${BLOCK_SEPARATOR}${residual.text}`;
+		reportIfWorthwhile(ctx, residual, finalText.length, max);
+
+		return { action: "transform", text: markChainForDisplay(finalText, namedWithoutBlock(residual)) };
 	}
 
 	// Clean path. `expandSkillTokens` returns null when the message names no skill
@@ -121,5 +184,19 @@ export function handleInput(
 	const expanded = expandSkillTokens(text, getSkillIndex(pi), max);
 	if (expanded === null) return { action: "continue" };
 
-	return { action: "transform", text: markChainForDisplay(expanded.text) };
+	reportIfWorthwhile(ctx, expanded, expanded.text.length, max);
+
+	return { action: "transform", text: markChainForDisplay(expanded.text, namedWithoutBlock(expanded)) };
+}
+
+/**
+ * Skills this message names that carry no block of their own.
+ *
+ * The display has to keep a chain off the card path, and a card would swallow
+ * exactly these: a name that did not resolve, a marker past the cap, a name
+ * collapsed into an earlier block. `markChainForDisplay` adds them to the blocks
+ * it can count, because a single block plus one of these is still a chain.
+ */
+function namedWithoutBlock(expansion: SkillExpansion): number {
+	return expansion.unresolved.length + expansion.overflow.length + expansion.duplicated.length;
 }

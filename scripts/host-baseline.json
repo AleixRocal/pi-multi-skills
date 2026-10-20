@@ -318,6 +318,15 @@
 			"first": "getFlag(name: string): boolean | string | undefined;",
 			"last": "getFlag(name: string): boolean | string | undefined;"
 		},
+		"core/extensions/types.d.ts:548": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/extensions/types.d.ts",
+			"lines": "548",
+			"count": 1,
+			"sha256": "e2e1e6642bbd0a9dc1d4079ce214015e4d58f0b4e1da8bc8065de7aa0bf48930",
+			"first": "ui: Pick<ExtensionUIContext, \"select\" | \"confirm\" | \"input\" | \"notify\">;",
+			"last": "ui: Pick<ExtensionUIContext, \"select\" | \"confirm\" | \"input\" | \"notify\">;"
+		},
 		"core/extensions/types.d.ts:66": {
 			"package": "@earendil-works/pi-coding-agent",
 			"path": "dist/core/extensions/types.d.ts",
