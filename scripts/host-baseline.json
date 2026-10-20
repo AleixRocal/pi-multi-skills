@@ -300,6 +300,24 @@
 			"first": "addAutocompleteProvider: () => { },",
 			"last": "addAutocompleteProvider: () => { },"
 		},
+		"core/extensions/types.d.ts:1238-1248": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/extensions/types.d.ts",
+			"lines": "1238-1248",
+			"count": 11,
+			"sha256": "8881dd0fb643e9cafa9312dfc064c8d652d0b1e2dd7ec92ed55b659536a88c09",
+			"first": "registerFlag(name: string, options: {",
+			"last": "getFlag(name: string): boolean | string | undefined;"
+		},
+		"core/extensions/types.d.ts:1248": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/extensions/types.d.ts",
+			"lines": "1248",
+			"count": 1,
+			"sha256": "cea67b12063b443c8c0e0fd6f1c036ba7bc966ca0b91b57f76c3024572be924e",
+			"first": "getFlag(name: string): boolean | string | undefined;",
+			"last": "getFlag(name: string): boolean | string | undefined;"
+		},
 		"core/extensions/types.d.ts:66": {
 			"package": "@earendil-works/pi-coding-agent",
 			"path": "dist/core/extensions/types.d.ts",
@@ -317,6 +335,15 @@
 			"sha256": "fad44739c4ec0265882ada412e6fe46a2690f00beeeba4a190b97fab0e8eff1a",
 			"first": "export type AutocompleteProviderFactory = (current: AutocompleteProvider) => AutocompleteProvider;",
 			"last": "addAutocompleteProvider(factory: AutocompleteProviderFactory): void;"
+		},
+		"core/settings-schema.d.ts:100-192": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/settings-schema.d.ts",
+			"lines": "100-192",
+			"count": 93,
+			"sha256": "8c05f0476a40d9466905634a075775de9c45c20e2d5ead801d57d6f571bfbb87",
+			"first": "retry: Type.TOptional<Type.TObject<{",
+			"last": "type SettingsInput = Static<typeof SettingsSchema>;"
 		},
 		"dist/core/agent-session.js:1698-1722": {
 			"package": "@earendil-works/pi-coding-agent",

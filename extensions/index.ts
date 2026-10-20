@@ -4,8 +4,9 @@
  * Registers the `input` handler that rewrites `/skill:a /skill:b args` chains
  * into N sibling `<skill …>` blocks, the `session_start` invalidator for the
  * name → path index, the chain autocomplete wrapper for the `/skill:` menu past
- * the first token, the read-only `skills` listing tool, and the markdown
- * transformer that collapses blocks 2..N in the transcript.
+ * the first token, the read-only `skills` listing tool, the `--skill-chain-max`
+ * flag that bounds a chain, and the markdown transformer that collapses blocks
+ * 2..N in the transcript.
  *
  * Shape follows @juicesharp/rpiv-args: a thin default export delegating to a
  * `registerX(pi)` helper (`rpiv-args/index.ts:12-14` + `args.ts:477-486`).
@@ -13,6 +14,7 @@
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { registerChainAutocomplete } from "../src/autocomplete.js";
+import { DEFAULT_MAX_CHAINED_SKILLS, MAX_CHAINED_SKILLS_FLAG } from "../src/config.js";
 import { handleInput } from "../src/input-handler.js";
 import { invalidateSkillIndex } from "../src/registry.js";
 import { registerSkillChainRenderer } from "../src/renderer.js";
@@ -26,6 +28,15 @@ import { registerSkillsTool } from "../src/skills-tool.js";
  * `rpiv-args` threads it (`args.ts:392-395`).
  */
 export function registerMultiSkills(pi: ExtensionAPI): void {
+	// The cap is the only configurable number. Declared before the handler so
+	// `getFlag` has something to answer from; a value the user did not pass
+	// resolves to `DEFAULT_MAX_CHAINED_SKILLS` (`src/config.ts`).
+	pi.registerFlag(MAX_CHAINED_SKILLS_FLAG, {
+		type: "string",
+		default: String(DEFAULT_MAX_CHAINED_SKILLS),
+		description: `Maximum skills in one /skill: chain — integer >= 1 (default ${DEFAULT_MAX_CHAINED_SKILLS})`,
+	});
+
 	pi.on("input", (event, ctx) => handleInput(event, ctx, pi));
 	pi.on("session_start", (event, ctx) => {
 		// The skill set is re-enumerated on the two reasons that can change it
