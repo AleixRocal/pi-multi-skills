@@ -79,11 +79,10 @@ describe("host provider integration", () => {
 		const line = "/skill:plan /s";
 
 		expect(await at(base, line)).toBeNull();
+		// `plan` is already named, so the menu no longer offers it: a second copy
+		// would collapse into the same block (`src/expander.ts`).
 		expect(await at(wrapped, line)).toEqual({
-			items: [
-				{ value: "/skill:design", label: "/skill:design" },
-				{ value: "/skill:plan", label: "/skill:plan" },
-			],
+			items: [{ value: "/skill:design", label: "/skill:design" }],
 			prefix: "/s",
 		});
 	});

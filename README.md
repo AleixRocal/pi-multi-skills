@@ -5,6 +5,7 @@ Chain several `/skill:` invocations in a single pi message: `/skill:a x /skill:b
 [![CI](https://github.com/AleixRocal/pi-multi-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/AleixRocal/pi-multi-skills/actions/workflows/ci.yml)
 [![Release](https://github.com/AleixRocal/pi-multi-skills/actions/workflows/release.yml/badge.svg)](https://github.com/AleixRocal/pi-multi-skills/actions/workflows/release.yml)
 [![npm](https://img.shields.io/npm/v/@aleixrocal/pi-multi-skills?label=npm)](https://www.npmjs.com/package/@aleixrocal/pi-multi-skills)
+[![npm downloads](https://img.shields.io/npm/dm/@aleixrocal/pi-multi-skills?label=downloads%2Fmonth&color=blue)](https://www.npmjs.com/package/@aleixrocal/pi-multi-skills)
 [![GitHub stars](https://img.shields.io/github/stars/AleixRocal/pi-multi-skills?label=stars&color=blue)](https://www.star-history.com/#AleixRocal/pi-multi-skills&Date)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -39,8 +40,16 @@ pi install git:github.com/AleixRocal/pi-multi-skills
 pi install ./pi-multi-skills                 # from a local checkout
 ```
 
-Requires Node `>=22.19.0`; the host packages are provided by pi. The package carries the
-`pi-package` keyword, which is what lists it in the [pi package gallery](https://pi.dev/packages).
+Requires Node `>=22.19.0`; the host packages are provided by pi.
+
+The package is published to npm with the `pi-package` keyword and an explicit `pi` manifest for
+both resource roots, which is what pi reads before it falls back to the conventional directories.
+That makes it installable by name and gives it a page in the
+[pi package gallery](https://pi.dev/packages/@aleixrocal/pi-multi-skills) — the same
+[monthly download count](https://www.npmjs.com/package/@aleixrocal/pi-multi-skills) as the badge
+above, this README, the cover image and the demo video. The gallery's *All packages* index is a
+ranked snapshot with an upstream page cap; the package page is the stable URL, and it answers as
+soon as a version is published.
 
 ## Usage
 
@@ -49,25 +58,45 @@ Requires Node `>=22.19.0`; the host packages are provided by pi. The package car
   (`src/app.ts`), URLs (`https://example.com/x`) and a lone slash in prose pass through untouched.
 - **Each token owns the text that follows it**, up to the next token — or to the end of the
   message, for the last one. That is *positional binding*.
-- **Text before the first marker is kept** in front of the blocks, as written.
-- **Six skills maximum.** A seventh marker is not expanded; it is bound as the sixth skill's
-  argument text instead, so text that overruns the cap degrades into text the model still reads
-  and nothing typed is ever deleted.
+- **Text before the first marker is kept** in front of the blocks, with its edges trimmed.
+- **Six skills by default.** `--skill-chain-max N` changes the ceiling (any integer `>= 1`; `1` is
+  plain pi). Past it a marker is not expanded: it is bound as the last skill's argument text
+  instead, so an overrun degrades into text the model still reads and nothing typed is ever
+  deleted.
+- **A repeated name expands once.** `/skill:a x /skill:a y` injects `a`'s body once and appends `y`
+  after `x`, so a duplicate cannot double the context. The autocomplete menu stops offering a name
+  the message already contains.
+- **A chain reports what it did.** One warning line appears when a chain injects more than 50,000
+  characters, and whenever a name failed to resolve, overran the cap, or was collapsed. The
+  transcript keeps showing what was typed; the warning is the only place the difference is visible.
 
 | You type | What happens |
 | --- | --- |
 | `/skill:research auth /skill:design tests` | `research` runs with `auth`; `design` runs with `tests`. |
 | `/skill:research /skill:design refactor auth` | Both markers are contiguous, so the run after them lands once, after the last block — the shape Claude Code's stacked skills use. |
-| `/skill:nonexistent /skill:real x` | `real` still runs with `x`; the unknown token stays in the message exactly as typed. |
+| `/skill:nonexistent /skill:real x` | `real` still runs with `x`; the unknown token stays in the message verbatim, edges trimmed. |
 | `/skill:research auth` | Identical to native pi, byte for byte — the collapsible skill card and `@juicesharp/rpiv-args` interop are unchanged. |
-| `/skill:a /skill:b /skill:c /skill:d /skill:e /skill:f /skill:g x` | `a`–`f` run; `/skill:g x` becomes `f`'s argument text. |
+| `/skill:a /skill:b /skill:c /skill:d /skill:e /skill:f /skill:g x` | `a`–`f` run; `/skill:g x` becomes `f`'s argument text (the default cap). |
 
 ## Behaviour
 
 ### A skill that cannot be resolved never costs you the chain
 
 A token that names no skill in the session, or whose `SKILL.md` cannot be read, stays in the
-message exactly as typed — the rest of the chain still expands.
+message verbatim — its edges trimmed, the rest of the chain still expanding. The warning line names
+it, because the transcript cannot: an unmatched token carries no block, so the transcript rebuilds
+it from the text you typed and shows you exactly that.
+
+### What a chain costs, and what it reports
+
+Every expanded skill injects its whole `SKILL.md` body. A chain crosses 50,000 characters faster
+than it looks, so a message above that threshold produces one warning naming the skill count and
+the injected size. The same warning names anything that did not go as written: a name that matched
+no skill, a marker past the cap, a name the message repeated.
+
+Nothing in the transcript changes to say this. A chain is rebuilt from the blocks it carries, so it
+shows what was typed — the warning is where the difference lives. A single `/skill:<name>` message
+never warns, because it takes pi's own path untouched.
 
 ### Order independence with `@juicesharp/rpiv-args`
 
@@ -110,9 +139,9 @@ skills({ "query": "design", "limit": 20 })
 → { skills: [{ name, description, location }], total, truncated }
 ```
 
-`query` matches names and descriptions case-insensitively; `limit` pages the result (`total` and
-`truncated` report what was left out). The tool never invokes a skill — pi expands skills from user
-input only — but `location` is readable with the built-in `read` tool.
+`query` matches names and descriptions case-insensitively; `limit` caps how many entries come back,
+and `total` / `truncated` report what was left out. The tool never invokes a skill — pi expands
+skills from user input only — but `location` is readable with the built-in `read` tool.
 
 ### Transcript rendering
 

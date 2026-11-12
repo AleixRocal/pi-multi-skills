@@ -19,6 +19,7 @@ import type {
 	InputEvent,
 	InputEventResult,
 	MarkdownTransformer,
+	MarkdownTransformerOptions,
 	SessionStartEvent,
 	SlashCommandInfo,
 	ToolDefinition,
@@ -47,15 +48,33 @@ export interface MockPi {
 	readonly tools: ToolDefinition[];
 	/** Transformers registered via `registerMarkdownTransformer`. */
 	readonly markdownTransformers: MarkdownTransformer[];
+	/** The options each transformer was registered with, in the same order. */
+	readonly markdownTransformerOptions: (MarkdownTransformerOptions | undefined)[];
+	/** Flags registered via `registerFlag`, in registration order. */
+	readonly flagRegistrations: FlagRegistration[];
+}
+
+/** A `registerFlag` call as the host would have received it. */
+export interface FlagRegistration {
+	readonly name: string;
+	readonly type: "boolean" | "string";
+	readonly default?: string | boolean;
+	readonly description?: string;
 }
 
 /** Build a `pi` double backed by an in-memory command list. */
-export function createMockPi(options: { commands?: SlashCommandInfo[] } = {}): MockPi {
+export function createMockPi(
+	options: { commands?: SlashCommandInfo[]; flags?: Record<string, string | boolean> } = {},
+): MockPi {
 	const commands = options.commands ?? [];
 	const inputHandlers: InputHandler[] = [];
 	const sessionStartHandlers: SessionStartHandler[] = [];
 	const tools: ToolDefinition[] = [];
 	const markdownTransformers: MarkdownTransformer[] = [];
+	const markdownTransformerOptions: (MarkdownTransformerOptions | undefined)[] = [];
+	/** CLI values, as `--flag value` would have supplied them. */
+	const flagValues: Record<string, string | boolean> = { ...options.flags };
+	const flagRegistrations: FlagRegistration[] = [];
 
 	const pi = {
 		on(event: string, handler: InputHandler | SessionStartHandler) {
@@ -80,12 +99,37 @@ export function createMockPi(options: { commands?: SlashCommandInfo[] } = {}): M
 			tools.push(tool);
 		},
 		registerCommand: () => {},
-		registerMarkdownTransformer: (transformer: MarkdownTransformer) => {
+		registerMarkdownTransformer: (
+			transformer: MarkdownTransformer,
+			options?: MarkdownTransformerOptions,
+		) => {
 			markdownTransformers.push(transformer);
+			markdownTransformerOptions.push(options);
 		},
+		registerFlag: (name: string, flag: FlagRegistration) => {
+			flagRegistrations.push({
+				name,
+				type: flag.type,
+				...(flag.default !== undefined && { default: flag.default }),
+				...(flag.description !== undefined && { description: flag.description }),
+			});
+			// The host answers `getFlag` with the declared default when the user did not
+			// pass the flag (`core/extensions/types.d.ts:1290`), so a double that always
+			// returned `undefined` would let a resolver test pass for the wrong reason.
+			if (!(name in flagValues) && flag.default !== undefined) flagValues[name] = flag.default;
+		},
+		getFlag: (name: string) => flagValues[name],
 	} as unknown as ExtensionAPI;
 
-	return { pi, inputHandlers, sessionStartHandlers, tools, markdownTransformers };
+	return {
+		pi,
+		inputHandlers,
+		sessionStartHandlers,
+		tools,
+		markdownTransformers,
+		markdownTransformerOptions,
+		flagRegistrations,
+	};
 }
 
 /** Build an `ExtensionContext` double with the few members this extension uses. */

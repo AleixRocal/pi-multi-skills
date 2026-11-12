@@ -4,15 +4,21 @@
 	"description": "Chain several /skill: invocations in one pi message — N skills, one command.",
 	"keywords": [
 		"pi-package",
+		"pi",
 		"pi-coding-agent",
 		"pi-extension",
 		"agent-skills",
 		"skills",
-		"skill-chaining"
+		"skill-chaining",
+		"multi-skill",
+		"slash-commands"
 	],
 	"type": "module",
 	"license": "MIT",
-	"author": "Aleix",
+	"author": {
+		"name": "Aleix Rocal",
+		"url": "https://github.com/AleixRocal"
+	},
 	"engines": {
 		"node": ">=22.19.0"
 	},

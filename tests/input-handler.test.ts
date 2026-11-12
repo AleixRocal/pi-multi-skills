@@ -2,7 +2,12 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
-import type { ExtensionAPI, InputEvent, InputEventResult } from "@earendil-works/pi-coding-agent";
+import type {
+	ExtensionAPI,
+	ExtensionContext,
+	InputEvent,
+	InputEventResult,
+} from "@earendil-works/pi-coding-agent";
 import { registerMultiSkills } from "../extensions/index.js";
 import { CHAIN_DISPLAY_MARKER } from "../src/chain-display.js";
 import { appendArgs, buildSkillBlock } from "../src/expander.js";
@@ -91,8 +96,16 @@ function emit(
 	pi: ExtensionAPI,
 	text: string,
 	source: InputEvent["source"] = "interactive",
+	ctx: ExtensionContext = createMockCtx(),
 ): InputEventResult {
-	return handleInput({ type: "input", text, source }, createMockCtx(), pi);
+	return handleInput({ type: "input", text, source }, ctx, pi);
+}
+
+/** A ctx whose `notify` records every message, so the notice is observable. */
+function spyCtx(): { ctx: ExtensionContext; notices: string[] } {
+	const notices: string[] = [];
+	const ctx = createMockCtx({ ui: { notify: (message: string) => notices.push(message) } });
+	return { ctx, notices };
 }
 
 /** Narrow a result to its transformed text, failing loudly otherwise. */
@@ -320,5 +333,99 @@ describe("extensions/index.ts — registration surface", () => {
 		const result = await emitInput(mock.inputHandlers, "/skill:a /skill:b refactor");
 
 		expect(textOf(result).match(/<skill name=/g)).toHaveLength(2);
+	});
+});
+
+describe("handleInput — a failed name no longer collapses the chain to a card", () => {
+	it("marks the message when the failed name comes last", () => {
+		// `<block design>\n\ny\n\n/skill:nope x` STARTS with a block, so the host's
+		// anchored `parseSkillBlock` matches it, the message takes the card path,
+		// and that card can show only the one block — `/skill:nope` used to vanish
+		// there. One block plus one name without a block is still a chain.
+		const { pi } = harness({ name: "design" });
+		const result = emit(pi, "/skill:design y /skill:nope x");
+
+		expect(textOf(result).startsWith(CHAIN_DISPLAY_MARKER)).toBe(true);
+		expect(textOf(result)).toContain("/skill:nope x");
+	});
+
+	it("needs no mark when the failed name comes first, because the card path is already closed", () => {
+		// The same two tokens in the other order emit a verbatim span first, so the
+		// text does not start with a block and the host's anchored regex never
+		// matched. Pinned because the asymmetry is the whole reason the bug looked
+		// like a single-skill message only in one order.
+		const { pi } = harness({ name: "design" });
+		const result = emit(pi, "/skill:nope x /skill:design y");
+
+		expect(textOf(result).startsWith("/skill:nope x")).toBe(true);
+		expect(textOf(result).startsWith(CHAIN_DISPLAY_MARKER)).toBe(false);
+	});
+
+	it("still leaves a lone skill to pi's own card", () => {
+		const { pi } = harness({ name: "design" });
+		expect(textOf(emit(pi, "/skill:design y")).startsWith(CHAIN_DISPLAY_MARKER)).toBe(false);
+	});
+});
+
+describe("handleInput — the chain notice", () => {
+	it("stays silent for a well-behaved chain below the cost threshold", () => {
+		const { pi } = harness({ name: "a" }, { name: "b" });
+		const { ctx, notices } = spyCtx();
+
+		emit(pi, "/skill:a x /skill:b y", "interactive", ctx);
+
+		expect(notices).toEqual([]);
+	});
+
+	it("stays silent for a single skill, which keeps pi's native path", () => {
+		const { pi } = harness({ name: "design" });
+		const { ctx, notices } = spyCtx();
+
+		emit(pi, "/skill:design x", "interactive", ctx);
+
+		expect(notices).toEqual([]);
+	});
+
+	it("names the skill that did not resolve", () => {
+		const { pi } = harness({ name: "design" });
+		const { ctx, notices } = spyCtx();
+
+		emit(pi, "/skill:nope x /skill:design y", "interactive", ctx);
+
+		expect(notices).toHaveLength(1);
+		expect(notices[0]).toContain("/skill:nope not found");
+	});
+
+	it("names the markers past the cap, with the cap that was in force", () => {
+		const { pi } = harness(...["a", "b", "c", "d", "e", "f", "g"].map((name) => ({ name })));
+		const { ctx, notices } = spyCtx();
+
+		emit(pi, "/skill:a /skill:b /skill:c /skill:d /skill:e /skill:f /skill:g tail", "interactive", ctx);
+
+		expect(notices).toHaveLength(1);
+		expect(notices[0]).toContain("/skill:g past the cap (6)");
+	});
+
+	it("reports the injected size once a chain crosses the threshold", () => {
+		const { pi } = harness(
+			{ name: "a", body: "x".repeat(30_000) },
+			{ name: "b", body: "y".repeat(30_000) },
+		);
+		const { ctx, notices } = spyCtx();
+
+		emit(pi, "/skill:a just /skill:b once", "interactive", ctx);
+
+		expect(notices).toHaveLength(1);
+		expect(notices[0]).toMatch(/^2 skills · \d+\.\dk chars injected$/);
+	});
+
+	it("reports a duplicate that was collapsed", () => {
+		const { pi } = harness({ name: "a" });
+		const { ctx, notices } = spyCtx();
+
+		emit(pi, "/skill:a first /skill:a second", "interactive", ctx);
+
+		expect(notices).toHaveLength(1);
+		expect(notices[0]).toContain("/skill:a expanded once");
 	});
 });

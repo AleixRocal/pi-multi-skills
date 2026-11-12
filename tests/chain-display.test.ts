@@ -5,8 +5,9 @@
  * The unit half pins the marker and the reconstruction. The integration half
  * uses the host's OWN `parseSkillBlock` (exported from the package root) to pin
  * the reason the marker exists: a chain must not reach the collapsible skill
- * card, because the card runs no markdown transformers, and a transformer is the
- * only display hook this extension has.
+ * card, because the card renders one block and transforms only its body, while
+ * a transformer is the only display hook this extension has for the whole
+ * message.
  */
 
 import { describe, expect, it } from "vitest";
@@ -176,3 +177,26 @@ function renderVisible(markdown: string): string {
 		.filter((line) => line.length > 0)
 		.join("\n");
 }
+
+describe("markChainForDisplay — skills the text cannot show as blocks", () => {
+	it("marks a single block when the handler reports one skill without a block", () => {
+		// `/skill:a x /skill:nope y`: one block emitted, `nope` left verbatim.
+		// One block alone would take the card path, which is where it disappeared.
+		const single = block("a", "A BODY");
+
+		expect(markChainForDisplay(single, 1)).toBe(`${CHAIN_DISPLAY_MARKER}${single}`);
+	});
+
+	it("leaves a lone skill to the card when nothing else was named", () => {
+		const single = block("design", "DESIGN BODY");
+
+		expect(markChainForDisplay(single, 0)).toBe(single);
+	});
+
+	it("counts the extra skills on top of the blocks it can see", () => {
+		const two = `${block("a", "A")}\n\n${block("b", "B")}`;
+
+		expect(markChainForDisplay(two, 0)).toBe(`${CHAIN_DISPLAY_MARKER}${two}`);
+		expect(markChainForDisplay(two, 3)).toBe(`${CHAIN_DISPLAY_MARKER}${two}`);
+	});
+});

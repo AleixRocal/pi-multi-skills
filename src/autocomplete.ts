@@ -36,7 +36,8 @@
  */
 
 import type { AutocompleteProviderFactory, ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
-import { MAX_CHAINED_SKILLS, parseSkillChain } from "./parser.js";
+import { resolveMaxChainedSkills } from "./config.js";
+import { parseSkillChain } from "./parser.js";
 import { getSkillIndex } from "./registry.js";
 
 /**
@@ -108,7 +109,12 @@ export function chainTokenAt(line: string): ChainToken | null {
 	}
 
 	if (!run.text.startsWith("/") || run.text.slice(1).includes("/")) return null;
-	if (parseSkillChain(line.slice(0, run.start)).tokens.length === 0) return null;
+	// `max` of 1 answers "is any token committed at all?", which is the only
+	// question this function asks. Keeping it out of the configured cap is what
+	// keeps `chainTokenAt` a pure line reader: the cap belongs to the menu that
+	// counts tokens (`committedSkills`), not to the question of whether the
+	// cursor sits in a chain position.
+	if (parseSkillChain(line.slice(0, run.start), 1).tokens.length === 0) return null;
 
 	// `/s` is a half-typed marker, so it filters nothing (`""` lists every skill);
 	// `/pl` is a name fragment, so it filters on `pl`.
@@ -128,16 +134,27 @@ function compareNames(a: string, b: string): number {
  * Prefix matches rank above mid-name matches; ties fall back to `compareNames`,
  * so the menu does not depend on the host's ICU locale.
  *
+ * `committed` holds the names already named earlier in the message. They are not
+ * offered again: the expander collapses a repeated name into one block
+ * (`src/expander.ts`), so the second marker buys no body — only a second
+ * argument run, which the user can type into the first block's arguments. The
+ * filter is what stops the duplicate from being typed in the first place.
+ *
  * `value` and `label` both read `/skill:<name>`: the label is what the editor
  * shows, and the value is what `applyCompletion` inserts, so the entry is named
  * exactly as the syntax it writes. The editor's own highlight then matches the
  * typed prefix byte for byte (`components/editor.js:1855-1880`).
  */
-function chainSuggestions(token: ChainToken, pi: ExtensionAPI): AutocompleteItem[] {
+function chainSuggestions(
+	token: ChainToken,
+	pi: ExtensionAPI,
+	committed: ReadonlySet<string>,
+): AutocompleteItem[] {
 	const needle = token.prefix.toLowerCase();
 	const ranked: { name: string; rank: number }[] = [];
 
 	for (const entry of getSkillIndex(pi).values()) {
+		if (committed.has(entry.name)) continue;
 		const at = entry.name.toLowerCase().indexOf(needle);
 		if (at === -1) continue;
 		ranked.push({ name: entry.name, rank: at === 0 ? 0 : 1 });
@@ -152,15 +169,22 @@ function chainSuggestions(token: ChainToken, pi: ExtensionAPI): AutocompleteItem
 }
 
 /**
- * Tokens already committed on the line before `token`.
+ * Everything typed before the cursor, as one string.
  *
- * The parser's own cap is the ceiling (`MAX_CHAINED_SKILLS`): once it is
- * reached the menu offers nothing, because a further marker would not expand —
- * the expander stops at the cap and leaves the rest as literal argument text
- * (`src/parser.ts:50-56`).
+ * The host hands over the whole buffer (`lines`) plus the cursor's line and
+ * column, so anything that counts or looks up EARLIER tokens has to rebuild the
+ * text. Reading only `lines[cursorLine]` is what left a chain with no menu past
+ * the first line: `chainTokenAt` answers `null` for a token at offset 0 because
+ * that position belongs to pi's own command menu (`autocomplete.js:230-259`), and
+ * on line 2 every chain token starts at offset 0 *of its line*.
+ *
+ * Newlines are preserved so the parser sees the same boundaries the expander
+ * will. Truncating the buffer instead would also be wrong for the cap, which is
+ * a per-message budget, not a per-line one.
  */
-function committedSkills(line: string, token: ChainToken): number {
-	return parseSkillChain(line.slice(0, token.start)).tokens.length;
+function textBeforeCursor(lines: readonly string[], cursorLine: number, cursorCol: number): string {
+	const current = (lines[cursorLine] ?? "").slice(0, cursorCol);
+	return [...lines.slice(0, cursorLine), current].join("\n");
 }
 
 /**
@@ -174,23 +198,34 @@ export function wrapWithChainAutocomplete(
 	current: AutocompleteProvider,
 	pi: ExtensionAPI,
 ): AutocompleteProvider {
-	/** Text before the cursor, on the cursor's line. */
-	const textBefore = (lines: string[], cursorLine: number, cursorCol: number): string =>
-		(lines[cursorLine] ?? "").slice(0, cursorCol);
-
 	return {
 		// Passed through rather than declared: `/` cannot be a trigger character
 		// (`editor.js:1959-1963`) and does not need to be one.
 		triggerCharacters: current.triggerCharacters,
 
 		async getSuggestions(lines, cursorLine, cursorCol, options) {
-			const line = lines[cursorLine] ?? "";
-			const token = chainTokenAt(line.slice(0, cursorCol));
+			const before = textBeforeCursor(lines, cursorLine, cursorCol);
+			const token = chainTokenAt(before);
+			if (token === null) return current.getSuggestions(lines, cursorLine, cursorCol, options);
 
-			if (token !== null && committedSkills(line, token) < MAX_CHAINED_SKILLS) {
-				const items = chainSuggestions(token, pi);
-				if (items.length > 0) return { items, prefix: token.text };
+			const max = resolveMaxChainedSkills(pi);
+			// One parse answers both questions the menu has: has the cap been reached,
+			// and which names are already committed. Splitting them would be a second
+			// copy of the tokeniser's rules.
+			const committed = parseSkillChain(before.slice(0, token.start), max);
+			if (committed.tokens.length >= max) {
+				return current.getSuggestions(lines, cursorLine, cursorCol, options);
 			}
+
+			const named = new Set(committed.tokens.map((entry) => entry.name));
+			let items = chainSuggestions(token, pi, named);
+			// A menu the filter emptied is worse than a redundant entry: at
+			// `/skill:plan /skill:pl` the only match IS the committed name, and pi has
+			// nothing to offer at a mid-chain position (`autocomplete.js:260-268`
+			// returns null). Falling back keeps the position usable.
+			if (items.length === 0 && named.size > 0) items = chainSuggestions(token, pi, new Set());
+
+			if (items.length > 0) return { items, prefix: token.text };
 
 			return current.getSuggestions(lines, cursorLine, cursorCol, options);
 		},
@@ -223,7 +258,7 @@ export function wrapWithChainAutocomplete(
 		shouldTriggerFileCompletion(lines, cursorLine, cursorCol) {
 			// Inside a chain token, Tab is a skill completion, not a path search:
 			// the host's `false` here would swallow the key and show nothing.
-			if (chainTokenAt(textBefore(lines, cursorLine, cursorCol)) !== null) return true;
+			if (chainTokenAt(textBeforeCursor(lines, cursorLine, cursorCol)) !== null) return true;
 			return current.shouldTriggerFileCompletion?.(lines, cursorLine, cursorCol) ?? true;
 		},
 	};

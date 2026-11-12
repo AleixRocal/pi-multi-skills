@@ -40,6 +40,9 @@ describe("renderer — registration", () => {
 
 		expect(mock.markdownTransformers).toHaveLength(1);
 		expect(mock.markdownTransformers[0]).toBe(skillChainTransformer);
+		// Only user Markdown can carry a chain; the host filters the other
+		// surfaces before calling (`dist/core/extensions/loader.js:286-291`).
+		expect(mock.markdownTransformerOptions).toEqual([{ messageTypes: ["user"] }]);
 		expect(mock.inputHandlers).toHaveLength(1);
 		expect(mock.tools.map((tool) => tool.name)).toEqual(["skills"]);
 	});
@@ -50,6 +53,7 @@ describe("renderer — registration", () => {
 		registerSkillChainRenderer(mock.pi);
 
 		expect(mock.markdownTransformers).toEqual([skillChainTransformer]);
+		expect(mock.markdownTransformerOptions).toEqual([{ messageTypes: ["user"] }]);
 	});
 });
 

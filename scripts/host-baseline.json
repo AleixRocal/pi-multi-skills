@@ -192,6 +192,15 @@
 			"first": "if (!options.force && commandText.startsWith(\"/\")) {",
 			"last": "}"
 		},
+		"autocomplete.js:260-268": {
+			"package": "@earendil-works/pi-tui",
+			"path": "dist/autocomplete.js",
+			"lines": "260-268",
+			"count": 9,
+			"sha256": "227749779ccf930c077600df314b2c1829c2968d2766a3cf75ea93962b9f0bbb",
+			"first": "const commandName = commandText.slice(1, spaceIndex);",
+			"last": "}"
+		},
 		"autocomplete.js:300-310": {
 			"package": "@earendil-works/pi-tui",
 			"path": "dist/autocomplete.js",
@@ -300,6 +309,33 @@
 			"first": "addAutocompleteProvider: () => { },",
 			"last": "addAutocompleteProvider: () => { },"
 		},
+		"core/extensions/types.d.ts:1280-1290": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/extensions/types.d.ts",
+			"lines": "1280-1290",
+			"count": 11,
+			"sha256": "8881dd0fb643e9cafa9312dfc064c8d652d0b1e2dd7ec92ed55b659536a88c09",
+			"first": "registerFlag(name: string, options: {",
+			"last": "getFlag(name: string): boolean | string | undefined;"
+		},
+		"core/extensions/types.d.ts:1290": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/extensions/types.d.ts",
+			"lines": "1290",
+			"count": 1,
+			"sha256": "cea67b12063b443c8c0e0fd6f1c036ba7bc966ca0b91b57f76c3024572be924e",
+			"first": "getFlag(name: string): boolean | string | undefined;",
+			"last": "getFlag(name: string): boolean | string | undefined;"
+		},
+		"core/extensions/types.d.ts:568": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/extensions/types.d.ts",
+			"lines": "568",
+			"count": 1,
+			"sha256": "e2e1e6642bbd0a9dc1d4079ce214015e4d58f0b4e1da8bc8065de7aa0bf48930",
+			"first": "ui: Pick<ExtensionUIContext, \"select\" | \"confirm\" | \"input\" | \"notify\">;",
+			"last": "ui: Pick<ExtensionUIContext, \"select\" | \"confirm\" | \"input\" | \"notify\">;"
+		},
 		"core/extensions/types.d.ts:66": {
 			"package": "@earendil-works/pi-coding-agent",
 			"path": "dist/core/extensions/types.d.ts",
@@ -317,6 +353,15 @@
 			"sha256": "fad44739c4ec0265882ada412e6fe46a2690f00beeeba4a190b97fab0e8eff1a",
 			"first": "export type AutocompleteProviderFactory = (current: AutocompleteProvider) => AutocompleteProvider;",
 			"last": "addAutocompleteProvider(factory: AutocompleteProviderFactory): void;"
+		},
+		"core/settings-schema.d.ts:101-194": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/settings-schema.d.ts",
+			"lines": "101-194",
+			"count": 94,
+			"sha256": "a6750c132c7f8b22d3cab2109fe5458d14cb285706bbc48393686615633b3421",
+			"first": "retry: Type.TOptional<Type.TObject<{",
+			"last": "type SettingsInput = Static<typeof SettingsSchema>;"
 		},
 		"dist/core/agent-session.js:1811-1835": {
 			"package": "@earendil-works/pi-coding-agent",
@@ -516,6 +561,15 @@
 			"first": "if (typeof tool.parameters !== \"object\" || tool.parameters === null || Array.isArray(tool.parameters)) {",
 			"last": "if (typeof tool.parameters !== \"object\" || tool.parameters === null || Array.isArray(tool.parameters)) {"
 		},
+		"loader.js:286-291": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/extensions/loader.js",
+			"lines": "286-291",
+			"count": 6,
+			"sha256": "3b33ebace55fbd1c27620e165db3af8e5c0d747f1029ddb4f95d61a3092cf98e",
+			"first": "registerMarkdownTransformer(transformer, options) {",
+			"last": "};"
+		},
 		"markdown-transform.js:2-3": {
 			"package": "@earendil-works/pi-coding-agent",
 			"path": "dist/modes/interactive/components/markdown-transform.js",
@@ -581,6 +635,24 @@
 			"sha256": "e504ecb2e151c7ee4bc60851367390d508561ed93e1ecc3141c128c09f1cdb80",
 			"first": "catch (err) {",
 			"last": "}"
+		},
+		"runner.js:539-548": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/core/extensions/runner.js",
+			"lines": "539-548",
+			"count": 10,
+			"sha256": "e8d9b2a39809ed78c0278765c624732d53d0ddf1baf3a3d1dfe4ba802b955888",
+			"first": "getMarkdownTransformers() {",
+			"last": "}"
+		},
+		"skill-invocation-message.js:45-48": {
+			"package": "@earendil-works/pi-coding-agent",
+			"path": "dist/modes/interactive/components/skill-invocation-message.js",
+			"lines": "45-48",
+			"count": 4,
+			"sha256": "94769bb3529458713a62e8e9ebe6522a40dc28244294a4a6a9521fbb342a8b7e",
+			"first": "const transform = createMarkdownTransform(\"custom\", () => false, this.markdownTransformers, this.messageId, this.timestamp);",
+			"last": "{ transform: (markdown, width) => header + transform(markdown, width) }));"
 		}
 	},
 	"docs": {

@@ -30,7 +30,7 @@
 import { readFileSync } from "node:fs";
 import { stripFrontmatter } from "@earendil-works/pi-coding-agent";
 import { parseSkillChain } from "./parser.js";
-import type { SkillEntry, SkillIndex, SkillToken } from "./types.js";
+import type { SkillEntry, SkillExpansion, SkillIndex, SkillToken } from "./types.js";
 
 /**
  * Re-entrancy marker: text that already carries an emitted block starts with
@@ -66,7 +66,8 @@ export function appendArgs(skillBlock: string, args: string): string {
 }
 
 /**
- * One token → one emitted block, or `null` when the token cannot be served.
+ * One token → the block payload it renders to, or `null` when the token cannot
+ * be served.
  *
  * The SKILL.md is read on every call — matching Pi (`agent-session.js:1821`)
  * and `rpiv-args` — so a skill edited mid-session is picked up on the next
@@ -74,7 +75,10 @@ export function appendArgs(skillBlock: string, args: string): string {
  * is not an error: the token falls back to verbatim text and the rest of the
  * chain still expands.
  */
-function renderSkillToken(token: SkillToken, index: SkillIndex): string | null {
+function loadSkillToken(
+	token: SkillToken,
+	index: SkillIndex,
+): { entry: SkillEntry; body: string } | null {
 	const entry = index.get(token.name);
 	if (entry === undefined) return null;
 
@@ -85,12 +89,12 @@ function renderSkillToken(token: SkillToken, index: SkillIndex): string | null {
 		return null;
 	}
 
-	const body = stripFrontmatter(content).trim();
-	return appendArgs(buildSkillBlock(entry, body), token.args);
+	return { entry, body: stripFrontmatter(content).trim() };
 }
 
 /**
- * Replace every resolvable `/skill:<name>` token in `text` with its block.
+ * Replace every resolvable `/skill:<name>` token in `text` with its block, and
+ * report what happened as a `SkillExpansion`.
  *
  * Text that belongs to no resolvable token — the preamble, and the original
  * span of any token whose name is unknown or whose file cannot be read — stays
@@ -98,34 +102,92 @@ function renderSkillToken(token: SkillToken, index: SkillIndex): string | null {
  * no token at all, or when none of the tokens resolved: both mean the handler
  * should let Pi's native expansion handle the message.
  *
+ * A name repeated in one message is collapsed: the body is injected once and
+ * every later occurrence contributes only its arguments, appended to the
+ * surviving block's trailer in message order. The body is the expensive part and
+ * the model gains nothing from a second copy, which is the whole reason a chain
+ * needs a cost signal. The merge separator is the host's own (`:1823-1824`), and
+ * zero arguments contribute nothing, so a bare repeat leaves the block as it was.
+ *
  * Scanning is deliberately unscoped. `parseSkillChain` looks for markers only
  * inside the message it is handed, so a caller that must protect an
  * already-emitted block (the rescue path) passes the residual text after the
  * last `</skill>` rather than the whole message.
  */
-export function expandSkillTokens(text: string, index: SkillIndex): string | null {
-	const chain = parseSkillChain(text);
+export function expandSkillTokens(
+	text: string,
+	index: SkillIndex,
+	max: number,
+): SkillExpansion | null {
+	const chain = parseSkillChain(text, max);
 	if (chain.tokens.length === 0) return null;
 
-	const parts: string[] = [];
-	if (chain.preamble.length > 0) parts.push(chain.preamble);
+	/** An ordered part of the emitted message: literal text, or one skill block. */
+	type Part =
+		| { readonly kind: "text"; readonly value: string }
+		| {
+				readonly kind: "block";
+				readonly entry: SkillEntry;
+				readonly body: string;
+				/** Argument runs of every occurrence, in message order. */
+				readonly args: string[];
+		  };
 
-	let expandedTokens = 0;
+	const parts: Part[] = [];
+	if (chain.preamble.length > 0) parts.push({ kind: "text", value: chain.preamble });
+
+	/** The surviving block per name, so a later occurrence can extend its trailer. */
+	const blocks = new Map<string, Extract<Part, { kind: "block" }>>();
+	const unresolved: string[] = [];
+	const duplicated: string[] = [];
+
 	for (let i = 0; i < chain.tokens.length; i++) {
 		const token = chain.tokens[i];
-		const block = renderSkillToken(token, index);
-		if (block === null) {
+
+		const survivor = blocks.get(token.name);
+		if (survivor !== undefined) {
+			if (token.args.length > 0) survivor.args.push(token.args);
+			duplicated.push(token.name);
+			continue;
+		}
+
+		const loaded = loadSkillToken(token, index);
+		if (loaded === null) {
 			// Guard 3: leave the original span of the unresolvable token in
 			// place — `/skill:<name>` plus the text it bound — so the user's
 			// message survives the failed resolution untouched.
 			const spanEnd = i + 1 < chain.tokens.length ? chain.tokens[i + 1].start : text.length;
-			parts.push(text.slice(token.start, spanEnd).trim());
+			parts.push({ kind: "text", value: text.slice(token.start, spanEnd).trim() });
+			unresolved.push(token.name);
 			continue;
 		}
-		expandedTokens++;
+
+		const block: Extract<Part, { kind: "block" }> = {
+			kind: "block",
+			entry: loaded.entry,
+			body: loaded.body,
+			args: token.args.length > 0 ? [token.args] : [],
+		};
+		blocks.set(token.name, block);
 		parts.push(block);
 	}
 
-	if (expandedTokens === 0) return null;
-	return parts.join(BLOCK_SEPARATOR);
+	if (blocks.size === 0) return null;
+
+	const emitted = parts
+		.map((part) =>
+			part.kind === "text"
+				? part.value
+				: appendArgs(buildSkillBlock(part.entry, part.body), part.args.join(BLOCK_SEPARATOR)),
+		)
+		.join(BLOCK_SEPARATOR);
+
+	return {
+		text: emitted,
+		expanded: [...blocks.keys()],
+		unresolved,
+		overflow: chain.overflow.map((token) => token.name),
+		duplicated,
+		chars: emitted.length,
+	};
 }

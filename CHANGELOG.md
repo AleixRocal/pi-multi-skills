@@ -9,6 +9,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- `--skill-chain-max`, so the ceiling on a chain is a decision rather than a constant. pi offers no
+  per-extension settings namespace and `registerFlag` has no numeric type, so the flag is a string
+  that must be a whole integer `>= 1`; anything else falls back to 6 instead of failing a start-up.
+  `1` is valid and is exactly native pi.
+- A warning line on a chain that needs one: the skill count and injected size above 50,000
+  characters, plus the names that did not resolve, overran the cap, or were collapsed into an
+  earlier block. It is composed from the expansion plan, so it can say what the transcript cannot —
+  a chain is rebuilt from its blocks, and a token that matched nothing has no block to rebuild.
+  A single `/skill:<name>` message never warns: it takes pi's own path untouched.
 - `.coderabbit.yaml`, so the CodeRabbit review of every pull request is told what this repository
   already knows: the oddities here are deliberate. Without it the reviewer applies generic advice —
   reformat the byte-exact `<skill>` block, add docstrings to comments whose entire purpose is a
@@ -23,19 +32,51 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
-- The development toolchain tracks pi **1.5.2** (`pi-coding-agent` and `pi-tui`), TypeBox
-  **1.4.6**, Vitest **5.1.0**, `@types/node` **26.6.6** and undici **8.12.3**. The host bump is a
-  re-read, so every cited `file:line` was re-resolved against the installed host and the ranges
-  whose text changed were inspected: `_expandSkillCommand` moved by `+113`, `interactive-mode.js`
-  by `+108` and the package-manager manifest branch by `+136/+159`. Two cited behaviours changed —
-  the skill card now transforms only its body as `"custom"` Markdown, and the manifest
-  short-circuit now requires a resource field — and the comments that claimed otherwise were
-  corrected. Runtime ranges stay `"*"` peers; only the lockfile moves.
+- The development toolchain is current: pi **1.5.2** (`pi-coding-agent` and `pi-tui`), TypeBox
+  **1.4.6**, Vitest **5.1.0**, `@types/node` **26.6.6** and undici **8.12.3** (TypeScript 7.0.2
+  was already latest). The host bump is a re-read, so every cited `file:line` was re-resolved and
+  the ranges whose text
+  changed were read: the host moved `_expandSkillCommand` by `+113`, `interactive-mode.js` by
+  `+108` and the package-manager manifest branch by `+136/+159`, and three cited behaviours
+  changed — `registerMarkdownTransformer` gained `options.messageTypes`, the skill card now
+  transforms its body as `"custom"`, and the manifest short-circuit now requires a resource field.
+  Runtime ranges stay `"*"` peers; only the lockfile moves.
+- The markdown transformer names its surface instead of relying on the runtime gate alone:
+  `registerMarkdownTransformer(skillChainTransformer, { messageTypes: ["user"] })`. The host now
+  filters before the call, so assistant, thinking and skill-card Markdown never reach the
+  transformer; the `context.messageType !== "user"` gate stays for hosts that predate the option.
+- The README shows the rolling npm download count in its badge row, and the install section now
+  points at the package's stable [pi gallery page](https://pi.dev/packages/@aleixrocal/pi-multi-skills)
+  instead of the index that cannot list a package at this download level. `package.json` gains
+  search keywords (`pi`, `multi-skill`, `slash-commands`) and a structured author, and
+  `CONTRIBUTING.md` records what actually refreshes on publish: the page is immediate, its README
+  and previews follow the version, and the ranked index is an upstream snapshot capped at 5,000 of
+  ~13,600 `pi-package` results.
+- A name repeated in one message expands once. The body is injected a single time and each later
+  occurrence contributes only its argument text, appended in message order — a duplicate can no
+  longer double the context, which is the cost a chain exists to avoid. The autocomplete menu stops
+  offering a name the message already contains, and keeps the unfiltered list when filtering would
+  leave it empty.
+- The autocomplete menu reads the whole message instead of the cursor's line. Past the first line it
+  never opened, because a token at the start of a line looks like the position pi's own command menu
+  owns — true on line 1, wrong everywhere else. The cap had the same shape of bug: it counted one
+  line, so a two-line message could carry twice the ceiling.
+- The README's account of the cap, the transcript and `limit` now says what the code does: the
+  ceiling is a default, a preamble and a verbatim token are trimmed rather than kept exactly as
+  typed, and `limit` caps a page rather than paging it.
 - The README's *Docs* section drops the "diagrams, light and dark" link list and the closing
   pointers to Issues and Releases. The two diagrams readers actually need are embedded inline where
   they are discussed, and the rest — including both palettes — are linked from the Pages root,
   which is what `docs/index.html` is for: a second index in the README only gave the reader a
   choice between two lists of the same four files.
+
+### Fixed
+
+- A chain whose failed name came last rendered as a single-skill card, which could not show the
+  chain — so the failed name disappeared from the transcript entirely. The marker is now decided
+  from the expansion plan rather than from a block count, and a chain position that starts with a
+  verbatim span (the same tokens in the other order) was already rendering correctly, which is why
+  the bug looked like a normal single-skill message.
 
 ## [0.3.2] - 2026-10-19
 

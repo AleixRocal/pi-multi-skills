@@ -28,7 +28,7 @@ pi install ./pi-multi-skills   # or install the local checkout
 | Command | What it does |
 | --- | --- |
 | `npm run verify` | `typecheck` + `test` + `check:pack` + `check:host`. The full local gate. |
-| `npm test` | Vitest, 195 specs. `npm run test:watch` while iterating. |
+| `npm test` | Vitest, 235 specs. `npm run test:watch` while iterating. |
 | `npm run typecheck` | `tsc --noEmit`, `NodeNext`, no emit. |
 | `npm run check:pack` | Asserts what `npm publish` would ship (entry point + its imports in, tests out) and that every `pi` manifest entry resolves inside the tarball. |
 | `npm run check:host` | Asserts every host `file:line` cited in a comment still points at the text the comment assumes, and that no citation is missing from `scripts/host-baseline.json`. `-- --update` re-snapshots after a host bump; the diff of that file is the re-read. |
@@ -176,18 +176,41 @@ these fields are manifest metadata, so they reach npm only with a published vers
 checked as absolute `https:` URLs by `npm run verify` — by `scripts/check-pack.mjs` against the
 published tarball and by `tests/manifest.test.ts` against the working tree.
 
-Note that the gallery's own index is not refreshed by the publish: the package *page* exists from
-the moment it is published (`https://pi.dev/packages/@aleixrocal/pi-multi-skills` answers 200 with
-the README, while an unknown name is `Page Not Found`), but the *index* is a snapshot of ranked
-packages, so the package is absent from it. Measured on 2026-10-16: `pi.dev/packages` has exactly
-two sections — *Recently published* (the newest publishes, minutes old) and *All packages* (a
-capped, ranked list; the entries sampled carry 30k–56k downloads/month, against 0 for a package
-published the day before). There is no pagination (`?page=2` returns the same HTML) and no API
-(`/packages.json` 404, `/api/packages` 501). Recency and installs are what move a package into that
-snapshot; the keyword and exactly this manifest shape are what eligibility is checked against — see
-`docs/packages.md` upstream. Searching for the name is unreliable for a third reason: the unscoped
-`pi-multi-skills` on npm belongs to a different author (QuangThai's pi extension) and outranks ours
-in the registry search, so the gallery is reached by URL or by the `pi install` name.
+The gallery has two surfaces, and they refresh for different reasons.
+
+- **The package page** — `https://pi.dev/packages/@aleixrocal/pi-multi-skills` — exists from the
+  first publish and answers 200 (an unknown name is *Page Not Found*). Its description, install
+  command, `pi` manifest, types, size and dependency counts come from the npm registry; its
+  README comes from the published tarball, and the cover (`pi.image`) and video (`pi.video`) URLs
+  come from the manifest. Those fields are only re-read when a new version is published, so a
+  README, description or preview edit is invisible there until the next release. The download
+  numbers have their own cadence and can lag the npm API by a day or so.
+- **The catalogue index** — `https://pi.dev/packages` — is a ranked snapshot, not a live query. On
+  2026-11-12 it reported ~13,600 `pi-package` results but exposed only the first 5,000: the crawler
+  pages npm's search API and `from` stops at 5,000, after which the API rolls back to page one
+  (upstream [earendil-works/pi#7885](https://github.com/earendil-works/pi/issues/7885) and
+  [#6873](https://github.com/earendil-works/pi/issues/6873)). This package sits at ~670
+  downloads/month, so it is not in that slice and cannot be placed there from this repository.
+  Publishing does put it in *Recently published* for a few minutes.
+
+The stable entry point is therefore the package page, and the reliable search is by name:
+`https://pi.dev/packages?name=pi-multi-skills` returns this package first (with the unscoped
+`pi-multi-skills`, a different author's extension, second). Eligibility itself is checked against
+npm metadata — the `pi-package` keyword plus a `pi` manifest with at least one resource root — and
+`npm run verify` holds both in `tests/manifest.test.ts` and `scripts/check-pack.mjs`, so a publish
+cannot silently lose the listing.
+
+For a publish that lands correctly, check the three things the workflow cannot: the manifest npm
+actually received, the page's HTTP status, and the download count the badge shows.
+
+```bash
+npm view @aleixrocal/pi-multi-skills version description keywords author --json
+curl -s -o /dev/null -w '%{http_code}\n' https://pi.dev/packages/@aleixrocal/pi-multi-skills
+curl -s 'https://api.npmjs.org/downloads/point/last-month/@aleixrocal/pi-multi-skills'
+```
+
+A page that still shows the previous README after a release is the one expected lag: the npm
+manifest is immutable per version, and the gallery caches package details for about an hour.
 
 ## Reporting bugs and proposing features
 

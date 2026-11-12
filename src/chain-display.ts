@@ -70,20 +70,25 @@ function countSkillBlocks(text: string): number {
  * Mark `text` so the host renders it as plain user markdown instead of a skill
  * card, when that is what the display needs.
  *
- * Two conditions, both necessary:
+ * Three conditions, all necessary:
  *
  *  - The message STARTS with a block. Otherwise the anchored parse already fails
  *    and the transformer already sees everything — marking it would only put a
  *    stray character in a message the host was going to render as text anyway.
- *  - It carries more than one block. A single bare block is pi's native
- *    single-skill message, and that keeps its card.
+ *  - Together with `namedWithoutBlock` it carries more than one skill. A single
+ *    bare block is pi's native single-skill message, and that keeps its card.
+ *  - `namedWithoutBlock` is how a caller reports the skills this text cannot
+ *    show as blocks: a token left verbatim because it did not resolve, a marker
+ *    past the cap, a name collapsed into an earlier block. Counting only blocks
+ *    made `/skill:a x /skill:nope y` look like a single-skill message and sent
+ *    it down the card path, which is where a failed name used to disappear.
  *
  * Idempotent, so a caller may apply it to text that already went through it.
  */
-export function markChainForDisplay(text: string): string {
+export function markChainForDisplay(text: string, namedWithoutBlock = 0): string {
 	if (text.startsWith(CHAIN_DISPLAY_MARKER)) return text;
 	if (!text.startsWith(SKILL_BLOCK_PREFIX)) return text;
-	if (countSkillBlocks(text) < 2) return text;
+	if (countSkillBlocks(text) + namedWithoutBlock < 2) return text;
 	return `${CHAIN_DISPLAY_MARKER}${text}`;
 }
 

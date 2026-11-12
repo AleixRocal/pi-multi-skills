@@ -19,7 +19,7 @@ pass and the extension can still be wrong. Re-read the cited host file before tr
 ```bash
 npm ci                 # lockfile-exact; Node >= 22.19.0
 npm run verify         # typecheck + tests + tarball + host citations (what CI runs)
-npm test               # vitest run — 14 files, 195 specs
+npm test               # vitest run — 15 files, 235 specs
 npm run test:watch
 npm run typecheck      # tsc --noEmit, NodeNext
 npm run check:pack     # what `npm publish` would ship, manifest included
@@ -36,10 +36,11 @@ npm run skill:zip      # dist/<skill>.zip — the marketplace upload artifact
 | Path | Owns | Spec |
 | --- | --- | --- |
 | `extensions/index.ts` | Registration only: `input`, `session_start`, the `skills` tool, the markdown transformer. Thin by design. | — |
-| `src/types.ts` | Shared vocabulary (`SkillEntry`, `SkillToken`, `SkillChain`). Imports no host code. | — |
-| `src/parser.ts` | `/skill:` tokenisation, positional argument binding, `MAX_CHAINED_SKILLS = 6`. Pure, no I/O. | `tests/parser.test.ts` |
+| `src/types.ts` | Shared vocabulary (`SkillEntry`, `SkillToken`, `SkillChain`, `SkillExpansion`, `TokenStart`). Imports no host code. | — |
+| `src/config.ts` | The cap and the cost threshold: `DEFAULT_MAX_CHAINED_SKILLS`, `MAX_CHAINED_SKILLS_FLAG`, `COST_WARN_CHARS`, `resolveMaxChainedSkills(pi)`. One place a number is decided, and the only reader of the `--skill-chain-max` flag. | `tests/config.test.ts` |
+| `src/parser.ts` | `/skill:` tokenisation, positional argument binding, and the markers a cap did not admit (`overflow`). The cap arrives as an argument, never as a constant. Pure, no I/O. | `tests/parser.test.ts` |
 | `src/registry.ts` | Name → `SKILL.md` index built from `pi.getCommands()`; one module-level cache, invalidated on `session_start`. | `tests/registry.test.ts` |
-| `src/expander.ts` | Byte-exact `<skill …>` block emission; reads skill bodies; `null` when nothing expanded. | `tests/expander.test.ts`, `tests/emit-order.test.ts` |
+| `src/expander.ts` | Byte-exact `<skill …>` block emission; reads skill bodies; collapses a repeated name to one body; `null` when nothing expanded, else the emitted text plus the plan it came from. | `tests/expander.test.ts`, `tests/emit-order.test.ts` |
 | `src/input-handler.ts` | The `input` hook: guards, clean path, rescue path, marking for display. | `tests/input-handler.test.ts` |
 | `src/chain-display.ts` | The display marker (U+200B) and the block → `/skill:` rewrite. | `tests/chain-display.test.ts` |
 | `src/renderer.ts` | The markdown transformer: user-message markdown only, and only when a block is present. | `tests/renderer.test.ts` |
@@ -47,7 +48,7 @@ npm run skill:zip      # dist/<skill>.zip — the marketplace upload artifact
 | `src/skills-tool.ts` | Read-only `skills` listing tool (TypeBox params, direct exposure). | `tests/skills-tool.test.ts` |
 | `skills/skill-chain/` | The model-facing half: what a chain is, positional binding, the closing report. Ships in the package and installs standalone into any agent. | `tests/skill-package.test.ts` |
 | `tests/manifest.test.ts` | The `pi` manifest contract: the gallery keyword, the resource shapes the host reads, entry resolution, host packages as peers, absolute preview URLs. | `scripts/check-pack.mjs` (the same rules against the tarball) |
-| `tests/helpers/mock-pi.ts` | Host fake: commands, UI surface, input events. | — |
+| `tests/helpers/mock-pi.ts` | Host fake: commands, flags, UI surface, input events. | — |
 | `scripts/check-host.mjs` | Resolves every cited host `file:line`, hashes the cited range, and fails when the text moved — or when a citation was never snapshotted. `--update` rewrites the snapshot. | `tests/host-baseline.test.ts` |
 | `scripts/host-baseline.json` | The committed snapshot: host versions, one entry per citation (resolved file, line spec, range hash, boundary text), and a hash per shipped host doc. Generated, never hand-edited. | `scripts/check-host.mjs` |
 
@@ -73,23 +74,29 @@ Each one is load-bearing against a host behaviour that fails **quietly**:
    /skill:typo y` must still expand `real`.
 6. **The rescue path scans only the text after the last `</skill>`.** A skill body is prose and
    may mention `/skill:` legitimately; scanning a block's body emits phantom blocks.
-7. **The cap is six.** A seventh marker stays literal text and therefore ends up inside the sixth
-   skill's argument text — user text is truncated deterministically, never deleted.
+7. **The cap defaults to six and the default is the only fixed part.** `--skill-chain-max` moves the
+   ceiling; a marker past it stays literal text and therefore ends up inside the last skill's
+   argument text — user text is truncated deterministically, never deleted. Nothing may read the
+   number from anywhere but `src/config.ts`.
 8. **Host packages stay in `peerDependencies` / `devDependencies`, never `dependencies`.** A
    physical copy of `@earendil-works/*` or `typebox` bypasses pi's module mapping and produces
    duplicate classes and registries; pi warns when it detects this.
-9. **Only `context.messageType === "user"` markdown is transformed**, and only when it contains a
-   block. Transformers also run on assistant output.
+9. **Only `context.messageType === "user"` markdown is rewritten**, and only when it contains a
+   block. The transformer is registered for `user` only; the runtime gate stays because a host that
+   predates `messageTypes` ignores the option. The host also transforms assistant and thinking
+   markdown, and the skill card transforms its body as `custom` — neither can carry a chain.
 10. **The tarball contract**: `extensions/index.ts` plus every `src/*.ts` it imports and every file
     under `skills/` must ship, and `tests/`/`scripts/`/`.github/` must not. `npm run check:pack`
     derives the import list from the entry point and walks the skill directories, so adding a module
     or a `references/` page without shipping it fails CI.
-11. **The `pi` manifest is the only source of resources.** With a `pi` block, the host reads the
-    manifest and returns before it ever walks the conventional directories
-    (`package-manager.js:2025-2031`), and a field that is not an array of strings is dropped without
-    a word (`pi-manifest.js:16-18`). A shipped resource the manifest omits — or an entry that misses
-    the tarball — is a package pi loads nothing from, silently. `scripts/check-pack.mjs` and
-    `tests/manifest.test.ts` hold the same rules against the tarball and the working tree.
+11. **The `pi` manifest is the only source of resources.** When a `pi` block declares at least one
+    resource field, the host reads the manifest and returns before it ever walks the conventional
+    directories (`package-manager.js:2025-2031`); a `pi` block with only `image`/`video` does not
+    short-circuit, which is why this package declares both roots. A field that is not an array of
+    strings is dropped without a word (`pi-manifest.js:16-18`). A shipped resource the manifest
+    omits — or an entry that misses the tarball — is a package pi loads nothing from, silently.
+    `scripts/check-pack.mjs` and `tests/manifest.test.ts` hold the same rules against the tarball
+    and the working tree.
 12. **A citation is a claim, and the baseline is what makes it checkable.** Every cited `file:line`
     is registered in `scripts/host-baseline.json` with a hash of the cited range. `npm run check:host`
     fails when the range's text moves, when the lines vanish, or when a source cites a host line that
@@ -97,11 +104,26 @@ Each one is load-bearing against a host behaviour that fails **quietly**:
     prose still has to be re-read on a bump. Adding a citation means running
     `npm run check:host -- --update` and committing the resulting entry; a citation the baseline does
     not carry is unverified, not passing.
+13. **The expansion plan is the only source of chain facts.** A display or UI decision that the plan
+    can answer must use the plan, not a re-parse of the emitted text. Re-deriving is what made a
+    two-token chain with one failed name render as a single-skill card: the block count could not
+    see the token that carried no block.
+14. **Dedupe merges arguments, never drops them.** One body per distinct name per message; every
+    argument run of a collapsed name appears exactly once, in message order, in the surviving
+    block's trailer.
+15. **The notice never fires on a path that returns `continue`.** A single `/skill:<name>` message
+    must stay byte-identical to native pi and silent. The notice is the only surface that can state
+    what a chain did, and everything it says must come from the plan.
 
 ## Recipes
 
 - **Change tokenising or argument binding** → `src/parser.ts` + `tests/parser.test.ts`. Keep it
-  free of host and filesystem imports; the rescue path reuses it.
+  free of host and filesystem imports; the rescue path reuses it. The cap is an argument, never a
+  default: `src/config.ts` owns the number.
+- **Change the cap, the threshold, or the notice** → `src/config.ts` for the number,
+  `src/input-handler.ts` for the wording, `tests/config.test.ts` and `tests/input-handler.test.ts`
+  for the rules. The plan the notice reads is `SkillExpansion` (`src/types.ts`); a new fact belongs
+  there, not in a second regex over the emitted text.
 - **Add a new surface** → implement in `src/<name>.ts`, export a `register<Name>(pi)` helper,
   call it from `registerMultiSkills` in `extensions/index.ts`, add `tests/<name>.test.ts`, then
   update the README's behaviour sections (user-facing only; dev material belongs in this file and
@@ -161,10 +183,25 @@ bump that changed cited behaviour: read that function. The failure path names th
 (`the expected text now starts at :54 (+1)`), so a red CI run is a work instruction, not a search.
 From 1.2.0 to 1.3.0 no cited region changed its text — only its line number, by `+1` in
 `agent-session.js`, `+2` in `interactive-mode.js` and `+5` in `export-html/template.js` — which is
-exactly the drift a reader cannot see, and the case the range hash exists for. The same run lists
-the shipped host docs whose text changed since the snapshot (`docs/extensions.md`, `docs/tui.md`, …)
-because those are the pages worth reading before trusting a moved citation; a docs-only change warns
-and does not fail, since it is not a behaviour change.
+exactly the drift a reader cannot see, and the case the range hash exists for.
+
+From 1.3.0 to 1.5.2 the cited regions moved by pages (`_expandSkillCommand` +113,
+`interactive-mode.js` +108, the package-manager manifest branch +136/+159) and three changed
+behaviour, all read before the snapshot was rewritten:
+
+- `registerMarkdownTransformer` gained `options.messageTypes` (`loader.js:286-291`) and the runner
+  filters on it (`runner.js:539-548`), so a transformer can name its surfaces instead of gating
+  inside every call. `src/renderer.ts` asks for `["user"]` and keeps its runtime gate for older
+  hosts.
+- The skill card now transforms its BODY as `"custom"` Markdown and prepends the header outside
+  the transform (`skill-invocation-message.js:45-48`). It still cannot rebuild a chain, because it
+  never sees the `<skill …>` header; the display marker remains necessary.
+- The manifest short-circuit now requires a resource field (`package-manager.js:2025-2031`), so a
+  `pi` block holding only `image`/`video` falls through to the conventional directories.
+
+The same run lists the shipped host docs whose text changed since the snapshot
+(`docs/extensions.md`, `docs/tui.md`, …) because those are the pages worth reading before trusting a
+moved citation; a docs-only change warns and does not fail, since it is not a behaviour change.
 
 ## Conventions
 

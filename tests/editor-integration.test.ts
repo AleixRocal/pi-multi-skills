@@ -91,12 +91,12 @@ describe("editor integration", () => {
 
 		await type(editor, "s");
 
-		// Ours: every skill, because `/s` is a half-typed marker.
+		// Ours: every skill the message has not already named — `plan` is, so it is
+		// not offered again.
 		expect(menu(editor)).toEqual({
 			prefix: "/s",
 			items: [
 				{ value: "/skill:design", label: "/skill:design" },
-				{ value: "/skill:plan", label: "/skill:plan" },
 				{ value: "/skill:research", label: "/skill:research" },
 			],
 		});

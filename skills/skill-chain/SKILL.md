@@ -48,9 +48,12 @@ expand.
 - **A run of tokens broadcasts once.** With no text between them — `/skill:a /skill:b shared` —
   `a` receives nothing and `shared` lands once, after the last skill.
 - **Text before the first token is context**, not an argument to any skill.
-- **Six skills, maximum.** A seventh marker is not a skill: it stays literal text inside the sixth
-  skill's argument text, so nothing the user typed disappears. Claude Code expands at most six the
-  same way, keeping the rest as text.
+- **Six skills by default.** A seventh marker is not a skill: it stays literal text inside the sixth
+  skill's argument text, so nothing the user typed disappears. The ceiling is a flag
+  (`--skill-chain-max`); Claude Code expands at most six the same way, keeping the rest as text.
+- **A repeated name expands once.** Naming the same skill twice injects its body once, and the
+  second occurrence's argument text is appended after the first. Say what you mean in one place
+  instead of repeating the token.
 - **An unresolvable name stays verbatim.** Leave the token exactly as written, keep the rest of the
   chain running, and report which one you could not resolve.
 

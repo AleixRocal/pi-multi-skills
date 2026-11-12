@@ -6,6 +6,7 @@ import {
 	registerChainAutocomplete,
 	wrapWithChainAutocomplete,
 } from "../src/autocomplete.js";
+import { MAX_CHAINED_SKILLS_FLAG } from "../src/config.js";
 import { invalidateSkillIndex } from "../src/registry.js";
 import { createMockCtx, createMockPi, skillCommand } from "./helpers/mock-pi.js";
 
@@ -83,11 +84,16 @@ const DE_MATCHES = [
 	{ value: "/skill:code-design", label: "/skill:code-design" },
 ];
 
-/** Every skill, in menu order, as the entries for an empty filter look. */
-const ALL_SKILLS = [
+/**
+ * The menu once `plan` is already named earlier in the message.
+ *
+ * There is no "every skill" list to compare against any more: a chain menu only
+ * exists after at least one token, so the filter always removes one — the same
+ * reason `chainTokenAt` cannot return the first token, which belongs to pi.
+ */
+const ALL_BUT_PLAN = [
 	{ value: "/skill:code-design", label: "/skill:code-design" },
 	{ value: "/skill:design", label: "/skill:design" },
-	{ value: "/skill:plan", label: "/skill:plan" },
 ];
 
 describe("chainTokenAt", () => {
@@ -187,7 +193,6 @@ describe("wrapWithChainAutocomplete — getSuggestions", () => {
 		expect(await labels("/skill:plan /skill:")).toEqual([
 			"/skill:code-design",
 			"/skill:design",
-			"/skill:plan",
 		]);
 	});
 
@@ -212,13 +217,13 @@ describe("wrapWithChainAutocomplete — getSuggestions", () => {
 		expect(calls).toEqual(["getSuggestions"]);
 	});
 
-	it("lists every skill for a leading fragment, replacing what was typed", async () => {
+	it("lists every skill the message has not already named, for a leading fragment", async () => {
 		expect((await suggest("/skill:plan /s")).result).toEqual({
-			items: ALL_SKILLS,
+			items: ALL_BUT_PLAN,
 			prefix: "/s",
 		});
 		expect((await suggest("/skill:plan /")).result).toEqual({
-			items: ALL_SKILLS,
+			items: ALL_BUT_PLAN,
 			prefix: "/",
 		});
 	});
@@ -373,5 +378,69 @@ describe("registerChainAutocomplete", () => {
 		registerChainAutocomplete(ctx, mock.pi);
 
 		expect(factories).toHaveLength(1);
+	});
+});
+
+describe("wrapWithChainAutocomplete — the whole message, not the cursor's line", () => {
+	/** Ask the wrapper about a multi-line buffer. */
+	async function suggestLines(
+		lines: string[],
+		cursorLine: number,
+		cursorCol: number,
+		pi = skillsPi().pi,
+	) {
+		const { provider, calls } = hostStub();
+		const wrapped = wrapWithChainAutocomplete(provider, pi);
+		const result = await wrapped.getSuggestions(lines, cursorLine, cursorCol, {
+			signal: new AbortController().signal,
+		});
+		return { result, calls };
+	}
+
+	it("opens the menu on a later line, where a line-local read answered null", async () => {
+		// The token is at offset 0 *of its line*, which `chainTokenAt` reads as
+		// "pi's own position, not ours" — correct on line 1, wrong on line 2.
+		const { result } = await suggestLines(["/skill:plan", "/skill:de"], 1, 9);
+
+		expect(result).toEqual({ items: DE_MATCHES, prefix: "/skill:de" });
+	});
+
+	it("counts committed skills across the whole message against the cap", async () => {
+		const pi = createMockPi({
+			flags: { [MAX_CHAINED_SKILLS_FLAG]: "2" },
+			commands: [
+				skillCommand("design", "/skills/design/SKILL.md"),
+				skillCommand("plan", "/skills/plan/SKILL.md"),
+			],
+		}).pi;
+
+		// One committed skill per line: a per-line count saw one and would have
+		// offered a third marker that the expander then refuses to tokenise.
+		const { result, calls } = await suggestLines(
+			["/skill:design", "/skill:plan /skill:de"],
+			1,
+			21,
+			pi,
+		);
+
+		expect(calls).toContain("getSuggestions");
+		expect(result).toEqual(HOST_SUGGESTIONS);
+	});
+
+	it("does not offer a skill the message already named", async () => {
+		const { result } = await suggestLines(["/skill:design /skill:de"], 0, 23);
+
+		expect(result?.items).toEqual([{ value: "/skill:code-design", label: "/skill:code-design" }]);
+	});
+
+	it("keeps the menu alive when the filter would empty it", async () => {
+		// The only match IS the committed name, and pi answers nothing at a
+		// mid-chain position — a dead menu is worse than a redundant entry.
+		const { result } = await suggestLines(["/skill:plan /skill:pl"], 0, 21);
+
+		expect(result).toEqual({
+			items: [{ value: "/skill:plan", label: "/skill:plan" }],
+			prefix: "/skill:pl",
+		});
 	});
 });

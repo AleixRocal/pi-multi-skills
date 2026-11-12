@@ -32,8 +32,9 @@ export const skillChainTransformer: MarkdownTransformer = (markdown, context) =>
 	// The host also transforms assistant and thinking Markdown
 	// (`components/assistant-message.js:110,142`), and the skill card transforms
 	// its body as `"custom"` (`components/skill-invocation-message.js:45-48`). An
-	// emitted block is only ever part of a USER message, so this gate keeps the
-	// transformer off every other surface.
+	// emitted block is only ever part of a USER message, so this gate is what
+	// keeps the transformer off every other surface — including on a host that
+	// predates the `messageTypes` registration option below.
 	if (context.messageType !== "user") return markdown;
 
 	// Cheap early return before any regex work: this runs on every USER message
@@ -54,7 +55,12 @@ export const skillChainTransformer: MarkdownTransformer = (markdown, context) =>
  * one registration is exactly one transformer. Registration is unconditional:
  * the host applies transformers only from the interactive transcript
  * (`components/user-message.js:41`), so this is inert under `--print` and RPC.
+ *
+ * `messageTypes: ["user"]` names the only surface that can carry a chain, so the
+ * host filters the other surfaces before calling us (`dist/core/extensions/loader.js:286-291`).
+ * The runtime gate in `skillChainTransformer` stays: an older host ignores the
+ * option, and skipping the call is a performance win, not the correctness rule.
  */
 export function registerSkillChainRenderer(pi: ExtensionAPI): void {
-	pi.registerMarkdownTransformer(skillChainTransformer);
+	pi.registerMarkdownTransformer(skillChainTransformer, { messageTypes: ["user"] });
 }

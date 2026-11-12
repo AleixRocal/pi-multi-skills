@@ -24,8 +24,25 @@ export interface SkillEntry {
 	readonly baseDir: string;
 }
 
-/** Name → entry lookup, rebuilt once per session. */
+/** Name -> entry lookup, rebuilt once per session. */
 export type SkillIndex = ReadonlyMap<string, SkillEntry>;
+
+/**
+ * A `/skill:` occurrence before argument binding: the name and the offsets that
+ * delimit it.
+ *
+ * Kept separate from `SkillToken` because a marker the cap did not admit has no
+ * arguments to bind — it is only *reported*, so a caller can say which skill did
+ * not run instead of silently dropping it.
+ */
+export interface TokenStart {
+	/** Skill name as written, without the `/skill:` prefix. */
+	readonly name: string;
+	/** Offset of the leading `/` of `/skill:`. */
+	readonly start: number;
+	/** Offset just past the name (the first whitespace, or end of message). */
+	readonly end: number;
+}
 
 /**
  * One `/skill:<name>` occurrence found in a user message, together with the
@@ -51,4 +68,35 @@ export interface SkillChain {
 	readonly preamble: string;
 	/** Every detected token, in message order. */
 	readonly tokens: readonly SkillToken[];
+	/**
+	 * Markers the cap did not admit, in message order.
+	 *
+	 * Never bound: their text stays inside the last admitted token's arguments,
+	 * so an overrun degrades into text the model can still read rather than
+	 * input that disappears. Reported so a caller can name what did not run.
+	 */
+	readonly overflow: readonly TokenStart[];
+}
+
+/**
+ * What one `expandSkillTokens` call actually did, alongside the text it emitted.
+ *
+ * This is the plan the input handler decides from — how many skills a chain
+ * really expanded, which names failed, which overran the cap. Every one of those
+ * facts used to be recovered by re-parsing the emitted text, which is what made
+ * a two-token chain render as a single-skill card.
+ */
+export interface SkillExpansion {
+	/** The text to hand back to pi: blocks and verbatim spans, as before. */
+	readonly text: string;
+	/** Names emitted as a block, in first-occurrence order. */
+	readonly expanded: readonly string[];
+	/** Names left verbatim because they resolved to nothing. */
+	readonly unresolved: readonly string[];
+	/** Names past the cap, left as argument text. */
+	readonly overflow: readonly string[];
+	/** Names collapsed into an earlier block of the same name. */
+	readonly duplicated: readonly string[];
+	/** `text.length` — the context cost of this expansion. */
+	readonly chars: number;
 }

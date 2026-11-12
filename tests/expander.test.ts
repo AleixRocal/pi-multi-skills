@@ -2,6 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { DEFAULT_MAX_CHAINED_SKILLS } from "../src/config.js";
 import { appendArgs, buildSkillBlock, expandSkillTokens } from "../src/expander.js";
 import type { SkillEntry, SkillIndex } from "../src/types.js";
 
@@ -28,6 +29,17 @@ function makeSkill(name: string, body = `${name.toUpperCase()} BODY`): SkillEntr
 /** Name → entry index, the same shape `src/registry.ts` produces. */
 function indexOf(...entries: readonly SkillEntry[]): SkillIndex {
 	return new Map(entries.map((entry) => [entry.name, entry] as const));
+}
+
+/**
+ * Expand with the shipped cap.
+ *
+ * `max` is required upstream (`src/expander.ts` → `src/parser.ts`), and the cap
+ * is `src/config.ts`'s business, so only the specs that are about it pass a
+ * ceiling of their own (`expandSkillTokens(..., 2)` below).
+ */
+function expand(text: string, index: SkillIndex) {
+	return expandSkillTokens(text, index, DEFAULT_MAX_CHAINED_SKILLS);
 }
 
 beforeAll(() => {
@@ -72,31 +84,32 @@ describe("appendArgs — native trailing-argument rule", () => {
 describe("expandSkillTokens — a single skill (N=1 byte-identity)", () => {
 	it("reproduces native Pi's expansion for `/skill:design refactor auth`", () => {
 		const design = makeSkill("design", "Refactor carefully.");
-		const text = "/skill:design refactor auth";
 		const expected = appendArgs(buildSkillBlock(design, "Refactor carefully."), "refactor auth");
 
-		expect(expandSkillTokens(text, indexOf(design))).toBe(expected);
+		expect(expand("/skill:design refactor auth", indexOf(design))?.text).toBe(expected);
 		expect(expected.endsWith("</skill>\n\nrefactor auth")).toBe(true);
 	});
 
 	it("emits no argument suffix when the token has none", () => {
 		const design = makeSkill("design");
-		expect(expandSkillTokens("/skill:design", indexOf(design))).toBe(buildSkillBlock(design, "DESIGN BODY"));
+		expect(expand("/skill:design", indexOf(design))?.text).toBe(
+			buildSkillBlock(design, "DESIGN BODY"),
+		);
 	});
 
 	it("strips frontmatter and trims the body", () => {
 		const design = makeSkill("design", "\n\n   padded body   \n\n");
-		expect(expandSkillTokens("/skill:design", indexOf(design))).toContain("\n\npadded body\n</skill>");
+		expect(expand("/skill:design", indexOf(design))?.text).toContain("\n\npadded body\n</skill>");
 	});
 
 	it("re-reads the SKILL.md on every call, so a mid-session edit is picked up", () => {
 		const design = makeSkill("design", "FIRST BODY");
 		const index = indexOf(design);
 
-		expect(expandSkillTokens("/skill:design", index)).toContain("FIRST BODY");
+		expect(expand("/skill:design", index)?.text).toContain("FIRST BODY");
 
 		writeFileSync(design.filePath, "---\nname: design\ndescription: d\n---\n\nSECOND BODY\n", "utf-8");
-		expect(expandSkillTokens("/skill:design", index)).toContain("SECOND BODY");
+		expect(expand("/skill:design", index)?.text).toContain("SECOND BODY");
 	});
 });
 
@@ -105,9 +118,9 @@ describe("expandSkillTokens — chains", () => {
 		const research = makeSkill("research", "RESEARCH BODY");
 		const design = makeSkill("design", "DESIGN BODY");
 
-		const result = expandSkillTokens("/skill:research /skill:design refactor auth", indexOf(research, design));
+		const result = expand("/skill:research /skill:design refactor auth", indexOf(research, design));
 
-		expect(result).toBe(
+		expect(result?.text).toBe(
 			`${buildSkillBlock(research, "RESEARCH BODY")}\n\n${appendArgs(buildSkillBlock(design, "DESIGN BODY"), "refactor auth")}`,
 		);
 	});
@@ -116,7 +129,7 @@ describe("expandSkillTokens — chains", () => {
 		const a = makeSkill("a", "A BODY");
 		const b = makeSkill("b", "B BODY");
 
-		expect(expandSkillTokens("/skill:a x /skill:b y", indexOf(a, b))).toBe(
+		expect(expand("/skill:a x /skill:b y", indexOf(a, b))?.text).toBe(
 			`${appendArgs(buildSkillBlock(a, "A BODY"), "x")}\n\n${appendArgs(buildSkillBlock(b, "B BODY"), "y")}`,
 		);
 	});
@@ -124,7 +137,7 @@ describe("expandSkillTokens — chains", () => {
 	it("keeps the preamble verbatim in front of the emitted blocks", () => {
 		const design = makeSkill("design");
 
-		expect(expandSkillTokens("please /skill:design now", indexOf(design))).toBe(
+		expect(expand("please /skill:design now", indexOf(design))?.text).toBe(
 			`please\n\n${appendArgs(buildSkillBlock(design, "DESIGN BODY"), "now")}`,
 		);
 	});
@@ -134,7 +147,7 @@ describe("expandSkillTokens — chains", () => {
 		const design = makeSkill("design", "DESIGN BODY");
 		const wrapped = buildSkillBlock(research, "RESEARCH BODY");
 
-		expect(expandSkillTokens(`${wrapped}\n\n/skill:design now`, indexOf(research, design))).toBe(
+		expect(expand(`${wrapped}\n\n/skill:design now`, indexOf(research, design))?.text).toBe(
 			`${wrapped}\n\n${appendArgs(buildSkillBlock(design, "DESIGN BODY"), "now")}`,
 		);
 	});
@@ -144,7 +157,7 @@ describe("expandSkillTokens — an unresolvable token is left verbatim", () => {
 	it("leaves an unknown token verbatim and still expands its siblings", () => {
 		const design = makeSkill("design");
 
-		expect(expandSkillTokens("/skill:nope x /skill:design y", indexOf(design))).toBe(
+		expect(expand("/skill:nope x /skill:design y", indexOf(design))?.text).toBe(
 			`/skill:nope x\n\n${appendArgs(buildSkillBlock(design, "DESIGN BODY"), "y")}`,
 		);
 	});
@@ -157,7 +170,7 @@ describe("expandSkillTokens — an unresolvable token is left verbatim", () => {
 		};
 		const design = makeSkill("design");
 
-		expect(expandSkillTokens("/skill:broken x /skill:design y", indexOf(broken, design))).toBe(
+		expect(expand("/skill:broken x /skill:design y", indexOf(broken, design))?.text).toBe(
 			`/skill:broken x\n\n${appendArgs(buildSkillBlock(design, "DESIGN BODY"), "y")}`,
 		);
 	});
@@ -165,29 +178,80 @@ describe("expandSkillTokens — an unresolvable token is left verbatim", () => {
 	it("returns null when the message carries no token at all", () => {
 		const index = indexOf(makeSkill("design"));
 
-		expect(expandSkillTokens("hello world", index)).toBeNull();
-		expect(expandSkillTokens("", index)).toBeNull();
+		expect(expand("hello world", index)).toBeNull();
+		expect(expand("", index)).toBeNull();
 	});
 
 	it("returns null for bare-slash input that must never trigger", () => {
 		const index = indexOf(makeSkill("design"));
 
 		for (const text of ["src/app.ts", "/etc/hosts", "https://example.com/x", "a / b", "/"]) {
-			expect(expandSkillTokens(text, index)).toBeNull();
+			expect(expand(text, index)).toBeNull();
 		}
 	});
 
 	it("returns null when none of the chain's tokens resolve", () => {
-		expect(expandSkillTokens("/skill:nope x /skill:also-nope y", indexOf())).toBeNull();
+		expect(expand("/skill:nope x /skill:also-nope y", indexOf())).toBeNull();
 	});
 });
 
-describe("expandSkillTokens — the cap at 6, where the 7th marker stays literal", () => {
+describe("expandSkillTokens — dedupe of a repeated name", () => {
+	it("injects the body once and merges every argument run in message order", () => {
+		const a = makeSkill("a", "A BODY");
+		const result = expand("/skill:a first /skill:a second", indexOf(a));
+
+		expect(result?.expanded).toEqual(["a"]);
+		expect(result?.duplicated).toEqual(["a"]);
+		expect(result?.text.match(/<skill name=/g)).toHaveLength(1);
+		expect(result?.text).toBe(appendArgs(buildSkillBlock(a, "A BODY"), "first\n\nsecond"));
+	});
+
+	it("leaves the surviving block untouched when the repeat carries no arguments", () => {
+		const a = makeSkill("a", "A BODY");
+		const result = expand("/skill:a /skill:a", indexOf(a));
+
+		expect(result?.text).toBe(buildSkillBlock(a, "A BODY"));
+		expect(result?.duplicated).toEqual(["a"]);
+	});
+
+	it("collapses only names that resolved — an unknown one stays verbatim twice", () => {
+		const design = makeSkill("design");
+		const result = expand("/skill:nope x /skill:nope y /skill:design z", indexOf(design));
+
+		expect(result?.unresolved).toEqual(["nope", "nope"]);
+		expect(result?.duplicated).toEqual([]);
+	});
+});
+
+describe("expandSkillTokens — the expansion plan", () => {
+	it("reports what expanded, what did not, and the cost of the result", () => {
+		const design = makeSkill("design");
+		const result = expand("/skill:nope x /skill:design y", indexOf(design));
+
+		expect(result?.expanded).toEqual(["design"]);
+		expect(result?.unresolved).toEqual(["nope"]);
+		expect(result?.overflow).toEqual([]);
+		expect(result?.duplicated).toEqual([]);
+		expect(result?.chars).toBe(result?.text.length);
+	});
+
+	it("names the markers the cap left behind, so the notice can point at them", () => {
+		const index = indexOf(...["a", "b"].map((name) => makeSkill(name)));
+		const result = expandSkillTokens("/skill:a /skill:b /skill:c tail", index, 2);
+
+		expect(result?.expanded).toEqual(["a", "b"]);
+		expect(result?.overflow).toEqual(["c"]);
+		expect(result?.text.endsWith("</skill>\n\n/skill:c tail")).toBe(true);
+	});
+});
+
+describe("expandSkillTokens — the default cap, where the 7th marker stays literal", () => {
 	it("emits at most 6 blocks and binds the 7th marker as literal arguments", () => {
 		const index = indexOf(...["a", "b", "c", "d", "e", "f"].map((name) => makeSkill(name)));
 
 		const result =
-			expandSkillTokens("/skill:a /skill:b /skill:c /skill:d /skill:e /skill:f /skill:g tail", index) ?? "";
+			expand("/skill:a /skill:b /skill:c /skill:d /skill:e /skill:f /skill:g tail", index)?.text ??
+			"";
 
 		expect(result.match(/<skill name=/g)).toHaveLength(6);
 		expect(result.endsWith("</skill>\n\n/skill:g tail")).toBe(true);
@@ -197,7 +261,7 @@ describe("expandSkillTokens — the cap at 6, where the 7th marker stays literal
 describe("expandSkillTokens — contract with Pi's parseSkillBlock regex", () => {
 	it("satisfies the regex, with the trailing run as the user message", () => {
 		const design = makeSkill("design");
-		const result = expandSkillTokens("/skill:design refactor auth", indexOf(design)) ?? "";
+		const result = expand("/skill:design refactor auth", indexOf(design))?.text ?? "";
 
 		const match = result.match(PARSE_SKILL_BLOCK);
 		expect(match).not.toBeNull();
@@ -210,7 +274,7 @@ describe("expandSkillTokens — contract with Pi's parseSkillBlock regex", () =>
 		// (interactive-mode.js:3297-3321), which is the surface Slice 6 rewrites.
 		const a = makeSkill("a", "A BODY");
 		const b = makeSkill("b", "B BODY");
-		const result = expandSkillTokens("/skill:a x /skill:b y", indexOf(a, b)) ?? "";
+		const result = expand("/skill:a x /skill:b y", indexOf(a, b))?.text ?? "";
 
 		const match = result.match(PARSE_SKILL_BLOCK);
 		expect(match?.[1]).toBe("a");
