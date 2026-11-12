@@ -33,8 +33,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - The development toolchain is current: pi **1.5.2** (`pi-coding-agent` and `pi-tui`), TypeBox
-  **1.4.6**, Vitest **5.1.0**, `@types/node` **26.6.6** (TypeScript 7.0.2 was already latest). The
-  host bump is a re-read, so every cited `file:line` was re-resolved and the ranges whose text
+  **1.4.6**, Vitest **5.1.0**, `@types/node` **26.6.6** and undici **8.12.3** (TypeScript 7.0.2
+  was already latest). The host bump is a re-read, so every cited `file:line` was re-resolved and
+  the ranges whose text
   changed were read: the host moved `_expandSkillCommand` by `+113`, `interactive-mode.js` by
   `+108` and the package-manager manifest branch by `+136/+159`, and three cited behaviours
   changed — `registerMarkdownTransformer` gained `options.messageTypes`, the skill card now

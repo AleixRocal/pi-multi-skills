@@ -180,10 +180,11 @@ The gallery has two surfaces, and they refresh for different reasons.
 
 - **The package page** — `https://pi.dev/packages/@aleixrocal/pi-multi-skills` — exists from the
   first publish and answers 200 (an unknown name is *Page Not Found*). Its description, install
-  command, `pi` manifest, types, size, dependency counts and download numbers come from the npm
-  registry; its README, cover (`pi.image`) and video (`pi.video`) come from the published tarball.
-  Every one of those fields is only re-read when a new version is published, so a README or
-  description edit is invisible there until the next release.
+  command, `pi` manifest, types, size and dependency counts come from the npm registry; its
+  README comes from the published tarball, and the cover (`pi.image`) and video (`pi.video`) URLs
+  come from the manifest. Those fields are only re-read when a new version is published, so a
+  README, description or preview edit is invisible there until the next release. The download
+  numbers have their own cadence and can lag the npm API by a day or so.
 - **The catalogue index** — `https://pi.dev/packages` — is a ranked snapshot, not a live query. On
   2026-11-12 it reported ~13,600 `pi-package` results but exposed only the first 5,000: the crawler
   pages npm's search API and `from` stops at 5,000, after which the API rolls back to page one
