@@ -13,7 +13,7 @@ import { createMockPi, skillCommand } from "./helpers/mock-pi.js";
  * once it has run.
  */
 
-/** A transform context as the interactive transcript builds it (`markdown-transform.js:2`). */
+/** A transform context as the interactive transcript builds it (`markdown-transform.js:2-3`). */
 function context(messageType: MarkdownTransformContext["messageType"]): MarkdownTransformContext {
 	return { messageType, isStreaming: false, availableWidth: 80 };
 }

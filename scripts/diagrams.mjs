@@ -290,7 +290,7 @@ function architecture(palette) {
 	board.rich(
 		64,
 		270,
-		"to expand — every emitted block reaches the session message untouched (`agent-session.js:1698`).",
+		"to expand — every emitted block reaches the session message untouched (`agent-session.js:1811`).",
 		{ size: 12.5, fill: board.p.muted, max: 1272 },
 	);
 
@@ -391,7 +391,7 @@ function messageFlow(palette) {
 			note: [
 				"Everything after the FIRST space is swallowed as that skill's argument",
 				"text, so `design` is never resolved — no error, no signal.",
-				"(`agent-session.js:1697-1721`)",
+				"(`agent-session.js:1810-1834`)",
 			],
 		},
 		{
@@ -738,7 +738,7 @@ function autocomplete(palette) {
 			title: "pi's own provider",
 			verdict: "no menu",
 			sub: "the command branch needs a `/`-prefixed text with no space",
-			cite: "(@earendil-works/pi-tui/dist/autocomplete.js:232-235)",
+			cite: "(@earendil-works/pi-tui/dist/autocomplete.js:229-232)",
 			menu: [],
 		},
 		{
