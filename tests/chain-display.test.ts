@@ -156,7 +156,7 @@ describe("chain display — the transcript line", () => {
  *
  * `UserMessageComponent` is not importable (the package's `exports` map exposes
  * the root only), but its markdown surface is: `Markdown` from pi-tui, wired the
- * way `components/user-message.js:31-41` wires it.
+ * way `components/user-message.js:35-45` wires it.
  */
 function renderVisible(markdown: string): string {
 	const identity = (text: string) => text;

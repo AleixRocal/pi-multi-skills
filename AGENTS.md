@@ -8,9 +8,9 @@ the user-facing behaviour lives in [README.md](README.md).
 A pi package: one TypeScript extension (`extensions/index.ts` → `src/`) that makes a single user
 message able to chain several skills — `/skill:a x /skill:b y` — where native pi expands exactly
 one and silently swallows the rest as argument text
-(`@earendil-works/pi-coding-agent/dist/core/agent-session.js:1698-1722`).
+(`@earendil-works/pi-coding-agent/dist/core/agent-session.js:1811-1835`).
 
-Everything here is pinned to **pi 1.3.0** by reading, not by an API contract: the code comments
+Everything here is pinned to **pi 1.5.2** by reading, not by an API contract: the code comments
 cite `file:line` of the host it was verified against. If pi changes those lines, the tests still
 pass and the extension can still be wrong. Re-read the cited host file before trusting a comment.
 
@@ -59,7 +59,7 @@ autocomplete regressions show up as a test failure rather than as a menu that do
 Each one is load-bearing against a host behaviour that fails **quietly**:
 
 1. **Byte-exact block emission** (`src/expander.ts`). `parseSkillBlock`
-   (`agent-session.js:53-63`) is `^…$`-anchored with an optional trailing group separated by
+   (`agent-session.js:63-73`) is `^…$`-anchored with an optional trailing group separated by
    exactly `\n\n`. One character of drift and the message falls back to raw text — no error.
 2. **A single `/skill:<name>` message must stay byte-identical to native pi** and to
    `@juicesharp/rpiv-args` (`args.ts:367-373`). That is the interop contract; the two extensions
@@ -86,7 +86,7 @@ Each one is load-bearing against a host behaviour that fails **quietly**:
     or a `references/` page without shipping it fails CI.
 11. **The `pi` manifest is the only source of resources.** With a `pi` block, the host reads the
     manifest and returns before it ever walks the conventional directories
-    (`package-manager.js:1865-1871`), and a field that is not an array of strings is dropped without
+    (`package-manager.js:2025-2031`), and a field that is not an array of strings is dropped without
     a word (`pi-manifest.js:16-18`). A shipped resource the manifest omits — or an entry that misses
     the tarball — is a package pi loads nothing from, silently. `scripts/check-pack.mjs` and
     `tests/manifest.test.ts` hold the same rules against the tarball and the working tree.

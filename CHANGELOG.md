@@ -23,6 +23,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- The development toolchain tracks pi **1.5.2** (`pi-coding-agent` and `pi-tui`), TypeBox
+  **1.4.6**, Vitest **5.1.0**, `@types/node` **26.6.6** and undici **8.12.3**. The host bump is a
+  re-read, so every cited `file:line` was re-resolved against the installed host and the ranges
+  whose text changed were inspected: `_expandSkillCommand` moved by `+113`, `interactive-mode.js`
+  by `+108` and the package-manager manifest branch by `+136/+159`. Two cited behaviours changed —
+  the skill card now transforms only its body as `"custom"` Markdown, and the manifest
+  short-circuit now requires a resource field — and the comments that claimed otherwise were
+  corrected. Runtime ranges stay `"*"` peers; only the lockfile moves.
 - The README's *Docs* section drops the "diagrams, light and dark" link list and the closing
   pointers to Issues and Releases. The two diagrams readers actually need are embedded inline where
   they are discussed, and the rest — including both palettes — are linked from the Pages root,

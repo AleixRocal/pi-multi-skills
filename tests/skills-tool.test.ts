@@ -92,7 +92,7 @@ describe("registerSkillsTool — surface", () => {
 		expect(definition.promptSnippet).toBeTruthy();
 	});
 
-	it("declares an object parameter schema, as the host requires (loader.js:233)", () => {
+	it("declares an object parameter schema, as the host requires (loader.js:239)", () => {
 		const { definition } = twoSkills();
 
 		expect(typeof definition.parameters).toBe("object");
