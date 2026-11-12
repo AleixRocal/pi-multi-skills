@@ -80,7 +80,7 @@ const EXTERNAL = new Map([
  */
 const PINNED = new Map([[`loader.js`, { package: `@earendil-works/pi-coding-agent`, path: `dist/core/extensions/loader.js` }]]);
 
-/** `path/to/file.ext:53-63` — also `:66,141`, `:381,388-390`, `:1710-1711`. */
+/** `path/to/file.ext:53-63` — also `:66,141`, `:381,388-390`, `:1823-1824`. */
 const CITE_RE = /([A-Za-z0-9_@][A-Za-z0-9_./@-]*\.(?:d\.ts|ts|js|mjs)):(\d+(?:[,-]\d+)*)/g;
 
 const sha = (text) => createHash("sha256").update(text).digest("hex");
