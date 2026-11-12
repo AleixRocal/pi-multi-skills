@@ -2,7 +2,7 @@
  * Minimal pi test doubles.
  *
  * `emitInput` reproduces the host's handler chain behaviourally — see
- * @earendil-works/pi-coding-agent/dist/core/extensions/runner.js:1202-1237:
+ * @earendil-works/pi-coding-agent/dist/core/extensions/runner.js:1210-1245:
  * handlers run in registration order, each handler observes the previous
  * handler's text, `transform` reassigns `currentText`/`currentImages`,
  * `handled` short-circuits the whole chain, and a throwing handler is reported
@@ -19,6 +19,7 @@ import type {
 	InputEvent,
 	InputEventResult,
 	MarkdownTransformer,
+	MarkdownTransformerOptions,
 	SessionStartEvent,
 	SlashCommandInfo,
 	ToolDefinition,
@@ -47,6 +48,8 @@ export interface MockPi {
 	readonly tools: ToolDefinition[];
 	/** Transformers registered via `registerMarkdownTransformer`. */
 	readonly markdownTransformers: MarkdownTransformer[];
+	/** The options each transformer was registered with, in the same order. */
+	readonly markdownTransformerOptions: (MarkdownTransformerOptions | undefined)[];
 	/** Flags registered via `registerFlag`, in registration order. */
 	readonly flagRegistrations: FlagRegistration[];
 }
@@ -68,6 +71,7 @@ export function createMockPi(
 	const sessionStartHandlers: SessionStartHandler[] = [];
 	const tools: ToolDefinition[] = [];
 	const markdownTransformers: MarkdownTransformer[] = [];
+	const markdownTransformerOptions: (MarkdownTransformerOptions | undefined)[] = [];
 	/** CLI values, as `--flag value` would have supplied them. */
 	const flagValues: Record<string, string | boolean> = { ...options.flags };
 	const flagRegistrations: FlagRegistration[] = [];
@@ -95,8 +99,12 @@ export function createMockPi(
 			tools.push(tool);
 		},
 		registerCommand: () => {},
-		registerMarkdownTransformer: (transformer: MarkdownTransformer) => {
+		registerMarkdownTransformer: (
+			transformer: MarkdownTransformer,
+			options?: MarkdownTransformerOptions,
+		) => {
 			markdownTransformers.push(transformer);
+			markdownTransformerOptions.push(options);
 		},
 		registerFlag: (name: string, flag: FlagRegistration) => {
 			flagRegistrations.push({
@@ -106,7 +114,7 @@ export function createMockPi(
 				...(flag.description !== undefined && { description: flag.description }),
 			});
 			// The host answers `getFlag` with the declared default when the user did not
-			// pass the flag (`core/extensions/types.d.ts:1248`), so a double that always
+			// pass the flag (`core/extensions/types.d.ts:1290`), so a double that always
 			// returned `undefined` would let a resolver test pass for the wrong reason.
 			if (!(name in flagValues) && flag.default !== undefined) flagValues[name] = flag.default;
 		},
@@ -119,6 +127,7 @@ export function createMockPi(
 		sessionStartHandlers,
 		tools,
 		markdownTransformers,
+		markdownTransformerOptions,
 		flagRegistrations,
 	};
 }

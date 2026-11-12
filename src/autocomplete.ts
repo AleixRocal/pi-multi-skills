@@ -5,33 +5,33 @@
  * Why this module exists. Pi's own menu is line-start only:
  *
  *  - `CombinedAutocompleteProvider.getSuggestions`
- *    (`@earendil-works/pi-tui/dist/autocomplete.js:232-235`) enters the command
+ *    (`@earendil-works/pi-tui/dist/autocomplete.js:229-232`) enters the command
  *    branch only when the text before the cursor, trimmed, starts with `/` AND
  *    carries no space. A second token (`/skill:a /ski`) has a space, so it falls
- *    through to the argument branch (`:263-271`), finds that `skill:<name>`
+ *    through to the argument branch (`:260-268`), finds that `skill:<name>`
  *    declares no `getArgumentCompletions`, and returns `null` — no menu.
- *  - `applyCompletion` (`:303`) treats an item as a command only when the text
+ *  - `applyCompletion` (`:300`) treats an item as a command only when the text
  *    before the prefix is empty, i.e. only the first token.
  *  - The editor auto-triggers on `/` only at the start of the message
- *    (`components/editor.js:1022-1027`) and refuses `/` as a declared trigger
- *    character (`:1952-1956`), so a mid-message `/` starts nothing by itself.
+ *    (`components/editor.js:1029-1034`) and refuses `/` as a declared trigger
+ *    character (`:1959-1963`), so a mid-message `/` starts nothing by itself.
  *
  * It still fires one keystroke later: `isInSlashCommandContext`
- * (`editor.js:1845-1847`) is `textBeforeCursor.trimStart().startsWith("/")`,
+ * (`editor.js:1852-1854`) is `textBeforeCursor.trimStart().startsWith("/")`,
  * which stays true for the whole chain, so the request that would have been made
  * by the second `/` is made on the character after it. That is why a half-typed
  * marker counts as a chain position too (`chainTokenAt`), and why the menu lists
  * every skill from `/s` onward rather than only from the complete marker.
  *
  * Contract with the host: `ctx.ui.addAutocompleteProvider(factory)`
- * (`core/extensions/types.d.ts:66,141`) wraps the current provider. Suggestions
+ * (`core/extensions/types.d.ts:66,161`) wraps the current provider. Suggestions
  * are replaced only for a chain token at the cursor; every other position —
  * including the first token, where pi's menu lists all commands rather than only
  * skills — is delegated unchanged, so nothing outside a chain moves.
  *
  * Two host facts this module does NOT rely on, recorded so the delegation is not
  * mistaken for an oversight: `/` cannot be a trigger character (the editor drops
- * it, `editor.js:1952-1956`), and the provider is asked again on every keystroke
+ * it, `editor.js:1959-1963`), and the provider is asked again on every keystroke
  * of a `/`-prefixed message, so no trigger declaration is needed.
  */
 
@@ -52,7 +52,7 @@ type AutocompleteItem = NonNullable<
 	Awaited<ReturnType<AutocompleteProvider["getSuggestions"]>>
 >["items"][number];
 
-/** Marker the parser and pi's own expansion both recognise (`agent-session.js:1699`). */
+/** Marker the parser and pi's own expansion both recognise (`agent-session.js:1812`). */
 const TOKEN_MARKER = "/skill:";
 
 /**
@@ -87,18 +87,18 @@ export interface ChainToken {
  *    message, so it needs no further condition.
  *  - **A leading fragment** — `/`, `/s`, … `/skill`, or a bare `/name`. This is
  *    what makes the menu usable at all: the host never requests completions for a
- *    mid-message `/` (`components/editor.js:1022-1027`, and `/` is rejected as a
- *    trigger character at `:1952-1956`), so the request arrives on the character
+ *    mid-message `/` (`components/editor.js:1029-1034`, and `/` is rejected as a
+ *    trigger character at `:1959-1963`), so the request arrives on the character
  *    that follows it, and the fragment is what has been typed by then.
  *
  * A leading fragment counts only after a token is already committed on the line,
  * and only while it stays name-shaped (no further `/`): that keeps `check /srv`
  * and `/skill:implement /plans/x.md` on pi's path completion
- * (`autocomplete.js:388-390`) instead of offering skills.
+ * (`autocomplete.js:385-387`) instead of offering skills.
  *
  * `null` means "not ours": nothing at the cursor, or a token at the very start of
  * the line — the position pi's own menu already serves, with every command rather
- * than only skills (`autocomplete.js:233-262`).
+ * than only skills (`autocomplete.js:230-259`).
  */
 export function chainTokenAt(line: string): ChainToken | null {
 	const run = trailingRun(line);
@@ -143,7 +143,7 @@ function compareNames(a: string, b: string): number {
  * `value` and `label` both read `/skill:<name>`: the label is what the editor
  * shows, and the value is what `applyCompletion` inserts, so the entry is named
  * exactly as the syntax it writes. The editor's own highlight then matches the
- * typed prefix byte for byte (`components/editor.js:1848-1873`).
+ * typed prefix byte for byte (`components/editor.js:1855-1880`).
  */
 function chainSuggestions(
 	token: ChainToken,
@@ -175,7 +175,7 @@ function chainSuggestions(
  * column, so anything that counts or looks up EARLIER tokens has to rebuild the
  * text. Reading only `lines[cursorLine]` is what left a chain with no menu past
  * the first line: `chainTokenAt` answers `null` for a token at offset 0 because
- * that position belongs to pi's own command menu (`autocomplete.js:233-262`), and
+ * that position belongs to pi's own command menu (`autocomplete.js:230-259`), and
  * on line 2 every chain token starts at offset 0 *of its line*.
  *
  * Newlines are preserved so the parser sees the same boundaries the expander
@@ -200,7 +200,7 @@ export function wrapWithChainAutocomplete(
 ): AutocompleteProvider {
 	return {
 		// Passed through rather than declared: `/` cannot be a trigger character
-		// (`editor.js:1952-1956`) and does not need to be one.
+		// (`editor.js:1959-1963`) and does not need to be one.
 		triggerCharacters: current.triggerCharacters,
 
 		async getSuggestions(lines, cursorLine, cursorCol, options) {
@@ -221,7 +221,7 @@ export function wrapWithChainAutocomplete(
 			let items = chainSuggestions(token, pi, named);
 			// A menu the filter emptied is worse than a redundant entry: at
 			// `/skill:plan /skill:pl` the only match IS the committed name, and pi has
-			// nothing to offer at a mid-chain position (`autocomplete.js:263-271`
+			// nothing to offer at a mid-chain position (`autocomplete.js:260-268`
 			// returns null). Falling back keeps the position usable.
 			if (items.length === 0 && named.size > 0) items = chainSuggestions(token, pi, new Set());
 
@@ -235,7 +235,7 @@ export function wrapWithChainAutocomplete(
 			const before = currentLine.slice(0, cursorCol - prefix.length);
 
 			// Only a chain token is ours. The first-token case has a different
-			// `prefix` derivation (`autocomplete.js:303-313`) even though it
+			// `prefix` derivation (`autocomplete.js:300-310`) even though it
 			// inserts at the same place, so it keeps the host's implementation.
 			if (chainTokenAt(`${before}${prefix}`) === null) {
 				return current.applyCompletion(lines, cursorLine, cursorCol, item, prefix);
@@ -269,10 +269,10 @@ export function wrapWithChainAutocomplete(
  *
  * Called from `registerMultiSkills` on every `session_start`. Re-registering is
  * safe and necessary: the interactive host drops every wrapper before a session
- * is swapped or reloaded (`interactive-mode.js:363-365` → `resetExtensionUI`),
+ * is swapped or reloaded (`interactive-mode.js:379-381` → `resetExtensionUI`),
  * so the "startup", "new", "resume", "fork" and "reload" reasons all need it
  * back. Non-interactive modes stub the call out (`core/extensions/runner.js:152`,
- * `modes/rpc/rpc-mode.js:194`), so no mode guard is needed.
+ * `modes/rpc/rpc-mode.js:198`), so no mode guard is needed.
  */
 export function registerChainAutocomplete(ctx: ExtensionContext, pi: ExtensionAPI): void {
 	ctx.ui.addAutocompleteProvider((current) => wrapWithChainAutocomplete(current, pi));

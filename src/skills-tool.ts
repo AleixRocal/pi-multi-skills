@@ -5,8 +5,8 @@
  * `/skill:a /skill:b` syntax is only useful if `a` and `b` are known to exist.
  *
  * The tool lists and never invokes. Pi's skill expansion runs on user input only
- * — `_expandSkillCommand` has exactly two call-sites (`agent-session.js:1632`
- * and `:1729`) and neither touches a tool result — so a tool cannot cause a hard
+ * — `_expandSkillCommand` has exactly two call-sites (`agent-session.js:1745`
+ * and `:1843`) and neither touches a tool result — so a tool cannot cause a hard
  * skill invocation. Reporting the canonical SKILL.md path lets the model follow
  * up with the built-in `read` tool instead.
  *
@@ -133,10 +133,10 @@ its full instructions.`,
 				"List the skills available in this session and their SKILL.md paths before chaining `/skill:<name>` invocations.",
 			// Read-only discovery. `direct` keeps the tool declared to
 			// the model while active, and the host activates it on registration
-			// (`docs/extensions.md:165`).
+			// (`docs/extensions.md:2770`).
 			exposure: "direct",
 			// The tool only reads. Declared as an MCP annotation so a permission
-			// extension can auto-allow it (`docs/extensions.md:167`).
+			// extension can auto-allow it (`docs/extensions.md:2772`).
 			annotations: { readOnlyHint: true },
 			parameters: Type.Object({
 				query: Type.Optional(

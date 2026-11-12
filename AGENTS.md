@@ -8,9 +8,9 @@ the user-facing behaviour lives in [README.md](README.md).
 A pi package: one TypeScript extension (`extensions/index.ts` → `src/`) that makes a single user
 message able to chain several skills — `/skill:a x /skill:b y` — where native pi expands exactly
 one and silently swallows the rest as argument text
-(`@earendil-works/pi-coding-agent/dist/core/agent-session.js:1698-1722`).
+(`@earendil-works/pi-coding-agent/dist/core/agent-session.js:1811-1835`).
 
-Everything here is pinned to **pi 1.3.0** by reading, not by an API contract: the code comments
+Everything here is pinned to **pi 1.5.2** by reading, not by an API contract: the code comments
 cite `file:line` of the host it was verified against. If pi changes those lines, the tests still
 pass and the extension can still be wrong. Re-read the cited host file before trusting a comment.
 
@@ -19,7 +19,7 @@ pass and the extension can still be wrong. Re-read the cited host file before tr
 ```bash
 npm ci                 # lockfile-exact; Node >= 22.19.0
 npm run verify         # typecheck + tests + tarball + host citations (what CI runs)
-npm test               # vitest run — 14 files, 195 specs
+npm test               # vitest run — 15 files, 235 specs
 npm run test:watch
 npm run typecheck      # tsc --noEmit, NodeNext
 npm run check:pack     # what `npm publish` would ship, manifest included
@@ -60,7 +60,7 @@ autocomplete regressions show up as a test failure rather than as a menu that do
 Each one is load-bearing against a host behaviour that fails **quietly**:
 
 1. **Byte-exact block emission** (`src/expander.ts`). `parseSkillBlock`
-   (`agent-session.js:53-63`) is `^…$`-anchored with an optional trailing group separated by
+   (`agent-session.js:63-73`) is `^…$`-anchored with an optional trailing group separated by
    exactly `\n\n`. One character of drift and the message falls back to raw text — no error.
 2. **A single `/skill:<name>` message must stay byte-identical to native pi** and to
    `@juicesharp/rpiv-args` (`args.ts:367-373`). That is the interop contract; the two extensions
@@ -81,18 +81,22 @@ Each one is load-bearing against a host behaviour that fails **quietly**:
 8. **Host packages stay in `peerDependencies` / `devDependencies`, never `dependencies`.** A
    physical copy of `@earendil-works/*` or `typebox` bypasses pi's module mapping and produces
    duplicate classes and registries; pi warns when it detects this.
-9. **Only `context.messageType === "user"` markdown is transformed**, and only when it contains a
-   block. Transformers also run on assistant output.
+9. **Only `context.messageType === "user"` markdown is rewritten**, and only when it contains a
+   block. The transformer is registered for `user` only; the runtime gate stays because a host that
+   predates `messageTypes` ignores the option. The host also transforms assistant and thinking
+   markdown, and the skill card transforms its body as `custom` — neither can carry a chain.
 10. **The tarball contract**: `extensions/index.ts` plus every `src/*.ts` it imports and every file
     under `skills/` must ship, and `tests/`/`scripts/`/`.github/` must not. `npm run check:pack`
     derives the import list from the entry point and walks the skill directories, so adding a module
     or a `references/` page without shipping it fails CI.
-11. **The `pi` manifest is the only source of resources.** With a `pi` block, the host reads the
-    manifest and returns before it ever walks the conventional directories
-    (`package-manager.js:1865-1871`), and a field that is not an array of strings is dropped without
-    a word (`pi-manifest.js:16-18`). A shipped resource the manifest omits — or an entry that misses
-    the tarball — is a package pi loads nothing from, silently. `scripts/check-pack.mjs` and
-    `tests/manifest.test.ts` hold the same rules against the tarball and the working tree.
+11. **The `pi` manifest is the only source of resources.** When a `pi` block declares at least one
+    resource field, the host reads the manifest and returns before it ever walks the conventional
+    directories (`package-manager.js:2025-2031`); a `pi` block with only `image`/`video` does not
+    short-circuit, which is why this package declares both roots. A field that is not an array of
+    strings is dropped without a word (`pi-manifest.js:16-18`). A shipped resource the manifest
+    omits — or an entry that misses the tarball — is a package pi loads nothing from, silently.
+    `scripts/check-pack.mjs` and `tests/manifest.test.ts` hold the same rules against the tarball
+    and the working tree.
 12. **A citation is a claim, and the baseline is what makes it checkable.** Every cited `file:line`
     is registered in `scripts/host-baseline.json` with a hash of the cited range. `npm run check:host`
     fails when the range's text moves, when the lines vanish, or when a source cites a host line that
@@ -179,10 +183,25 @@ bump that changed cited behaviour: read that function. The failure path names th
 (`the expected text now starts at :54 (+1)`), so a red CI run is a work instruction, not a search.
 From 1.2.0 to 1.3.0 no cited region changed its text — only its line number, by `+1` in
 `agent-session.js`, `+2` in `interactive-mode.js` and `+5` in `export-html/template.js` — which is
-exactly the drift a reader cannot see, and the case the range hash exists for. The same run lists
-the shipped host docs whose text changed since the snapshot (`docs/extensions.md`, `docs/tui.md`, …)
-because those are the pages worth reading before trusting a moved citation; a docs-only change warns
-and does not fail, since it is not a behaviour change.
+exactly the drift a reader cannot see, and the case the range hash exists for.
+
+From 1.3.0 to 1.5.2 the cited regions moved by pages (`_expandSkillCommand` +113,
+`interactive-mode.js` +108, the package-manager manifest branch +136/+159) and three changed
+behaviour, all read before the snapshot was rewritten:
+
+- `registerMarkdownTransformer` gained `options.messageTypes` (`loader.js:286-291`) and the runner
+  filters on it (`runner.js:539-548`), so a transformer can name its surfaces instead of gating
+  inside every call. `src/renderer.ts` asks for `["user"]` and keeps its runtime gate for older
+  hosts.
+- The skill card now transforms its BODY as `"custom"` Markdown and prepends the header outside
+  the transform (`skill-invocation-message.js:45-48`). It still cannot rebuild a chain, because it
+  never sees the `<skill …>` header; the display marker remains necessary.
+- The manifest short-circuit now requires a resource field (`package-manager.js:2025-2031`), so a
+  `pi` block holding only `image`/`video` falls through to the conventional directories.
+
+The same run lists the shipped host docs whose text changed since the snapshot
+(`docs/extensions.md`, `docs/tui.md`, …) because those are the pages worth reading before trusting a
+moved citation; a docs-only change warns and does not fail, since it is not a behaviour change.
 
 ## Conventions
 

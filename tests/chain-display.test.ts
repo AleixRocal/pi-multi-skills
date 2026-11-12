@@ -5,8 +5,9 @@
  * The unit half pins the marker and the reconstruction. The integration half
  * uses the host's OWN `parseSkillBlock` (exported from the package root) to pin
  * the reason the marker exists: a chain must not reach the collapsible skill
- * card, because the card runs no markdown transformers, and a transformer is the
- * only display hook this extension has.
+ * card, because the card renders one block and transforms only its body, while
+ * a transformer is the only display hook this extension has for the whole
+ * message.
  */
 
 import { describe, expect, it } from "vitest";
@@ -156,7 +157,7 @@ describe("chain display — the transcript line", () => {
  *
  * `UserMessageComponent` is not importable (the package's `exports` map exposes
  * the root only), but its markdown surface is: `Markdown` from pi-tui, wired the
- * way `components/user-message.js:31-41` wires it.
+ * way `components/user-message.js:35-45` wires it.
  */
 function renderVisible(markdown: string): string {
 	const identity = (text: string) => text;

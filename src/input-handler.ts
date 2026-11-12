@@ -3,11 +3,11 @@
  * skills into N sibling `<skill …>` blocks.
  *
  * Why this hook: Pi dispatches `input` BEFORE its own skill expansion — `prompt()`
- * runs `_runInputHandlers` at `agent-session.js:1623` and only then
- * `_expandSkillCommand` at `:1631`, and the `steer`/`followUp` path does the same
- * at `:1726`/`:1729`. A `{action:"transform"}` return therefore replaces the text
+ * runs `_runInputHandlers` at `agent-session.js:1736` and only then
+ * `_expandSkillCommand` at `:1745`; the `steer`/`followUp` path calls them at
+ * `:1840`/`:1843`. A `{action:"transform"}` return therefore replaces the text
  * Pi goes on to expand, and because the replacement no longer starts with
- * `/skill:` (`:1698`) Pi hands it through untouched, so all N emitted blocks
+ * `/skill:` (`:1811`) Pi hands it through untouched, so all N emitted blocks
  * survive to the model.
  *
  * Pipeline shape mirrors @juicesharp/rpiv-args (`args.ts:400-448`): guards first,
@@ -17,12 +17,12 @@
  * Both transform paths return through `markChainForDisplay`
  * (`src/chain-display.ts`), which is what makes a multi-skill message render in
  * the transcript as the `/skill:a x /skill:b y` the user typed: the host renders
- * a leading well-formed block as a skill card, and cards run no markdown
- * transformers, so a chain has to be marked not to take that path.
+ * a leading well-formed block as a skill card, and that card path can only show
+ * one skill, so a chain has to be marked not to take it.
  *
  * `ctx` is part of the host's handler signature (`ExtensionHandler`) and is
  * threaded through unchanged. It is read for exactly one thing — the warning a
- * chain produces (`ctx.ui.notify`, `core/extensions/types.d.ts:548`) — because
+ * chain produces (`ctx.ui.notify`, `core/extensions/types.d.ts:568`) — because
  * the facts that warning names are known here and nowhere else.
  */
 
@@ -52,7 +52,7 @@ const SKILL_BLOCK_CLOSE = "</skill>";
 /**
  * Join between an already-emitted block and the text the rescue path appends to
  * it. Same value as the private `BLOCK_SEPARATOR` in `expander.ts`: both are
- * pinned to the separator `parseSkillBlock` (`agent-session.js:53-63`) requires
+ * pinned to the separator `parseSkillBlock` (`agent-session.js:63-73`) requires
  * before its trailing user-message group.
  */
 const BLOCK_SEPARATOR = "\n\n";
@@ -124,7 +124,7 @@ function reportIfWorthwhile(
  *
  *  1. `source === "extension"` → `continue`. The only way an extension re-enters
  *     this hook is `pi.sendUserMessage`, which forces `source: "extension"`
- *     (`agent-session.js:1907`), so this single check breaks any loop over our
+ *     (`agent-session.js:2038`), so this single check breaks any loop over our
  *     own output.
  *  2. Nothing resolves → `continue`. Pi's own expansion then runs, which also
  *     preserves Pi's error behaviour for a single unknown skill.

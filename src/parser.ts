@@ -7,13 +7,13 @@
  * message. That is positional binding.
  *
  * Two deliberate divergences from Pi's native `_expandSkillCommand`
- * (`dist/core/agent-session.js:1698-1722`):
+ * (`dist/core/agent-session.js:1811-1835`):
  *
- *  - Native splits at the FIRST space (`text.indexOf(" ")`, `:1701-1703`) and
+ *  - Native splits at the FIRST space (`text.indexOf(" ")`, `:1814-1816`) and
  *    swallows everything after it as one skill's argument text, so
  *    `/skill:a /skill:b x` silently loses `b`. Here every `/skill:` marker is
  *    a candidate and each token binds the text that follows it.
- *  - Native only expands when the message STARTS with `/skill:` (`:1698`).
+ *  - Native only expands when the message STARTS with `/skill:` (`:1811`).
  *    Here a marker anywhere in the message is a token, which is what lets the
  *    rescue path (text that already starts with `<skill ` and still carries a
  *    residual `/skill:`) reuse this same function.
@@ -26,10 +26,10 @@
 
 import type { SkillChain, SkillToken, TokenStart } from "./types.js";
 
-/** Marker pi's own expansion recognises (`agent-session.js:1699`). */
+/** Marker pi's own expansion recognises (`agent-session.js:1812`). */
 const TOKEN_MARKER = "/skill:";
 
-/** A skill name is a non-whitespace run; pi's own tokenisation is single-space (`:1701`). */
+/** A skill name is a non-whitespace run; pi's own tokenisation is single-space (`:1814`). */
 const WHITESPACE = /\s/;
 
 /**

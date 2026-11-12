@@ -8,7 +8,7 @@ import type { SkillEntry, SkillIndex } from "../src/types.js";
 
 /**
  * Verbatim copy of Pi's `parseSkillBlock` regex
- * (dist/core/agent-session.js:54). The emitted text is load-bearing against it:
+ * (dist/core/agent-session.js:64). The emitted text is load-bearing against it:
  * drift — including a trailing newline — silently demotes a skill message to
  * raw text in the transcript.
  */
@@ -51,7 +51,7 @@ afterAll(() => {
 });
 
 describe("buildSkillBlock — byte parity with native Pi", () => {
-	it("emits the native template literal field for field (agent-session.js:1710)", () => {
+	it("emits the native template literal field for field (agent-session.js:1823)", () => {
 		const entry: SkillEntry = {
 			name: "design",
 			filePath: "/x/skills/design/SKILL.md",
@@ -76,7 +76,7 @@ describe("appendArgs — native trailing-argument rule", () => {
 		expect(appendArgs(block, "")).toBe(block);
 	});
 
-	it("appends the arguments after exactly one blank line (agent-session.js:1711)", () => {
+	it("appends the arguments after exactly one blank line (agent-session.js:1824)", () => {
 		expect(appendArgs("BLOCK", "refactor auth")).toBe("BLOCK\n\nrefactor auth");
 	});
 });
@@ -271,7 +271,7 @@ describe("expandSkillTokens — contract with Pi's parseSkillBlock regex", () =>
 
 	it("stays parseable for a 2-skill chain — block 2 lands in the user-message group", () => {
 		// Only text after the FIRST `</skill>` reaches a UserMessageComponent
-		// (interactive-mode.js:3189-3213), which is the surface Slice 6 rewrites.
+		// (interactive-mode.js:3297-3321), which is the surface Slice 6 rewrites.
 		const a = makeSkill("a", "A BODY");
 		const b = makeSkill("b", "B BODY");
 		const result = expand("/skill:a x /skill:b y", indexOf(a, b))?.text ?? "";

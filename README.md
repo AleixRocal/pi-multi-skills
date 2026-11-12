@@ -5,6 +5,7 @@ Chain several `/skill:` invocations in a single pi message: `/skill:a x /skill:b
 [![CI](https://github.com/AleixRocal/pi-multi-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/AleixRocal/pi-multi-skills/actions/workflows/ci.yml)
 [![Release](https://github.com/AleixRocal/pi-multi-skills/actions/workflows/release.yml/badge.svg)](https://github.com/AleixRocal/pi-multi-skills/actions/workflows/release.yml)
 [![npm](https://img.shields.io/npm/v/@aleixrocal/pi-multi-skills?label=npm)](https://www.npmjs.com/package/@aleixrocal/pi-multi-skills)
+[![npm downloads](https://img.shields.io/npm/dm/@aleixrocal/pi-multi-skills?label=downloads%2Fmonth&color=blue)](https://www.npmjs.com/package/@aleixrocal/pi-multi-skills)
 [![GitHub stars](https://img.shields.io/github/stars/AleixRocal/pi-multi-skills?label=stars&color=blue)](https://www.star-history.com/#AleixRocal/pi-multi-skills&Date)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -39,8 +40,16 @@ pi install git:github.com/AleixRocal/pi-multi-skills
 pi install ./pi-multi-skills                 # from a local checkout
 ```
 
-Requires Node `>=22.19.0`; the host packages are provided by pi. The package carries the
-`pi-package` keyword, which is what lists it in the [pi package gallery](https://pi.dev/packages).
+Requires Node `>=22.19.0`; the host packages are provided by pi.
+
+The package is published to npm with the `pi-package` keyword and an explicit `pi` manifest for
+both resource roots, which is what pi reads before it falls back to the conventional directories.
+That makes it installable by name and gives it a page in the
+[pi package gallery](https://pi.dev/packages/@aleixrocal/pi-multi-skills) — the same
+[monthly download count](https://www.npmjs.com/package/@aleixrocal/pi-multi-skills) as the badge
+above, this README, the cover image and the demo video. The gallery's *All packages* index is a
+ranked snapshot with an upstream page cap; the package page is the stable URL, and it answers as
+soon as a version is published.
 
 ## Usage
 
