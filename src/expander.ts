@@ -2,14 +2,14 @@
  * Byte-exact skill-block emitter.
  *
  * Reproduces Pi's native `_expandSkillCommand` output character for character
- * (`dist/core/agent-session.js:1709-1711`): the `<skill …>` header, the
+ * (`dist/core/agent-session.js:1822-1824`): the `<skill …>` header, the
  * relative-references pointer line, the body, and the closing tag — with
  * `body = stripFrontmatter(content).trim()` and the native suffix rule
  * `args ? `${block}\n\n${args}` : block`.
  *
  * Two contracts ride on that byte-exactness, and the host documents neither:
  *
- *  - `parseSkillBlock` (`agent-session.js:53-63`) matches the emitted text with
+ *  - `parseSkillBlock` (`agent-session.js:63-73`) matches the emitted text with
  *    a `^…$`-anchored regex whose body group is lazy and whose optional
  *    trailing group must be separated by EXACTLY `\n\n`. One character of drift
  *    — or a trailing newline — silently demotes the message to raw text and the
@@ -49,7 +49,7 @@ const BLOCK_SEPARATOR = "\n\n";
 /**
  * Render the emitted wrapper for one skill.
  *
- * Byte-exact against `agent-session.js:1710` — do not reformat this template
+ * Byte-exact against `agent-session.js:1823` — do not reformat this template
  * literal, and never append a trailing newline.
  */
 export function buildSkillBlock(entry: SkillEntry, body: string): string {
@@ -57,7 +57,7 @@ export function buildSkillBlock(entry: SkillEntry, body: string): string {
 }
 
 /**
- * Native trailing-argument rule (`agent-session.js:1711`). No labeled trailer:
+ * Native trailing-argument rule (`agent-session.js:1824`). No labeled trailer:
  * that is `rpiv-args`' own token-path convention (`args.ts:381,388-390`), and
  * adding it here would break N=1 byte-parity with native Pi.
  */
@@ -68,7 +68,7 @@ export function appendArgs(skillBlock: string, args: string): string {
 /**
  * One token → one emitted block, or `null` when the token cannot be served.
  *
- * The SKILL.md is read on every call — matching Pi (`agent-session.js:1708`)
+ * The SKILL.md is read on every call — matching Pi (`agent-session.js:1821`)
  * and `rpiv-args` — so a skill edited mid-session is picked up on the next
  * message and no body is cached between messages. A missing or unreadable file
  * is not an error: the token falls back to verbatim text and the rest of the

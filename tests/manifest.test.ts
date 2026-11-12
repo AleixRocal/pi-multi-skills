@@ -8,7 +8,7 @@ import { describe, expect, it } from "vitest";
  *
  * The manifest is the only source of resources a package has: with a `pi` block
  * the host reads the manifest entries and returns before it ever walks the
- * conventional directories (`dist/core/package-manager.js:1865-1871`). Every
+ * conventional directories (`dist/core/package-manager.js:2025-2031`). Every
  * mistake in that block therefore fails *quietly*:
  *
  *  - A resource field that is not an array of strings is dropped
@@ -16,7 +16,7 @@ import { describe, expect, it } from "vitest";
  *  - A key the host does not know (`pi.skill`, `pi.extension`) is never read at
  *    all, which looks exactly like a package that ships nothing.
  *  - A path the host cannot resolve loads nothing — no resource, no error
- *    (`:1966` resolves a non-glob entry as `resolve(root, entry)`).
+ *    (`:2125` resolves a non-glob entry as `resolve(root, entry)`).
  *  - A host-provided package in `dependencies` loads a second physical copy
  *    that bypasses pi's module mapping (`dist/core/resource-loader.js:18-29`
  *    holds the set, `:50-53` is the warning it earns).
@@ -72,7 +72,7 @@ const entriesOf = (field: string): string[] => {
 	return Array.isArray(entries) ? (entries as string[]) : [];
 };
 
-/** `dist/core/package-manager.js:135-140`. */
+/** `dist/core/package-manager.js:136-141`. */
 const isOverridePattern = (entry: string): boolean =>
 	entry.startsWith("!") || entry.startsWith("+") || entry.startsWith("-");
 const hasGlobPattern = (entry: string): boolean => entry.includes("*") || entry.includes("?");
@@ -127,7 +127,7 @@ describe("the manifest declares a pi package", () => {
 				: [];
 			if (shipped.length === 0) continue;
 			// The conventional directory is only read when there is no `pi`
-			// block at all (`dist/core/package-manager.js:1865-1871`), so a
+			// block at all (`dist/core/package-manager.js:2025-2031`), so a
 			// shipped resource the manifest does not mention is invisible.
 			expect(entriesOf(field).length, `pi.${field} is missing`).toBeGreaterThan(0);
 		}
@@ -143,13 +143,13 @@ describe("every declared resource root resolves", () => {
 			it("exists on disk", () => {
 				for (const entry of entries) {
 					// Override patterns filter what the source entries found
-					// (`dist/core/package-manager.js:1963`) instead of resolving
+					// (`dist/core/package-manager.js:2122`) instead of resolving
 					// to a path of their own; a glob entry is discovered by
 					// traversal.
 					if (isOverridePattern(entry) || hasGlobPattern(entry)) continue;
 					const path = normalize(resolve(ROOT, entry));
 					expect(existsSync(path), `${entry} does not exist`).toBe(true);
-					// A non-glob entry is `resolve(root, entry)` (`:1966`), so a
+					// A non-glob entry is `resolve(root, entry)` (`:2125`), so a
 					// path that escapes the package root can never ship.
 					expect(path.startsWith(ROOT), `${entry} leaves the package root`).toBe(true);
 				}

@@ -134,7 +134,7 @@ describe("chainTokenAt", () => {
 
 	it("accepts a leading fragment once a token is committed on the line", () => {
 		// The host never requests completions for a mid-message `/`
-		// (`editor.js:1022-1027`), so the request arrives on the next character.
+		// (`editor.js:1029-1034`), so the request arrives on the next character.
 		expect(chainTokenAt("/skill:plan /")).toEqual({ start: 12, text: "/", prefix: "" });
 		expect(chainTokenAt("/skill:plan /s")).toEqual({ start: 12, text: "/s", prefix: "" });
 		expect(chainTokenAt("/skill:plan /skill")).toEqual({
@@ -150,7 +150,7 @@ describe("chainTokenAt", () => {
 
 	it("rejects a leading fragment with nothing committed before it", () => {
 		// `/srv` in prose is a path: pi's path completion owns it
-		// (`autocomplete.js:388-390`), not the skill menu.
+		// (`autocomplete.js:385-387`), not the skill menu.
 		expect(chainTokenAt("check /s")).toBeNull();
 		expect(chainTokenAt("/")).toBeNull();
 		expect(chainTokenAt("/s")).toBeNull();

@@ -12,7 +12,7 @@
  * It also checks the `pi` manifest, because that manifest is the only source of
  * resources a package has: with a `pi` block the host reads the manifest entries
  * and returns before it ever looks at the conventional directories
- * (`dist/core/package-manager.js:1865-1871`), and a manifest path that is not in
+ * (`dist/core/package-manager.js:2025-2031`), and a manifest path that is not in
  * the tarball resolves to nothing, with no error and no resource.
  *
  * Exit code is the contract: 0 = the tarball is publishable.
@@ -71,11 +71,11 @@ const RESOURCE_FILE = {
 	themes: /\.json$/,
 };
 
-/** `dist/core/package-manager.js:135-137`. */
+/** `dist/core/package-manager.js:136-138`. */
 const isOverridePattern = (entry) =>
 	entry.startsWith("!") || entry.startsWith("+") || entry.startsWith("-");
 
-/** `dist/core/package-manager.js:138-140`. */
+/** `dist/core/package-manager.js:139-141`. */
 const hasGlobPattern = (entry) => entry.includes("*") || entry.includes("?");
 
 /**
@@ -147,7 +147,7 @@ function manifestProblems(pkg, packedPaths) {
 		const entries = pkg.pi[field];
 		// A manifest is exclusive: with `pi` present the host reads the manifest
 		// and returns before it walks the conventional directories
-		// (`dist/core/package-manager.js:1865-1871`), so a directory that ships
+		// (`dist/core/package-manager.js:2025-2031`), so a directory that ships
 		// resources the manifest never mentions is dead weight pi will not look
 		// at — the failure this whole check exists for.
 		if (entries === undefined) {
@@ -167,11 +167,11 @@ function manifestProblems(pkg, packedPaths) {
 		}
 		for (const entry of entries) {
 			// Override patterns filter what the source entries discovered
-			// (`dist/core/package-manager.js:1963`); they are not themselves
+			// (`dist/core/package-manager.js:2122`); they are not themselves
 			// resolved to files.
 			if (isOverridePattern(entry)) continue;
-			// A non-glob entry is `resolve(root, entry)` (`:1966`); a glob one
-			// is `globSync(pattern, { cwd: root })` (`:142-148`), so its literal
+			// A non-glob entry is `resolve(root, entry)` (`:2125`); a glob one
+			// is `globSync(pattern, { cwd: root })` (`:144-150`), so its literal
 			// prefix is the directory it can match anything under.
 			const root = normalize(hasGlobPattern(entry) ? entry.split(/[*?]/)[0] : entry).replace(/\/$/, "");
 			const shipped = packedPaths.filter((path) => path === root || path.startsWith(`${root}/`));

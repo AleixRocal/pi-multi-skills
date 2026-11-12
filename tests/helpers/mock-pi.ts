@@ -2,7 +2,7 @@
  * Minimal pi test doubles.
  *
  * `emitInput` reproduces the host's handler chain behaviourally — see
- * @earendil-works/pi-coding-agent/dist/core/extensions/runner.js:1202-1237:
+ * @earendil-works/pi-coding-agent/dist/core/extensions/runner.js:1210-1245:
  * handlers run in registration order, each handler observes the previous
  * handler's text, `transform` reassigns `currentText`/`currentImages`,
  * `handled` short-circuits the whole chain, and a throwing handler is reported

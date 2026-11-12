@@ -18,7 +18,7 @@ import {
 } from "./helpers/mock-pi.js";
 
 /**
- * Verbatim copy of Pi's `parseSkillBlock` regex (dist/core/agent-session.js:54).
+ * Verbatim copy of Pi's `parseSkillBlock` regex (dist/core/agent-session.js:64).
  * Asserting against it is how these tests check whether a transformed message
  * reaches the host as a single skill invocation or as plain text.
  */
@@ -127,7 +127,7 @@ describe("handleInput — a bare slash never triggers", () => {
 });
 
 describe("handleInput — N=1 is byte-identical to native Pi", () => {
-	it("reproduces agent-session.js:1710-1711 for `/skill:design refactor auth`", () => {
+	it("reproduces agent-session.js:1823-1824 for `/skill:design refactor auth`", () => {
 		const { pi, entry } = harness({ name: "design", body: "Refactor carefully." });
 
 		expect(emit(pi, "/skill:design refactor auth")).toEqual({
@@ -193,7 +193,7 @@ describe("handleInput — chains", () => {
 
 		// One character of marker defeats the `^…$` anchor: the host hands the
 		// whole message to a `UserMessageComponent`, which is where this
-		// extension's markdown transformer runs (`interactive-mode.js:3195-3209`).
+		// extension's markdown transformer runs (`interactive-mode.js:3303-3317`).
 		expect(text.startsWith(CHAIN_DISPLAY_MARKER)).toBe(true);
 		expect(text.match(PARSE_SKILL_BLOCK)).toBeNull();
 	});

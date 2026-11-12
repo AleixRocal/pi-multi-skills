@@ -36,7 +36,7 @@ export function registerMultiSkills(pi: ExtensionAPI): void {
 		}
 		// Every reason needs the wrapper back, including "new"/"resume"/"fork":
 		// the interactive host clears every registered wrapper before it swaps
-		// sessions (`interactive-mode.js:363-365` → `resetExtensionUI`).
+		// sessions (`interactive-mode.js:379-381` → `resetExtensionUI`).
 		registerChainAutocomplete(ctx, pi);
 	});
 	// Read-only discovery, so a chain is never built from a guessed skill name.

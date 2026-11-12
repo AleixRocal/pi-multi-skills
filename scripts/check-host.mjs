@@ -3,7 +3,7 @@
  * Host-citation check — every `file:line` a comment cites must still point at
  * what the comment says it does.
  *
- * Why this exists. The extension is pinned to pi 1.3.0 *by reading*, not by an
+ * Why this exists. The extension is pinned to pi 1.5.2 *by reading*, not by an
  * API contract: the comments name the host line that makes each decision true
  * (`AGENTS.md` → *What this is*). That base decays silently. Going 1.2.0 → 1.3.0
  * moved `agent-session.js` by `+1` and `interactive-mode.js` by `+2` without a
@@ -80,7 +80,7 @@ const EXTERNAL = new Map([
  */
 const PINNED = new Map([[`loader.js`, { package: `@earendil-works/pi-coding-agent`, path: `dist/core/extensions/loader.js` }]]);
 
-/** `path/to/file.ext:53-63` — also `:66,141`, `:381,388-390`, `:1710-1711`. */
+/** `path/to/file.ext:53-63` — also `:66,141`, `:381,388-390`, `:1823-1824`. */
 const CITE_RE = /([A-Za-z0-9_@][A-Za-z0-9_./@-]*\.(?:d\.ts|ts|js|mjs)):(\d+(?:[,-]\d+)*)/g;
 
 const sha = (text) => createHash("sha256").update(text).digest("hex");
