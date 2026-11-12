@@ -4,13 +4,13 @@
  * `tests/host-provider.test.ts` pins the provider seam; this file pins the one
  * thing neither the unit tests nor the provider tests can see: *when* the editor
  * asks at all. The host requests completions for a mid-message `/` only when its
- * autocomplete list is already open (`components/editor.js:1022-1027` runs the
+ * autocomplete list is already open (`components/editor.js:1029-1034` runs the
  * `char === "/"` branch only for `isAtStartOfMessage()`, and `/` is filtered out
- * of `triggerCharacters` at `:1952-1956`), so what a user sees while typing a
+ * of `triggerCharacters` at `:1959-1963`), so what a user sees while typing a
  * chain depends on editor state, not only on this extension.
  *
  * The probe drives the real `Editor` with a bare TUI double: the editor touches
- * only `tui.requestRender` and `tui.terminal.rows` (`components/editor.js:405`).
+ * only `tui.requestRender` and `tui.terminal.rows` (`components/editor.js:409`).
  */
 
 import { afterEach, describe, expect, it } from "vitest";

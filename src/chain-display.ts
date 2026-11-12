@@ -7,13 +7,16 @@
  * pi's collapsible skill card and blocks 2..N as raw XML. Two host facts decide
  * the design:
  *
- *  - `parseSkillBlock` (`core/agent-session.js:53-63`) is `^…$`-anchored. A
+ *  - `parseSkillBlock` (`core/agent-session.js:63-73`) is `^…$`-anchored. A
  *    message that does not start with a well-formed block takes the plain-text
- *    path (`interactive-mode.js:3195-3209`) and is rendered by
+ *    path (`interactive-mode.js:3303-3317`) and is rendered by
  *    `UserMessageComponent`.
  *  - Markdown transformers — the only display hook an extension has — run on
- *    that plain-text path only (`components/user-message.js:37`). The skill card
- *    runs none (`components/skill-invocation-message.js:9-37`).
+ *    user-message Markdown (`components/user-message.js:41`). The skill card
+ *    transforms only the body it holds, as `"custom"` Markdown, with the header
+ *    prepended outside that transform
+ *    (`components/skill-invocation-message.js:45-48`), so it cannot see the
+ *    block header that names the skill.
  *
  * So a message that WOULD take the card path but is not a single bare skill gets
  * one leading `CHAIN_DISPLAY_MARKER`. That defeats the anchored parse, hands the
@@ -30,7 +33,7 @@
  * `@juicesharp/rpiv-args`.
  *
  * Cost, recorded because it cannot be repaired from here: the HTML export
- * (`core/export-html/template.js:1213`) parses the same anchored way and runs no
+ * (`core/export-html/template.js:1301`) parses the same anchored way and runs no
  * transformers, so an exported chain shows its blocks as plain text.
  */
 
@@ -47,7 +50,7 @@ export const CHAIN_DISPLAY_MARKER = "\u200B";
 
 /**
  * One emitted block, in the shape the host recognises (`parseSkillBlock`,
- * `agent-session.js:54`): the `<skill name="…" location="…">` header, a newline,
+ * `agent-session.js:64`): the `<skill name="…" location="…">` header, a newline,
  * a lazy body, and a `</skill>` close on its own line.
  *
  * Anchoring on the host's shape — rather than on `src/expander.ts`'s template —

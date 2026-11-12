@@ -9,10 +9,10 @@
  * copies of the same comparison.
  *
  * Why a string flag: pi's `registerFlag` offers `"boolean"` and `"string"` and
- * no number (`core/extensions/types.d.ts:1238-1248`), so a numeric cap is a
+ * no number (`core/extensions/types.d.ts:1280-1290`), so a numeric cap is a
  * string that this module parses. There is no per-extension settings namespace
  * to read instead — `SettingsSchema` is a closed object
- * (`core/settings-schema.d.ts:100-192`) — and `getSettings()` would answer with
+ * (`core/settings-schema.d.ts:101-194`) — and `getSettings()` would answer with
  * the merge of every key pi itself defines, none of which is ours.
  *
  * Why a bad value is absorbed silently: a mistyped flag must not cost a

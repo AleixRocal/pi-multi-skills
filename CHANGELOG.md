@@ -32,6 +32,25 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- The development toolchain is current: pi **1.5.2** (`pi-coding-agent` and `pi-tui`), TypeBox
+  **1.4.6**, Vitest **5.1.0**, `@types/node` **26.6.6** (TypeScript 7.0.2 was already latest). The
+  host bump is a re-read, so every cited `file:line` was re-resolved and the ranges whose text
+  changed were read: the host moved `_expandSkillCommand` by `+113`, `interactive-mode.js` by
+  `+108` and the package-manager manifest branch by `+136/+159`, and three cited behaviours
+  changed — `registerMarkdownTransformer` gained `options.messageTypes`, the skill card now
+  transforms its body as `"custom"`, and the manifest short-circuit now requires a resource field.
+  Runtime ranges stay `"*"` peers; only the lockfile moves.
+- The markdown transformer names its surface instead of relying on the runtime gate alone:
+  `registerMarkdownTransformer(skillChainTransformer, { messageTypes: ["user"] })`. The host now
+  filters before the call, so assistant, thinking and skill-card Markdown never reach the
+  transformer; the `context.messageType !== "user"` gate stays for hosts that predate the option.
+- The README shows the rolling npm download count in its badge row, and the install section now
+  points at the package's stable [pi gallery page](https://pi.dev/packages/@aleixrocal/pi-multi-skills)
+  instead of the index that cannot list a package at this download level. `package.json` gains
+  search keywords (`pi`, `multi-skill`, `slash-commands`) and a structured author, and
+  `CONTRIBUTING.md` records what actually refreshes on publish: the page is immediate, its README
+  and previews follow the version, and the ranked index is an upstream snapshot capped at 5,000 of
+  ~13,600 `pi-package` results.
 - A name repeated in one message expands once. The body is injected a single time and each later
   occurrence contributes only its argument text, appended in message order — a duplicate can no
   longer double the context, which is the cost a chain exists to avoid. The autocomplete menu stops
@@ -52,11 +71,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- A chain whose failed name came last rendered as a single-skill card, which runs no markdown
-  transformers — so the failed name disappeared from the transcript entirely. The marker is now
-  decided from the expansion plan rather than from a block count, and a chain position that starts
-  with a verbatim span (the same tokens in the other order) was already rendering correctly, which
-  is why the bug looked like a normal single-skill message.
+- A chain whose failed name came last rendered as a single-skill card, which could not show the
+  chain — so the failed name disappeared from the transcript entirely. The marker is now decided
+  from the expansion plan rather than from a block count, and a chain position that starts with a
+  verbatim span (the same tokens in the other order) was already rendering correctly, which is why
+  the bug looked like a normal single-skill message.
 
 ## [0.3.2] - 2026-10-19
 

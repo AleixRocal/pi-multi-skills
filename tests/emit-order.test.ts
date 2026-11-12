@@ -14,15 +14,15 @@ import { createMockPi, emitInput, skillCommand, type InputHandler } from "./help
  * Handler-order independence against `@juicesharp/rpiv-args`.
  *
  * Pi runs `input` handlers in extension load order and gives nobody an ordering
- * key (`docs/extensions.md:98`; `dist/core/package-manager.js:62-70` plus a
+ * key (`docs/extensions.md:414`; `dist/core/package-manager.js:63-71` plus a
  * stable sort). `rpiv-args` sits at index 14 of the `packages` array in
  * `/home/user/.pi/agent/settings.json` and `pi install` appends new packages
  * *after* it, so "rpiv-args first" is the default here — both orders are
  * exercised, and `tests/helpers/mock-pi.ts` reproduces the runner chain
- * (`runner.js:1201-1236`) they run through.
+ * (`runner.js:1209-1244`) they run through.
  */
 
-/** Verbatim copy of Pi's `parseSkillBlock` regex (dist/core/agent-session.js:54). */
+/** Verbatim copy of Pi's `parseSkillBlock` regex (dist/core/agent-session.js:64). */
 const PARSE_SKILL_BLOCK =
 	/^<skill name="([^"]+)" location="([^"]+)">\n([\s\S]*?)\n<\/skill>(?:\n\n([\s\S]+))?$/;
 
@@ -188,7 +188,7 @@ describe("input-handler order independence vs @juicesharp/rpiv-args", () => {
 		expect(text.match(/<skill name=/g)).toHaveLength(2);
 	});
 
-	it("continues past a throwing handler, as the host does (runner.js:1223-1230)", async () => {
+	it("continues past a throwing handler, as the host does (runner.js:1231-1238)", async () => {
 		const f = fixture("a", "b");
 		const throwing: InputHandler = () => {
 			throw new Error("boom");
@@ -199,7 +199,7 @@ describe("input-handler order independence vs @juicesharp/rpiv-args", () => {
 		expect(text.match(/<skill name=/g)).toHaveLength(2);
 	});
 
-	it("stops the chain on a `handled` result (runner.js:1216-1217)", async () => {
+	it("stops the chain on a `handled` result (runner.js:1224-1225)", async () => {
 		const f = fixture("a");
 		const handled: InputHandler = () => ({ action: "handled" });
 
