@@ -7,6 +7,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-16
+
 ### Added
 
 - `--skill-chain-max`, so the ceiling on a chain is a decision rather than a constant. pi offers no
@@ -35,12 +37,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - The development toolchain is current: pi **1.5.2** (`pi-coding-agent` and `pi-tui`), TypeBox
   **1.4.6**, Vitest **5.1.0**, `@types/node` **26.6.6** and undici **8.12.3** (TypeScript 7.0.2
   was already latest). The host bump is a re-read, so every cited `file:line` was re-resolved and
-  the ranges whose text
-  changed were read: the host moved `_expandSkillCommand` by `+113`, `interactive-mode.js` by
-  `+108` and the package-manager manifest branch by `+136/+159`, and three cited behaviours
-  changed — `registerMarkdownTransformer` gained `options.messageTypes`, the skill card now
-  transforms its body as `"custom"`, and the manifest short-circuit now requires a resource field.
-  Runtime ranges stay `"*"` peers; only the lockfile moves.
+  the ranges whose text changed were read: the host moved `_expandSkillCommand` by `+113`,
+  `interactive-mode.js` by `+108` and the package-manager manifest branch by `+136/+159`, and
+  three cited behaviours changed — `registerMarkdownTransformer` gained `options.messageTypes`,
+  the skill card now transforms its body as `"custom"`, and the manifest short-circuit now
+  requires a resource field. Runtime ranges stay `"*"` peers; only the lockfile moves.
 - The markdown transformer names its surface instead of relying on the runtime gate alone:
   `registerMarkdownTransformer(skillChainTransformer, { messageTypes: ["user"] })`. The host now
   filters before the call, so assistant, thinking and skill-card Markdown never reach the
@@ -332,7 +333,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - README restructured around the diagrams and the documents above: badges, install, syntax,
   behaviour, cost, and pointer sections for contributors and agents.
 
-[Unreleased]: https://github.com/AleixRocal/pi-multi-skills/compare/v0.3.2...HEAD
+[Unreleased]: https://github.com/AleixRocal/pi-multi-skills/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.4.0
 [0.3.2]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.3.2
 [0.3.1]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.3.1
 [0.3.0]: https://github.com/AleixRocal/pi-multi-skills/releases/tag/v0.3.0
